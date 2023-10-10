@@ -1,0 +1,71 @@
+{% extends 'inventario/index.html' %} {% block contenido %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/frm.css' %}" />
+<div class="panelColor rounded">
+    <h2 class="d-flex mt-3 text-white justify-content-center align-content-cente rounded" id="titulo"> Panel de control </h2>
+</div>
+<div class="row">
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmCategorias" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fas fa-solid fa-bars fa-5x"></i>
+                <h5 class="card-title mt-3">Categorías</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmProductos" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fa-solid fa-box fa-5x"></i>
+                <h5 class="card-title mt-3">Productos</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmTallas" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fa-solid fa-bars-staggered fa-5x"></i>
+                <h5 class="card-title mt-3">Tallas</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmPedidos" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fa-solid fa-bag-shopping fa-5x"></i>
+                <h5 class="card-title mt-3">Pedidos</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmEnvios" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fas fa-sharp fa-solid fa-truck-fast fa-5x"></i>
+                <h5 class="card-title mt-3">Envíos</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmPagos" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fa-solid fa-wallet fa-5x"></i>
+                <h5 class="card-title mt-3">Pagos</h5>
+            </div>
+        </a>
+    </div>
+
+    <div class="col-md-6 col-lg-3 mb-4">
+        <a href="/frmDevoluciones" class="card text-center text-decoration-none">
+            <div class="card-body shadow">
+                <i class="fas fa-box-open fa-5x"></i>
+                <h5 class="card-title mt-3">Devoluciones</h5>
+            </div>
+        </a>
+    </div>
+</div>
+
+{% endblock %}

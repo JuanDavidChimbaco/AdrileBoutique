@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="{% static 'images/svg/image.svg' %}" class="rounded"/>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--jquery-->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+
+    <!-- DataTable CSS-->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/rowreorder/1.4.1/css/rowReorder.dataTables.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css" />
+
+    <!-- DataTable JS-->
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/rowreorder/1.4.1/js/dataTables.rowReorder.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
+
+    <!-- bootstrap local -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.1-dist/css/bootstrap.min.css' %}" />
+    <script src="{% static 'bootstrap-5.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!--sweet alert-->
+    <script src="{% static 'js/sweetalert2@11.js' %}"></script>
+
+    <!--font awesome-->
+    <link rel="stylesheet" href="{% static 'fontawesome-free-6.4.2-web/css/all.min.css' %}">
+
+    <!-- axios -->
+    <script src="{% static 'js/axios.min.js' %}"></script>
+
+    <!-- staticos locales -->
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" />
+    <script src="{% static 'js/app.js' %}" defer></script>
+
+    <title>Sistema de gestión de inventario Adrile Boutique - Palermo</title>
+</head>
+
+<body>
+    <div class="container-fluid d-flex flex-column min-vh-100">
+        <header>{% include 'inventario/encabezado.html' %}</header>
+        <nav>{% include 'inventario/menu.html' %}</nav>
+        <main class="flex-grow-1">
+            {% block contenido %}
+            <!-- aqui va el contenido -->
+            {% endblock %}
+        </main>
+        <footer>{% include 'inventario/piePagina.html' %}</footer>
+    </div>
+</body>
+
+</html>

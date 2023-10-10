@@ -1,0 +1,93 @@
+{% extends 'administrador/index.html'%}
+
+{% block contenido %}
+{% load static %}
+<script src="{% static '/js/categorias.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/frm.css' %}">
+<div class="row">
+  <h1 class="text-center"> Categorías </h1>
+</div>
+<hr>
+<div class="row d-grid justify-content-center">
+  <form>
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+
+      <div class="col mb-3">
+        <div class="form-floating">
+          <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre Categorias"
+            required>
+          <label for="txtNombre" class="form-label"><small>Nombre de la Categorías: </small></label>
+        </div>
+      </div>
+
+      <div class="col mb-3">
+        <div class="form-floating">
+          <select name="" id="cbCategoriaPadre" class="form-select">
+            <!-- categorias -->
+          </select>
+          <label for="cbCategoriaPadre">Categoria Padre(Opcional): </label>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col mb-3">
+        <div class="form-floating">
+          <div class="input-group">
+            <input type="file" class="form-control" name="fileFoto" id="fileFoto" accept="image/*" onchange="imagen()"
+              required>
+            <label class="input-group-text" for="fileFoto"><small>Imagen</small></label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col mb-3">
+        <div id="imageContainer">
+          <!-- <div id="fakeBtn"><i class="fa-solid fa-pen"></i><input type="file" class="lapis" name="fileFoto" id="fileFoto" accept="image/*" onchange="imagen()" required></div> -->
+          <img id="uploadedImage" alt="Imagen cargada" width="100" height="100" style="display: none;"
+            onclick="vistaImagenFrm()">
+        </div>
+      </div>
+    </div>
+
+    <div class="row ">
+      <div class="col mb-3 d-flex justify-content-center contenedor-buttons">
+        <button type="button" class="btn buttons mx-1" onclick="agregarCat()"><i class="fa-solid fa-plus"></i>
+          Agregar</button>
+        <button type="button" class="btn buttons mx-1" onclick="modificarCat()"><i
+            class="fa-solid fa-pen-to-square"></i>
+          Modificar</button>
+        <button type="button" class="btn buttons mx-1" onclick="eliminarCat()"><i class="fa-solid fa-trash"></i>
+          Eliminar</button>
+        <button type="reset" class="btn buttons mx-1" onclick="limpiar()"><i class="fa-solid fa-broom"></i></i>
+          Limpiar</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+<hr class="shadow bg-white">
+<div class="row justify-content-center">
+  <div class="col">
+
+    <table class="table table-dark display nowrap" id="tableCat">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Categoría</th>
+          <th>Imagen</th>
+          <th>Cat. Padre(Opcional)</th>
+          <th>Seleccionar</th>
+        </tr>
+      </thead>
+      <tbody id="tabla"></tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock %}

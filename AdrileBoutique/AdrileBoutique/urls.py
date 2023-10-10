@@ -15,15 +15,32 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import path
-from appTiendaInventario import views
 from django.conf import settings
 from django.conf.urls.static import static
+from appTiendaInventario import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.redirect_index),
+    path('', views.inicio, name='inicio'),
     path('index', views.index, name='index'),
+    
+    # URL para iniciar sesión y para cerrar sesión
+    path('login/', views.login_view, name='login'),
+    path("logout/", views.custom_logout, name="logout"),
+    
+    # gestion de Perfil
+    path("perfil/", views.perfil_usuario, name="perfil"),
+    
+    # URL de gestion inventario
+    path('dashboard/', views.dashboard, name='dashboard'),
+
+    # URL para restablecer contraseña
+    path('reset_password/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('reset_password/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,145 +1,131 @@
 from django.db import models
-from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
+from django.contrib.auth.models import User,Group
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
 
 # Create your models here.
+class GroupCreator(models.Model):
+    class Meta:
+        verbose_name_plural = 'Group Creator'
 
-#================================= Usuario ==============================================
+@receiver(post_migrate)
+def create_groups(sender, **kwargs):
+    # Define los nombres de los grupos que deseas crear
+    group_names = ['administrador', 'empleado']
+
+    # Itera sobre los nombres de los grupos y créalos si no existen
+    for group_name in group_names:
+        group, created = Group.objects.get_or_create(name=group_name)
+        if created:
+            print(f'Se ha creado el grupo: {group_name}')
+            
+#================================= Usuarios ==============================================
 class Usuario(User):
-    telefono = models.CharField(max_length=45)
-    fechaNacimiento = models.DateField()
     direccion = models.CharField(max_length=45)
+    telefono = models.CharField(max_length=45)
     fotoPerfil = models.ImageField(upload_to="perfiles/", blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.username
 
-
-# ================================= Categoria ==============================================
+# ================================= Categorias ==============================================
 class Categoria(models.Model):
     nombre = models.CharField(max_length=45, unique=True)
     imagen = models.ImageField(upload_to="categorias/", blank=True, null=True)
     categoria_padre = models.ForeignKey('self', null=True, blank=True, on_delete=models.PROTECT)
-
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
     def __str__(self):
         return self.nombre
 
-
+# ================================= Proveedores ========================
+class Proveedor(models.Model):
+    nombre_empresa = models.CharField(max_length=100)
+    nombre_contacto = models.CharField(max_length=100)
+    direccion = models.TextField()
+    telefono = models.CharField(max_length=20)
+    correo_electronico = models.EmailField()
+    notas = models.TextField(blank=True, null=True)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return self.nombre_empresa
+    
 # ============================== Productos ===========================
+DISPONIBLE = True
+AGOTADO = False
+ESTADO_CHOICES = [
+        (DISPONIBLE, 'Disponible'),
+        (AGOTADO, 'Agotado'),
+    ]
 class Producto(models.Model):
+    codigo = models.IntegerField(unique=True,null=True)
     nombre = models.CharField(max_length=255)
     descripcion = models.TextField()
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     imagen = models.ImageField(upload_to="productos/", blank=True, null=True)
-    estado = models.BooleanField(default=True)
+    estado = models.BooleanField(choices=ESTADO_CHOICES, default=DISPONIBLE)
+    talla = models.CharField(max_length=10)
     categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
+    cantidad_stock = models.IntegerField()
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT)
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nombre
 
-# ============================== Productos ===========================
-class Talla(models.Model):
-    talla = models.CharField(max_length=10)
-    cantidad = models.IntegerField()
-    producto = models.ForeignKey(Producto, related_name="tallas", on_delete=models.PROTECT)
+# ============================== Clientes ===========================
+class Cliente(models.Model):
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    direccion = models.TextField()
+    telefono = models.CharField(max_length=20)
+    correo_electronico = models.EmailField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return  f"{self.producto.nombre} Talla: {self.talla}"
+        return f"{self.nombre} {self.apellido}"
 
+# ===================[Compras]========================
+class Compra(models.Model):
+    fecha_compra = models.DateTimeField(auto_now_add=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
+    productos = models.ManyToManyField(Producto, through='DetalleCompra')
 
-# ================================= Pedido ==============================================
-# ESTADOPEDIDO = (
-#     ("pendiente", "Pendiente"),
-#     ("confirmado", "Confirmado"),
-#     ("devuelto", "Devuelto"),
-# )
+    def __str__(self):
+        return f"Compra #{self.id} - {self.fecha_compra}"
 
-# class Pedido(models.Model):
-#     codigoPedido = models.CharField(max_length=45, unique=True)
-#     fechaPedido = models.DateField()
-#     usuario = models.ForeignKey(Usuario, on_delete=models.PROTECT)
-#     total = models.DecimalField(max_digits=10, decimal_places=2)
-#     estadoPedido = models.CharField(max_length=50, default="pendiente")
+class DetalleCompra(models.Model):
+    compra = models.ForeignKey(Compra, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
-#     def __str__(self):
-#         return f"Pedido {self.codigoPedido}"
-
-
-# class DetallePedido(models.Model):
-#     pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT)
-#     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
-#     talla = models.ForeignKey(Talla, on_delete=models.PROTECT)
-#     cantidad = models.IntegerField()
-#     subtotal = models.FloatField()
-
-#     def __str__(self):
-#         return f"Detalle del pedido #{self.pedido.id} - Producto: {self.producto.nombre}, Talla: {self.talla.talla}, Cantidad: {self.cantidad}"
-
-
-# # ================================= Envio ==============================================
-# class Envio(models.Model):
-#     pedido = models.OneToOneField(Pedido, on_delete=models.PROTECT)
-#     direccionEntrega = models.CharField(max_length=255)
-#     codigoPostal = models.CharField(max_length=45)
-#     ciudad = models.CharField(max_length=45)
-#     departamento = models.CharField(max_length=45)
-#     pais = models.CharField(max_length=45)
-#     costoEnvio = models.DecimalField(max_digits=10, decimal_places=2)
-#     estadoEnvio = models.CharField(max_length=50, default="pendiente")
-#     fechaEstimadaEntrega = models.DateField(null=True, blank=True)
-
-#     def __str__(self):
-#         return f"Envío para el Pedido {self.pedido.codigoPedido}"
+    def __str__(self):
+        return f"Detalle de compra #{self.id}"
     
+    
+# ====================[Ventas]==============================
+class Venta(models.Model):
+    fecha_venta = models.DateTimeField(auto_now_add=True)
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, blank=True, null=True)
+    productos = models.ManyToManyField(Producto, through='DetalleVenta')
 
-# # ================================= Pago ==============================================
-# METODOS = (
-#     ("tarjetaCredito", "Tarjeta de Credito"),
-#     ("tarjetaDebito", "Tarjeta de Debito"),
-#     ("contraEntrega", "Contra entrega"),
-#     ("PSE", "Pago Seguro en Linea(PSE)"),
-# )
-# ESTADOPAGO = (
-#     ("pendiente", "Pendiente"),
-#     ("pagado", "Pagado"),
-#     ("rechazado", "Rechazado"),
-#     ("cancelado", "Cancelado"),
-# )
+    def __str__(self):
+        return f"Venta #{self.id} - {self.fecha_venta}"
 
+class DetalleVenta(models.Model):
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField()
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
-# class Pago(models.Model):
-#     metodo = models.CharField(max_length=45, choices=METODOS)
-#     fechaPago = models.DateTimeField()
-#     estadoPago = models.CharField(max_length=45, choices=ESTADOPAGO, default="pendiente")
-#     confirmado = models.BooleanField(default=False)  # Nuevo campo para la confirmación
-#     pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT)
-
-#     def __str__(self):
-#         return f"Pago {self.id}"
-
-
-
-
-# # ================================= Devolucion ==============================================
-# class Devolucione(models.Model):
-#     pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT)
-#     motivo = models.CharField(max_length=255)
-#     detalles = models.TextField(blank=True, null=True)
-#     fechaDevolucion = models.DateTimeField(auto_now_add=True)
-
-#     def __str__(self):
-#         return f"Devolución del Pedido {self.pedido.id}"
-
-
-# # ================================= Carrito ==============================================
-# class Cart(models.Model):
-#     products = models.ManyToManyField(Producto, through="CartItem")
-#     def __str__(self):
-#         return f"Cart {self.id}"
-
-# class CartItem(models.Model):
-#     cart = models.ForeignKey(Cart, on_delete=models.PROTECT)
-#     product = models.ForeignKey(Producto, on_delete=models.PROTECT)
-#     quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
-#     def __str__(self):
-#         return f"CartItem {self.id}"
+    def __str__(self):
+        return f"Detalle de venta #{self.id}"
+    

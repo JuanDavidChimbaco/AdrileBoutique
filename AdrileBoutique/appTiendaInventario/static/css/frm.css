@@ -1,0 +1,185 @@
+@import url('fonts.css');
+
+#imageContainer{
+    display: inline-block;
+    position: relative;
+}
+
+#uploadedImage{
+    cursor: pointer;
+}
+
+#fakeBtn{
+    background: #FFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: none;
+    border-radius: 50%;
+    position: absolute;
+    padding: 10px;
+    bottom: 0;
+    right: 0;
+    cursor: pointer;
+}
+.lapis{
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    opacity: 0;
+    height: 30px;
+    width: 30px;
+    z-index: 1;
+}
+
+#formularioAgregar{
+    display: none;
+}
+
+#vistaPrevia{
+    cursor: pointer;
+}
+
+#link{
+    cursor: pointer;
+}
+
+#titulo{
+    cursor: default !important;
+    font-family: canter-bold;
+}
+
+#titulo:hover{
+    cursor: default !important;
+}
+
+body {
+    cursor: default; 
+}
+
+.fa-shoe-prints{
+    color: #FFCCE0;
+}
+
+.footerColor{
+    background-color: #FFCCE0;
+}
+
+.panelColor{
+    background-color: #FFCCE0;
+}
+
+.buttons{
+    background-color: #FFCCE0;
+    color: #FFF;
+    transition: .5s;
+}
+.buttons:hover{
+    background-color: #ffffff;
+    color: #FFCCE0;
+    font-size: large;
+    transition: .5s;
+    border-color: #FFCCE0;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+    background-color: #FFCCE0;
+    border-radius: 5px;
+}
+.contenedor-buttons{
+    height: 50px;
+}
+
+.shadow{
+    box-shadow: 5px 5px 5px 1px rgba(114, 114, 114, 0.5) !important;
+    border-radius: 5px;
+}
+
+.linxD{
+    border-radius: 5px;
+    text-align: center;
+    width: 9rem;
+}
+
+.linxD:hover{
+    background-color: #FFCCE0;
+    border-radius: 5px;
+    letter-spacing: 2px;
+}
+
+.card{
+    transition: all 0.5s;
+}
+
+.card:hover{
+    transform: translateY(10px);
+    color: #FFF;
+    background: #FFCCE0;
+}
+
+.nav-link{
+    transition: all 0.5s;
+}
+
+.perfil{
+    border: 1px !important;
+    border-color: black;
+}
+
+.uwu{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    transition: all 0.5s;
+    border-radius: 5px;
+}
+
+.uwu:hover{
+    background: #FFCCE0;
+}
+
+.uwu i{
+    transition: all 0.5s;
+}
+
+.uwu:hover i{
+    scale: 150%;
+}
+
+.buttons2{
+    background-color: #FFCCE0;
+    color: #FFF;
+    transition: .5s;
+}
+.buttons2:hover{
+    background-color: #ffffff;
+    color: #FFCCE0;
+    transition: .5s;
+    border-color: #FFCCE0;
+}
+
+.links{
+    border-radius: 5px;
+    text-align: center;
+    width: 9rem;
+    transition: all 0.5s;
+}
+
+.links:hover{
+    background-color: #FFCCE0;
+    border-radius: 5px;
+    letter-spacing: 2px;
+    transition: all 0.5s;
+}
+
+.image-upload > input{
+    display: none;
+}
+
+.image-upload img
+{
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+}

@@ -1,0 +1,230 @@
+{% extends 'inventario/index.html' %} {% block contenido %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/frm.css' %}">
+<div id="app">
+    <div class="row rounded p-3 d-flex justify-content-center align-items-center">
+        <div class="col">
+        </div>
+    </div>
+    <div v-if="!editing" class="bg-white rounded p-2">
+        <div class="row">
+            <div class="col d-flex align-items-center justify-content-center">
+                <img :src="userProfile.fotoPerfil" alt="" class="rounded-circle border border-1 border-dark"
+                    width="100">
+            </div>
+            <div class="col">
+                <div class="d-grid align-items-center justify-content-center">
+                    <h1>[[ userProfile.username ]]</h1>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p>Correo Electrónico: [[ userProfile.email ]]</p>
+                    </div>
+                    <div class="col">
+                        <p>Nombres: [[ userProfile.first_name ]]</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p>Apellidos: [[ userProfile.last_name ]]</p>
+                    </div>
+                    <div class="col">
+                        <p> Fecha Naciemiento: [[ userProfile.fechaNacimiento ]]</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <p>Teléfono: [[ userProfile.telefono ]]</p>
+                    </div>
+                    <div class="col">
+                        <p> Dirección: [[ userProfile.direccion ]]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center">
+            <button @click="editProfile" class="btn links btn-outline-secondary">Editar</button>
+        </div>
+    </div>
+    <div v-else>
+        <h1>Editar Perfil</h1>
+        <form @submit.prevent="saveProfile">
+            <div class="row d-flex">
+                <div class="col">
+                    <div class="image-upload text-center mb-3">
+                        <label for="fileFoto">
+                            <img :src="userProfile.fotoPerfil" alt="" width="100" height="100" class="rounded"
+                                id="uploadedImage">
+                        </label>
+                        <input type="file" name="fileFoto" id="fileFoto" ref="fileFoto" placeholder="Seleccione Imagen"
+                            accept="image/*" alt="Clik para subir Imagen" title="Click aquí para subir tu foto"
+                            @change="viewImage">
+                    </div>
+                </div>
+                <div class="col d-grid align-items-center">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="user" v-model="editedProfile.username" placeholder="usuario"
+                            class="form-control">
+                        <label for="name" class="form-label">Usuario:</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="name" v-model="editedProfile.first_name" placeholder="nombre"
+                            class="form-control">
+                        <label for="name" class="form-label">Nombres:</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="last" v-model="editedProfile.last_name" placeholder="apellido"
+                            class="form-control">
+                        <label for="last" class="form-label">Apellidos:</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="email" v-model="editedProfile.email" placeholder="correo"
+                            class="form-control">
+                        <label for="email" class="form-label">Correo Electrónico:</label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="phone" v-model="editedProfile.telefono" placeholder="telefono"
+                            class="form-control">
+                        <label for="phone" class="form-label">Teléfono:</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="text" id="address" v-model="editedProfile.direccion" placeholder="direccion"
+                            class="form-control">
+                        <label for="address" class="form-label">Dirección: </label>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="date" id="dateBorn" v-model="editedProfile.fechaNacimiento"
+                            placeholder="fechaNacimiento" class="form-control">
+                        <label for="dateBorn" class="form-label">Fecha de Nacimiento: </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <p>Click en la imagen para modificar la foto.</p>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="form-floating mb-3">
+                        <input type="password" id="password" v-model="editedProfile.password" placeholder="contraseña"
+                            class="form-control">
+                        <label for="password" class="form-label">Contraseña: </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col text-center">
+                    <button type="submit" class="btn links btn-outline-secondary">Guardar</button>&nbsp;
+                    <button @click="cancelEdit" class="btn links btn-outline-secondary">Cancelar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- pattern="[a-zA-Z]+"  -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            userProfile: {}, // Datos del usuario
+            editedProfile: {}, // Datos editados
+            editing: false, // Bandera para controlar la vista
+            fileFoto: null
+        },
+        async mounted() {
+            // Hacer una solicitud GET para obtener los datos del usuario
+            axios.defaults.xsrfCookieName = 'csrftoken';
+            axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+            try {
+                const response = await axios.get('/api/v1.0/perfilApi/');
+                this.userProfile = response.data;
+                console.log(this.userProfile)
+            } catch (error) {
+                console.error('Error al obtener los datos del usuario:', error);
+            }
+        },
+        delimiters: ['[[', ']]'],
+        methods: {
+            editProfile() {
+                // Copiar los datos del usuario a editedProfile para la edición
+                this.editedProfile = { ...this.userProfile };
+                this.editing = true;
+            },
+            async saveProfile() {
+                // Aquí puedes hacer una solicitud PUT para guardar los cambios en la URL correspondiente
+                // Luego, actualiza this.userProfile con los datos guardados
+                // Aquí asumimos que la solicitud fue exitosa y actualizamos los datos directamente
+                axios.defaults.xsrfCookieName = 'csrftoken';
+                axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+                const formData = new FormData();
+                formData.append('username', this.editedProfile.username);
+                formData.append('first_name', this.editedProfile.first_name);
+                formData.append('last_name', this.editedProfile.last_name);
+                formData.append('email', this.editedProfile.email);
+                formData.append('telefono', this.editedProfile.telefono);
+                formData.append('direccion', this.editedProfile.direccion);
+                formData.append('fechaNacimiento', this.editedProfile.fechaNacimiento);
+                formData.append('password', this.editedProfile.password);
+                // Verifica si se ha seleccionado un archivo
+                console.log(this.$refs.fileFoto.files.length)
+                if (this.$refs.fileFoto.files.length) {
+                    this.editedProfile.fotoPerfil = this.$refs.fileFoto.files[0];
+                    // Agrega la imagen solo si se ha seleccionado un archivo
+                    formData.append('fotoPerfil', this.editedProfile.fotoPerfil);
+                }
+                try {
+                    const response = await axios.put('/api/v1.0/perfilApi/', formData)
+                    console.log('Perfil editado');
+                } catch (error) {
+                    console.error(error.data);
+                }
+                this.userProfile = { ...this.editedProfile };
+                this.editing = false;
+            },
+            cancelEdit() {
+                this.editing = false;
+            },
+            viewImage() {
+                let img = fileFoto.files[0];
+                console.log(img);
+                if (img) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        uploadedImage.src = e.target.result;
+                        uploadedImage.style.display = 'block';
+                    };
+                    reader.readAsDataURL(img);
+                }
+            }
+        }
+    });
+</script>
+</div>
+{% endblock %}

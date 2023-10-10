@@ -1,0 +1,27 @@
+@font-face {
+     font-family: canter;
+     src: url('../fonts/canter/Canter Light.otf');
+     font-size: medium;
+ }
+ @font-face {
+     font-family: canter-bold;
+     src: url('../fonts/canter/Canter Bold.otf');
+     font-weight: 600;
+ }
+ @font-face {
+     font-family: coves;
+     src: url('../fonts/Coves Typeface/Coves Light.otf');
+     font-size: medium;
+ }
+
+ @font-face {
+    font-family: lucida-handwriting-italic;
+    src: url('../fonts/Lucida Handwriting Italic/lucida handwriting italic.ttf');
+    font-size: xx-large;
+ }
+
+ @font-face {
+    font-family: roboto-light;
+    src: url('../fonts/Roboto/Roboto-Light.ttf');
+    font-size: medium;
+ }

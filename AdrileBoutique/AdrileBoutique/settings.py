@@ -125,7 +125,16 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#para guardar archivos de multimedia 
+# Para guardar archivos de multimedia. 
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media')
+
+
+# Redireccion a la pagina de inicio.
+
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+# Tiempo de sesión en segundos (30 minutos) por defecto
+
+SESSION_COOKIE_AGE = 1 * 60 * 60 # 1 hora
