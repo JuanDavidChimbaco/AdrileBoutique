@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,10 +40,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'appTiendaInventario'
+    # custom
+    'appTiendaInventario',
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_jwt',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,11 +139,62 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media')
 
-
-# Redireccion a la pagina de inicio.
-
-LOGIN_REDIRECT_URL = '/dashboard/'
-
 # Tiempo de sesión en segundos (30 minutos) por defecto
 
 SESSION_COOKIE_AGE = 1 * 60 * 60 # 1 hora
+
+# 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES':(
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Tiempo de vida del token de acceso (60 minutos por defecto)
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Tiempo de vida del token de actualización (1 día por defecto)
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=14),  # Tiempo de vida máxima del token de actualización (14 días por defecto)
+    'SLIDING_TOKEN_REFRESH_LIFETIME_GRACE_PERIOD': timedelta(days=1),  # Período de gracia para la actualización del token (1 día por defecto)
+    'SLIDING_TOKEN_REFRESH_EACH_TIME': False,  # True si el token de acceso debe actualizarse cada vez que se utiliza, False por defecto
+}
+
+# permitir solicitudes solo desde un origen específico
+# permitir todas las solicitudes de origen cruzado
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://*",
+    "https://*",
+]
+
+# Configuración para enviar correos utilizando SMTP (Simple Mail Transfer Protocol)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+load_dotenv()
+
+EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo para Gmail
+EMAIL_PORT = 587  # Puerto para Gmail
+EMAIL_USE_TLS = True  # Usar TLS (True para Gmail)
+EMAIL_USE_SSL = False  # No usar SSL (False para Gmail)
+EMAIL_HOST_USER = os.getenv('EMAIL_SENDER')  # Dirección de correo
+EMAIL_HOST_PASSWORD = os.getenv('PASSWORD_SENDER')  # Contraseña de correo
+
+# Opcional: Configuración para manejar correos en el entorno de desarrollo
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Muestra los correos en la consola en lugar de enviarlos
+
+# ruta a la cual sera redirigido cuando termine su sesion
+LOGOUT_REDIRECT_URL = '/'
+
+# Redireccion a la pagina de inicio.
+LOGIN_REDIRECT_URL = '/dashboard/'
+
+# ruta la cual sera redirigido cuando caduque la sesion
+LOGIN_URL = '/dashboard/'
