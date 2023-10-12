@@ -19,6 +19,14 @@ const dataTableOptions = {
                 stripHtml: false,
                 columns: [0, 1, 2, 3, 4, 5],
             },
+            customize: function(win) {
+                // Agregar contenido personalizado al informe de impresión
+                const header = '<h1>Mi Informe Personalizado</h1>';
+                const table = $('#tuTabla').DataTable();
+                const tableHtml = table.table().container().outerHTML;
+
+                $(win.document.body).empty().append(header, tableHtml);
+            },
         },
     ],
     columDefs: [

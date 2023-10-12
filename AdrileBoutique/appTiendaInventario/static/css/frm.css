@@ -71,7 +71,7 @@ body {
 
 .buttons{
     background-color: #FFCCE0;
-    color: #FFF;
+    color: #2e2e2e;
     transition: .5s;
 }
 .buttons:hover{

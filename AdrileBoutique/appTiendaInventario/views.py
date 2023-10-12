@@ -1,19 +1,12 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import JsonResponse
-from PIL import Image
-from django.core.files.base import ContentFile
-from PIL import Image, ImageOps
-from io import BytesIO
-import os
+
 
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from io import BytesIO
 
 from .models import (
     Usuario,

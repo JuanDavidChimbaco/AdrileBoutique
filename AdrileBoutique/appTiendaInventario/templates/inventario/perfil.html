@@ -6,7 +6,7 @@
 </div>
 <div class="bg-white rounded p-2" id="profile-section">
     <h1>Perfil de Usuario</h1>
-    <form method="POST" enctype="multipart/form-data" action="{% url 'edit_profile' %}">
+    <form>
         {% csrf_token %}
         <div class="row d-flex">
             <div class="col">

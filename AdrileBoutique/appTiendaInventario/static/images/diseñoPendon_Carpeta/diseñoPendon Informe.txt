@@ -1,0 +1,122 @@
+Informe del paquete
+
+-----------------------------------------------------------------------------
+Documento:
+Nombre: diseñoPendon.ai
+Modo de color: Color CMYK
+Perfil de color: Coated FOGRA39 (ISO 12647-2:2004)
+Unidades de regla: centímetros
+Dimensiones de la mesa de trabajo: 100 cm x 140 cm
+Mostrar imágenes en modo contorno: Desactivado
+Resaltar fuentes sustituidas: Desactivado
+Resaltar glifos sustituidos: Desactivado
+Conservar capacidad de edición de texto
+Simular papel de color: Desactivado
+
+-----------------------------------------------------------------------------
+Objetos de tintas planas:
+
+-----------------------------------------------------------------------------
+Fuentes no disponibles:Ninguno
+
+-----------------------------------------------------------------------------
+Fuentes protegidas no empaquetadas:
+Myriad Pro Bold (Adobe Fonts)
+Work Sans Bold (Adobe Fonts)
+
+-----------------------------------------------------------------------------
+Fuentes:
+Calibri (OTF)
+Myriad Pro (OTF)
+MV Boli (OTF)
+
+-----------------------------------------------------------------------------
+Fuentes incrustadas:
+Ninguno
+
+-----------------------------------------------------------------------------
+Enlaces no disponibles:
+Ninguno
+
+-----------------------------------------------------------------------------
+Imágenes enlazadas:
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\login app.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 1460K, 506 por 739 píxeles
+Dimensiones: 259,201 por 496,691 puntos 
+Resolución: 140,555 por 107,125 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 1216K, 384 por 811 píxeles
+Dimensiones: 270,755 por 520,132 puntos 
+Resolución: 102,115 por 112,264 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\index app.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 1598K, 502 por 815 píxeles
+Dimensiones: 257,834 por 511,568 puntos 
+Resolución: 140,183 por 114,706 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\categorias web.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 7305K, 1920 por 974 píxeles
+Dimensiones: 792,746 por 507,128 puntos 
+Resolución: 174,381 por 138,285 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\Dashboard web.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 7320K, 1920 por 976 píxeles
+Dimensiones: 841,904 por 505,463 puntos 
+Resolución: 164,199 por 139,025 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 7320K, 1920 por 976 píxeles
+Dimensiones: 831,954 por 502,272 puntos 
+Resolución: 166,163 por 139,908 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 7320K, 1920 por 976 píxeles
+Dimensiones: 398,979 por 250,928 puntos 
+Resolución: 346,485 por 280,049 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 1216K, 384 por 811 píxeles
+Dimensiones: 102,534 por 177,996 puntos 
+Resolución: 269,646 por 328,053 píxeles por pulgada
+
+
+C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 7320K, 1920 por 976 píxeles
+Dimensiones: 703,915 por 404,766 puntos 
+Resolución: 196,387 por 173,611 píxeles por pulgada
