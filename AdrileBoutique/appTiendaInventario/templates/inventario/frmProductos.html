@@ -11,6 +11,22 @@
         <div class="row">
             <div class="col mb-3">
                 <div class="form-floating mb-2">
+                    <input type="number" class="form-control" id="txtCodigo" name="txtCodigo" placeholder="Nombre"
+                        required />
+                    <label for="txtCodigo" class="form-label">Codigo:</label>
+                </div>
+            </div>
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="txtTalla" name="txtTalla" placeholder="Precio"
+                        required />
+                    <label for="txtTalla" class="form-label">Talla:</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
                     <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre"
                         required />
                     <label for="txtNombre" class="form-label">Nombre:</label>
@@ -38,11 +54,28 @@
             <div class="col mb-3">
                 <div class="form-floating mb-2">
                     <select name="cbCategoria" id="cbCategoria" class="form-select" required>
-                        <!-- aqui van las categorias -->
+                        <option value="">Seleccione categoría: </option>
+                        {% for categoria in categorias %}
+                        <option value="{{categoria.id}}">{{categoria.nombre}}</option>
+                        {% endfor%}
                     </select>
                     <label for="cbCategoria" class="form-label">Categoría:</label>
                 </div>
             </div>
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <select name="cbProveedor" id="cbProveedor" class="form-select" required>
+                        <option value="">Seleccione Proveedor: </option>
+                        {% for proveedor in proveedores %}
+                        <option value="{{proveedor.id}}">{{proveedor.nombre_empresa}}</option>
+                        {% endfor%}
+                    </select>
+                    <label for="cbProveedor" class="form-label">Proveedores:</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row ">
             <div class="col mb-3">
                 <div class="form-floating">
                     <input type="file" class="form-control" name="fileFoto" id="fileFoto" accept="image/*"
@@ -51,6 +84,7 @@
                 </div>
             </div>
         </div>
+
         <div class="row ">
             <div class="col mb-3 text-center">
                 <div class="d-flex justify-content-center">
@@ -83,9 +117,12 @@
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Codigo</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
+                    <th>Cantidad</th>
                     <th>Precio</th>
+                    <th>Talla</th>
                     <th>Categoría</th>
                     <th>Imagen</th>
                     <th>Opciones</th>

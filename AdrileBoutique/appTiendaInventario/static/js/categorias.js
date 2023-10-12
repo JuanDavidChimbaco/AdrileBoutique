@@ -70,7 +70,7 @@ async function listarCat() {
                     </tr>`;
         });
         tabla.innerHTML = data;
-    } catch (error) {}
+    } catch (error) { }
 }
 
 async function agregarCat() {
@@ -85,7 +85,7 @@ async function agregarCat() {
     formData.append('nombre', txtNombre.value.trim());
     formData.append('imagen', fileFoto.files[0]);
     try {
-        const response = await axios.post('/api/v1.0/categorias/', formData);
+        const response = await axios.post('/api/categorias/', formData);
         Swal.fire({
             position: 'center',
             icon: 'success',
@@ -123,7 +123,7 @@ async function modificarCat() {
         });
     } else {
         try {
-            const response = await axios.put(`/api/v1.0/categorias/${this.id}/`, formData);
+            const response = await axios.put(`/api/categorias/${this.id}/`, formData);
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -132,7 +132,7 @@ async function modificarCat() {
                 allowOutsideClick: false,
                 timer: 1500,
             });
-            listarCat();
+            await listarCat();
             limpiar();
         } catch (error) {
             listaErrores(error);
@@ -165,16 +165,18 @@ async function eliminarCat() {
                 });
             } else {
                 try {
-                    const response = await axios.delete(`/api/v1.0/categorias/${this.id}/`);
+                    const response = await axios.delete(`/api/categorias/${this.id}/`);
                     Swal.fire('Borrado!', 'Su categoria ha sido borrada.', 'success');
-                    obtenerCat();
-                    limpiar();
+                    if (result.isConfirmed) {
+                        await listarCat();
+                        limpiar();
+                    }
                 } catch (error) {
                     listaErrores(error.response.data);
                 }
             }
         }
-    } catch (error) {}
+    } catch (error) { }
 }
 
 function listaErrores(error) {

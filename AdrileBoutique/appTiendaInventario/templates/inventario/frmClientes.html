@@ -1,0 +1,74 @@
+{% extends 'inventario/index.html'%} {% block contenido %} {% load static %}
+<link rel="stylesheet" href="{% static 'css/frm.css' %}" />
+<script src="{% static 'js/clientes.js'%}"></script>
+<div class="row">
+    <h1 class="text-center">Clientes</h1>
+</div>
+<hr>
+<div class="row d-grid justify-content-center">
+    <form>
+        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+        <div class="row">
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="txtNombre" name="txtNombre"
+                        placeholder="Nombre de la empresa" required />
+                    <label for="txtNombre" class="form-label">Nombre:</label>
+                </div>
+            </div>
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="txtApellido" name="txtApellido"
+                        placeholder="Nombre de contacto" required />
+                    <label for="txtApellido" class="form-label">Apellido:</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row ">
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <textarea class="form-control" placeholder="Dirección" id="txtDireccion" name="txtDireccion"
+                        required></textarea>
+                    <label for="txtDireccion" class="form-label">Dirección:</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col mb-3">
+                <div class="form-floating mb-2">
+                    <input type="text" class="form-control" id="txtTelefono" name="txtTelefono" placeholder="Teléfono"
+                        required />
+                    <label for="txtTelefono" class="form-label">Teléfono:</label>
+                </div>
+            </div>
+            <div class="col mb-3">
+                <div class="form-floating">
+                    <input type="email" class="form-control" name="txtCorreoElectronico" id="txtCorreoElectronico"
+                        placeholder="Correo Electrónico" required />
+                    <label for="txtCorreoElectronico" class="form-label">Correo Electrónico:</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="row ">
+            <div class="col mb-3 d-flex justify-content-center contenedor-buttons">
+                <button type="button" class="btn buttons mx-1" onclick="agregarCliente()">
+                    <i class="fa-solid fa-plus"></i>
+                    Agregar
+                </button>
+                <button type="reset" class="btn buttons mx-1" onclick="limpiar()">
+                    <i class="fa-solid fa-broom"></i>
+                    Limpiar
+                </button>
+                <button type="button" class="btn buttons mx-1" onclick="history.back()">
+                    <i class="fa-solid fa-ban"></i>
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+<hr class="shadow bg-white" />
+
+{% endblock %}

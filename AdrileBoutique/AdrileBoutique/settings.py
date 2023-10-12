@@ -198,3 +198,10 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 
 # ruta la cual sera redirigido cuando caduque la sesion
 LOGIN_URL = '/dashboard/'
+
+AUTH_USER_MODEL = 'auth.User'
+
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    # ...
+]

@@ -24,17 +24,21 @@ from appTiendaInventario import views
 
 # router para las rutas de la Api
 router = DefaultRouter()
-router.register(r"usuarios", views.UsuariosViewSet, basename="usuarios")
-router.register(r"categorias", views.CategoriaViewSet, basename="categorias")
-router.register(r"productos", views.ProductoViewSet, basename="productos")
+router.register(r'usuarios', views.UsuarioViewSet)
+router.register(r'categorias', views.CategoriaViewSet)
+router.register(r'proveedores', views.ProveedorViewSet)
+router.register(r'productos', views.ProductoViewSet)
+router.register(r'clientes', views.ClienteViewSet)
+router.register(r'compras', views.CompraViewSet)
+router.register(r'detalles_compra', views.DetalleCompraViewSet)
+router.register(r'ventas', views.VentaViewSet)
+router.register(r'detalles_venta', views.DetalleVentaViewSet)
 
 urlpatterns = [
-    # rutas de la Api
     path('admin/', admin.site.urls),
     path('', views.inicio, name='inicio'),
     path('index', views.index, name='index'),
-    path("frmCategorias/", views.categorias, name="categorias"),
-    path("frmProductos/", views.productos, name="productos"),
+    # rutas de la Api
     path("api/", include(router.urls)),
     
     # URL para iniciar sesión y para cerrar sesión
@@ -42,16 +46,27 @@ urlpatterns = [
     path("logout/", views.custom_logout, name="logout"),
     
     # gestion de Perfil
-    path("perfil/", views.perfil_usuario, name="perfil"),
+    path("perfil/<int:usuario_id>/", views.perfil_usuario, name="perfil"),
+
+    
+    # funciones extras
+    path('autocomplete_product_name/', views.autocomplete_product_name, name='autocomplete_product_name'),
     
     # URL de gestion inventario
     path('dashboard/', views.dashboard, name='dashboard'),
-    # categorias
-    path('listaCategorias/', views.categorias, name='listar_categorias'),
-    path('agregarCat/', views.agregar_categoria, name='agregar_categoria'),
-    path('editarCat/', views.editar_categoria, name='editar_categoria'),
-    path('eliminarCat/', views.eliminar_categoria, name='eliminar_categoria'),
+    path("frmCategorias/", views.categorias, name="categorias"),
+    path("frmProductos/", views.productos, name="productos"),
+    path("frmEntradas/", views.entradas, name="entradas"),
+    path("frmSalidas/", views.salidas, name="salidas"),
+    
+    
+     path('crear_compra_api/', views.CrearCompra.as_view(), name='crear_compra_api'),
+     path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
+     
+    
+    # formularios
     path('proveedores/', views.proveedores, name='proveedores'),
+    path('clientes/', views.clientes, name='clientes'),
 
     # URL para restablecer contraseña
     path('reset_password/', auth_views.PasswordResetView.as_view(), name='password_reset'),

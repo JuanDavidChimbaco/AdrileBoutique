@@ -2,87 +2,76 @@
 <link rel="stylesheet" href="{% static 'css/frm.css' %}">
 <div class="row">
     <div class="col">
+
         <nav class="navbar navbar-expand-lg bg-body-tertiary rounded mt-2">
+
             <div class="container-fluid">
-                <a class="navbar-fixed-top mx-3 nav-link uwu" href="/dashboard">
+                <a class="navbar-fixed-top mx-3 nav-link uwu" href="{% url 'dashboard' %}">
                     <i class="fa-solid fa-house "></i>
                 </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        {% comment %} <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle linxD" role="button" data-bs-toggle="dropdown"
-                                aria-expanded="false" id="link">
-                                Productos
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="/frmCategorias">
-                                        Categorías &nbsp;
 
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="/frmProductos">
-                                        Productos &nbsp;
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="/frmTallas">
-                                        Tallas producto &nbsp;
-                                    </a>
-                                </li>
-                            </ul>
-                        </li> {% endcomment %}
-                        <li class="nav-item">
-                            <div class="">
-                                {% comment %} <a class="nav-link linxD" href="/frmPedidos">Pedidos</a> {% endcomment %}
-                                <a class="nav-link linxD" href="/frmCategorias">
-                                    Categorías &nbsp;
-
-                                </a>
-                            </div>
-                        </li>
                         <li class="nav-item linxD">
-                            {% comment %} <a class="nav-link" href="/frmEnvios">
-                                Envíos
-                            </a> {% endcomment %}
+                                <a class="nav-link" href="/frmCategorias">
+                                    Categorías &nbsp;
+                                </a>
+                        </li>
+
+                        <li class="nav-item linxD">
                             <a class="nav-link" href="/frmProductos">
                                 Productos &nbsp;
                             </a>
-                            
+
                         </li>
+
                         <li class="nav-item linxD">
-                            {% comment %} <a class="nav-link" href="/frmPagos">
-                                Pagos
-                            </a> {% endcomment %}
-                            <a class="nav-link" href="/frmTallas">
+                            <a class="nav-link" href="/frmEntradas">
                                 Entradas &nbsp;
                             </a>
                         </li>
+
                         <li class="nav-item linxD">
-                            <a class="nav-link" href="/frmDevoluciones">
+                            <a class="nav-link" href="/frmSalidas">
                                 Salidas
                             </a>
                         </li>
+
+                        {% if es_administrador %}
+                        <li class="nav-item linxD">
+                                <a class="nav-link" href="#">
+                                    Gestionar Empleados &nbsp;
+                                </a>
+                        </li>
+                        {% endif %}
                     </ul>
+
+                    {% if user.is_authenticated %}
+
                     <ul class="navbar-nav mb-2 ">
                         <li class="nav-item">
                             <div class="dropdown-center">
+
                                 <a class="nav-link dropdown-toggle linxD" role="button" data-bs-toggle="dropdown"
                                     aria-expanded="false">
-                                    Mi cuenta
+                                    <span>{{ user }}</span>
                                 </a>
+
                                 <ul class="dropdown-menu dropdown-menu-end">
+
                                     <li class="nav-item">
-                                        <a class="dropdown-item" href="{% url 'perfil' %}">Ver Perfil &nbsp;
+                                        <a class="dropdown-item" href="{% url 'perfil' user.id%}">Ver Perfil &nbsp;
                                             <i class="fa-regular fa-user"></i>
                                         </a>
                                     </li>
+
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión &nbsp;
                                             <i class="fa-solid fa-arrow-right-from-bracket"></i>
@@ -92,8 +81,13 @@
                             </div>
                         </li>
                     </ul>
+
+                    {% endif %}
+
                 </div>
             </div>
+
         </nav>
+
     </div>
 </div>

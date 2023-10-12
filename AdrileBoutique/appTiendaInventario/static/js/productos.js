@@ -40,20 +40,6 @@ const initDataTable = async () => {
     dataTableIsInitialized = true;
 };
 
-async function getCategory() {
-    try {
-        const response = await axios.get('/api/categorias/');
-        localStorage.categoria = JSON.stringify(response.data);
-        let opcion = `<option value="0">Seleccione una Categoría</option>`;
-        response.data.forEach((element) => {
-            opcion += `<option value="${element.id}">${element.nombre}</option>`;
-        });
-        cbCategoria.innerHTML = opcion;
-    } catch (error) {
-        console.error(error);
-    }
-}
-
 async function getProducts() {
     try {
         const response = await axios.get('/api/productos/');
@@ -73,11 +59,14 @@ async function getProducts() {
             }).format(element.precio);
             data += `<tr>
                     <th scope="row">${index + 1}</th>
+                    <td>${element.codigo}</td>
                     <td>${element.nombre}</td>
                     <td>${element.descripcion}</td>
+                    <td>${element.cantidad_stock}</td>
                     <td>${precioFormateado}</td>
+                    <td>${element.talla}</td>
                     <td>${categoryName}</td>
-                    <td><img src="${element.imagen}" alt="${element.nombre}"></td>
+                    <td><img src="${element.imagen}" alt="${element.nombre}" width="100" height="100"></td>
                     <td class="align-middle text-center">
                         <div>
                             <input type="radio" name="checkOpcion" onclick='getProductById(${JSON.stringify(element)})' class="form-check-input" title="Seleccionar">
@@ -92,16 +81,19 @@ async function getProducts() {
 }
 
 async function addProducts() {
-    var errorMessages = [];
     axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
     axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
     var formData = new FormData();
+    formData.append('codigo', txtCodigo.value);
     formData.append('nombre', txtNombre.value);
     formData.append('descripcion', txtDescripcion.value);
     formData.append('precio', txtPrecio.value);
-    formData.append('categoria', cbCategoria.value);
-    formData.append('estado', 'true');
     formData.append('imagen', fileFoto.files[0]);
+    formData.append('estado', 'True');
+    formData.append('talla', txtTalla.value);
+    formData.append('categoria', cbCategoria.value);
+    formData.append('cantidad_stock', 0);
+    formData.append('proveedor', cbProveedor.value);
     if (emptyFields()) {
         Swal.fire({
             position: 'center',
@@ -209,10 +201,13 @@ async function deleteProducts() {
 function getProductById(element) {
     this.id = element.id;
     console.log(element);
+    txtCodigo.value = element.codigo;
+    txtTalla.value = element.talla;
     txtNombre.value = element.nombre;
     txtDescripcion.value = element.descripcion;
     txtPrecio.value = element.precio;
     cbCategoria.value = element.categoria;
+    cbProveedor.value = element.proveedor;
     vistaPrevia.src = element.imagen;
     vistaPrevia.style.display = 'block';
 }
@@ -283,9 +278,12 @@ function emptyFields() {
 function clean() {
     this.id = '';
     txtNombre.value = '';
+    txtCodigo.value="";
+    txtTalla.value="";
     txtDescripcion.value = '';
     txtPrecio.value = '';
     cbCategoria.value = 0;
+    cbProveedor.value= 0;
     fileFoto.value = '';
     vistaPrevia.style.display = 'none';
     var radioButtons = document.getElementsByName('checkOpcion');
@@ -296,5 +294,4 @@ function clean() {
 
 window.addEventListener('load', async () => {
     await initDataTable();
-    await getCategory();
 });

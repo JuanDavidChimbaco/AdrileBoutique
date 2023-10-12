@@ -76,10 +76,10 @@ body {
 }
 .buttons:hover{
     background-color: #ffffff;
-    color: #FFCCE0;
+    color: #fba3c6;
     font-size: large;
     transition: .5s;
-    border-color: #FFCCE0;
+    border-color: #fba3c6;
 }
 
 .dropdown-item.active, .dropdown-item:active {
@@ -99,6 +99,8 @@ body {
     border-radius: 5px;
     text-align: center;
     width: 9rem;
+    display: flex;
+    align-items: center;
 }
 
 .linxD:hover{
