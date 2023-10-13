@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Compras</title>
+</head>
+<body>
+    <h1>Lista de Compras</h1>
+    <ul>
+        {% for compra in compras %}
+            <li>
+                {{ compra.fecha_compra }} - Proveedor: {{ compra.proveedor }}
+                <ul>
+                    {% for detalle in compra.detallecompra_set.all %}
+                        <li>{{ detalle.producto }} - Cantidad: {{ detalle.cantidad }} - Precio Unitario: {{ detalle.precio_unitario }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock de Productos</title>
+</head>
+<body>
+    <h1>Stock de Productos</h1>
+    <ul>
+        {% for producto in productos %}
+            <li>
+                {{ producto.nombre }} - Cantidad en Stock: {{ producto.cantidad_stock }}
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

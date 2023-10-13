@@ -7,32 +7,55 @@ const dataTableOptions = {
     language: {
         url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json',
     },
+    scrollY: "300px",
+    paging: false,
     dom: 'Bfrtip',
     buttons: [
-        'copy',
-        'csv',
-        'excel',
-        'pdf',
         {
-            extend: 'print',
+            extend:'copy',
+            text: '<i class="fa-solid fa-copy"></i>',
             exportOptions: {
                 stripHtml: false,
-                columns: [0, 1, 2, 3, 4, 5],
+                columns: [0, 1, 2, 3, 4],
             },
-            customize: function(win) {
-                // Agregar contenido personalizado al informe de impresión
-                const header = '<h1>Mi Informe Personalizado</h1>';
-                const table = $('#tuTabla').DataTable();
-                const tableHtml = table.table().container().outerHTML;
-
-                $(win.document.body).empty().append(header, tableHtml);
+        },
+        {
+            extend:'csv',
+            text: '<i class="fa-solid fa-file-csv"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2, 3, 4],
+            },
+        },
+        {
+            extend:'excel',
+            text: '<i class="fa-solid fa-file-excel"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2, 3, 4],
+            },
+        },
+        {
+            extend:'pdf',
+            text: '<i class="fa-solid fa-file-pdf"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2, 3, 4],
+            },
+        },
+        {
+            extend: 'print',
+            text: '<i class="fa-solid fa-print"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2, 3, 4],
             },
         },
     ],
     columDefs: [
-        {className: 'centered', targets: [0, 1, 2, 3, 4]},
-        {orderable: false, targets: [5]},
-        {searchable: false, targets: [0, 5]},
+        { className: 'centered', targets: [0, 1, 2, 3, 4] },
+        { orderable: false, targets: [5] },
+        { searchable: false, targets: [0, 5] },
     ],
     pageLength: 4,
     destroy: true,
@@ -69,16 +92,11 @@ async function getProducts() {
                     <th scope="row">${index + 1}</th>
                     <td>${element.codigo}</td>
                     <td>${element.nombre}</td>
-                    <td>${element.descripcion}</td>
                     <td>${element.cantidad_stock}</td>
                     <td>${precioFormateado}</td>
-                    <td>${element.talla}</td>
-                    <td>${categoryName}</td>
-                    <td><img src="${element.imagen}" alt="${element.nombre}" width="100" height="100"></td>
-                    <td class="align-middle text-center">
-                        <div>
-                            <input type="radio" name="checkOpcion" onclick='getProductById(${JSON.stringify(element)})' class="form-check-input" title="Seleccionar">
-                        </div> 
+                    <td>
+                        <a type="button" onclick='getProductById(${JSON.stringify(element)})' title="Ver Producto" data-bs-toggle="modal" data-bs-target="#staticBackdrop"><i class="fa-solid fa-eye"></i></a>
+                        <a type="button" onclick="deleteProducts(${element.id})" title="Eliminar Producto"><i class="fa-solid fa-trash"></i></a>
                     </td>
                 </tr>`;
         });
@@ -141,7 +159,13 @@ async function modifyProducts() {
     formularioData.append('descripcion', txtDescripcion.value);
     formularioData.append('precio', txtPrecio.value);
     formularioData.append('categoria', cbCategoria.value);
-    formularioData.append('estado', 'true');
+    formularioData.append('estado', 'True');
+
+    formularioData.append('codigo', txtCodigo.value);
+    formularioData.append('talla', txtTalla.value);
+    formularioData.append('categoria', cbCategoria.value);
+    formularioData.append('cantidad_stock', 0);
+    formularioData.append('proveedor', cbProveedor.value);
 
     if (emptyFields()) {
         Swal.fire({
@@ -161,17 +185,19 @@ async function modifyProducts() {
                 title: 'Producto Modificado correctamente',
                 showConfirmButton: true,
                 allowOutsideClick: false,
-                timer: 2000,
+                confirmButtonColor: '#0d6efd',
             });
-            getProducts();
+            $('#staticBackdrop').modal('hide');
             clean();
+            getProducts();
         } catch (error) {
             listError(error);
         }
     }
 }
 
-async function deleteProducts() {
+async function deleteProducts(id) {
+    this.id = id
     axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
     axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
     const res = await Swal.fire({
@@ -286,12 +312,12 @@ function emptyFields() {
 function clean() {
     this.id = '';
     txtNombre.value = '';
-    txtCodigo.value="";
-    txtTalla.value="";
+    txtCodigo.value = "";
+    txtTalla.value = "";
     txtDescripcion.value = '';
     txtPrecio.value = '';
     cbCategoria.value = 0;
-    cbProveedor.value= 0;
+    cbProveedor.value = 0;
     fileFoto.value = '';
     vistaPrevia.style.display = 'none';
     var radioButtons = document.getElementsByName('checkOpcion');

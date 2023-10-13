@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Informe de Ventas</title>
+</head>
+<body>
+    <h1>Informe de Ventas</h1>
+    <h2>Total de Ventas: {{ total_ventas.total }}</h2>
+    <table>
+        <tr>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unitario</th>
+        </tr>
+        {% for venta in ventas %}
+            {% for detalle in venta.detalleventa_set.all %}
+                <tr>
+                    <td>{{ venta.fecha_venta }}</td>
+                    <td>{{ venta.cliente }}</td>
+                    <td>{{ detalle.producto }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.precio_unitario }}</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+</body>
+</html>

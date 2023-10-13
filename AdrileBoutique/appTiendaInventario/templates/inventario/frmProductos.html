@@ -4,132 +4,158 @@
 <div class="row">
     <h1 class="text-center">Productos</h1>
 </div>
-<hr>
-<div class="row d-grid justify-content-center">
-    <form>
-        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
-        <div class="row">
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <input type="number" class="form-control" id="txtCodigo" name="txtCodigo" placeholder="Nombre"
-                        required />
-                    <label for="txtCodigo" class="form-label">Codigo:</label>
-                </div>
-            </div>
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <input type="text" class="form-control" id="txtTalla" name="txtTalla" placeholder="Precio"
-                        required />
-                    <label for="txtTalla" class="form-label">Talla:</label>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <input type="text" class="form-control" id="txtNombre" name="txtNombre" placeholder="Nombre"
-                        required />
-                    <label for="txtNombre" class="form-label">Nombre:</label>
-                </div>
-            </div>
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <input type="number" class="form-control" id="txtPrecio" name="txtPrecio" placeholder="Precio"
-                        required />
-                    <label for="txtPrecio" class="form-label">Precio:</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="row ">
-            <div class="col mb-3">
-                <div class="form-floating">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="txtDescripcion"
-                        name="txtDescripcion" required></textarea>
-                    <label for="txtDescripcion" class="form-label">Descripción:</label>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <select name="cbCategoria" id="cbCategoria" class="form-select" required>
-                        <option value="">Seleccione categoría: </option>
-                        {% for categoria in categorias %}
-                        <option value="{{categoria.id}}">{{categoria.nombre}}</option>
-                        {% endfor%}
-                    </select>
-                    <label for="cbCategoria" class="form-label">Categoría:</label>
-                </div>
-            </div>
-            <div class="col mb-3">
-                <div class="form-floating mb-2">
-                    <select name="cbProveedor" id="cbProveedor" class="form-select" required>
-                        <option value="">Seleccione Proveedor: </option>
-                        {% for proveedor in proveedores %}
-                        <option value="{{proveedor.id}}">{{proveedor.nombre_empresa}}</option>
-                        {% endfor%}
-                    </select>
-                    <label for="cbProveedor" class="form-label">Proveedores:</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="row ">
-            <div class="col mb-3">
-                <div class="form-floating">
-                    <input type="file" class="form-control" name="fileFoto" id="fileFoto" accept="image/*"
-                        onchange="view()" />
-                    <label for="fileFoto" class="form-label">Cargar Imagen:</label>
-                </div>
-            </div>
-        </div>
-
-        <div class="row ">
-            <div class="col mb-3 text-center">
-                <div class="d-flex justify-content-center">
-                    <img id="vistaPrevia" alt="Imagen cargada" width="100" height="100" style="display: none"
-                        onclick="viewImageFrm()" />
-                </div>
-            </div>
-        </div>
-
-        <div class="row ">
-            <div class="col mb-3 d-flex justify-content-center contenedor-buttons">
-                <button type="button" class="btn buttons mx-1" onclick="addProducts()"><i class="fa-solid fa-plus"></i>
-                    Agregar</button>
-                <button type="button" class="btn buttons mx-1" onclick="modifyProducts()"><i
-                        class="fa-solid fa-pen-to-square"></i>
-                    Modificar</button>
-                <button type="button" class="btn buttons mx-1" onclick="deleteProducts()"><i
-                        class="fa-solid fa-trash"></i>
-                    Eliminar</button>
-                <button type="reset" class="btn buttons mx-1" onclick="clean()"><i class="fa-solid fa-broom"></i></i>
-                    Limpiar</button>
-            </div>
-        </div>
-    </form>
+<div class="d-flex justify-content-center mb-2">
+    <button type="button" class="btn buttons " data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Agregar productos
+    </button>
 </div>
-<hr class="shadow bg-white" />
-<div class="row d-flex justify-content-center">
-    <div class="col">
-        <table class="table table-dark nowrap display" id="tablaProducto">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Codigo</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Cantidad</th>
-                    <th>Precio</th>
-                    <th>Talla</th>
-                    <th>Categoría</th>
-                    <th>Imagen</th>
-                    <th>Opciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaContent"></tbody>
-        </table>
+<!-- Button trigger modal -->
+<div class="row d-flex justify-content-center ">
+    <div class="col ">
+        <div class="">
+            <table class="table table-dark nowrap display " id="tablaProducto">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Opciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaContent"></tbody>
+            </table>
+        </div>
     </div>
 </div>
-{% endblock %}
+
+
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Productos</h1>
+            </div>
+            <div class="modal-body">
+
+                <div class="row d-grid justify-content-center">
+                    <form>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <input type="number" class="form-control" id="txtCodigo" name="txtCodigo"
+                                        placeholder="Nombre" required />
+                                    <label for="txtCodigo" class="form-label">Codigo:</label>
+                                </div>
+                            </div>
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control" id="txtTalla" name="txtTalla"
+                                        placeholder="Precio" required />
+                                    <label for="txtTalla" class="form-label">Talla:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <input type="text" class="form-control" id="txtNombre" name="txtNombre"
+                                        placeholder="Nombre" required />
+                                    <label for="txtNombre" class="form-label">Nombre:</label>
+                                </div>
+                            </div>
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <input type="number" class="form-control" id="txtPrecio" name="txtPrecio"
+                                        placeholder="Precio" required />
+                                    <label for="txtPrecio" class="form-label">Precio:</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row ">
+                            <div class="col mb-3">
+                                <div class="form-floating">
+                                    <textarea class="form-control" placeholder="Leave a comment here"
+                                        id="txtDescripcion" name="txtDescripcion" required></textarea>
+                                    <label for="txtDescripcion" class="form-label">Descripción:</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <select name="cbCategoria" id="cbCategoria" class="form-select" required>
+                                        <option value="">Seleccione categoría: </option>
+                                        {% for categoria in categorias %}
+                                        <option value="{{categoria.id}}">{{categoria.nombre}}</option>
+                                        {% endfor%}
+                                    </select>
+                                    <label for="cbCategoria" class="form-label">Categoría:</label>
+                                </div>
+                            </div>
+                            <div class="col mb-3">
+                                <div class="form-floating mb-2">
+                                    <select name="cbProveedor" id="cbProveedor" class="form-select" required>
+                                        <option value="">Seleccione Proveedor: </option>
+                                        {% for proveedor in proveedores %}
+                                        <option value="{{proveedor.id}}">{{proveedor.nombre_empresa}}</option>
+                                        {% endfor%}
+                                    </select>
+                                    <label for="cbProveedor" class="form-label">Proveedores:</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row ">
+                            <div class="col mb-3">
+                                <div class="form-floating">
+                                    <input type="file" class="form-control" name="fileFoto" id="fileFoto"
+                                        accept="image/*" onchange="view()" />
+                                    <label for="fileFoto" class="form-label">Cargar Imagen:</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row ">
+                            <div class="col mb-3 text-center">
+                                <div class="d-flex justify-content-center">
+                                    <img id="vistaPrevia" alt="Imagen cargada" width="100" height="100" class="rounded"
+                                        style="display: none" onclick="viewImageFrm()" />
+                                </div>
+                            </div>
+                        </div>
+
+                </div>
+                <div class="modal-footer">
+                    <div class="row ">
+                        <div class="col mb-3 d-flex justify-content-center contenedor-buttons">
+                            <button type="button" class="btn buttons mx-1" onclick="addProducts()">
+                                <i class="fa-solid fa-plus"></i>
+                                Agregar
+                            </button>
+                            <button type="button" class="btn buttons mx-1" onclick="modifyProducts()">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                                Modificar
+                            </button>
+                            <button type="reset" class="btn buttons mx-1" onclick="clean()">
+                                <i class="fa-solid fa-broom"></i></i>
+                                Limpiar
+                            </button>
+                            <button type="button" class="btn buttons mx-1" onclick="clean()" data-bs-dismiss="modal">
+                                <i class="fa-solid fa-ban"></i>
+                                Cancelar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% endblock %}

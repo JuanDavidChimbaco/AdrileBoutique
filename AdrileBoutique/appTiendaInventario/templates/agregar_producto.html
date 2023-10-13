@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if producto %}Editar Producto{% else %}Agregar Producto{% endif %}</title>
+</head>
+<body>
+    <h1>{% if producto %}Editar Producto{% else %}Agregar Producto{% endif %}</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="{% if producto %}Guardar Cambios{% else %}Agregar Producto{% endif %}">
+    </form>
+    {% if producto %}
+        <form method="post" action="{% url 'cambiar_estado' producto.id %}">
+            {% csrf_token %}
+            <button type="submit">Cambiar Estado</button>
+        </form>
+    {% endif %}
+</body>
+</html>
