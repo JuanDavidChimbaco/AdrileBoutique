@@ -6,25 +6,51 @@ class CompraForm(forms.ModelForm):
         model = Compra
         fields = '__all__'
 
-from django import forms
-from .models import DISPONIBLE, Cliente, DetalleCompra, Producto
+from django import forms 
+from .models import  DetalleCompra
 
 class DetalleCompraForm(forms.ModelForm):
     class Meta:
         model = DetalleCompra
         fields = '__all__'
         
-from django.forms import modelformset_factory
+# =======================================================================
+from django import forms
+from .models import Compra
 
-DetalleCompraFormSet = modelformset_factory(DetalleCompra, form=DetalleCompraForm, extra=1)
+class CompraForm(forms.ModelForm):
+    class Meta:
+        model = Compra
+        fields = ['proveedor']
+
+    def __init__(self, *args, **kwargs):
+        super(CompraForm, self).__init__(*args, **kwargs)
+        self.fields['proveedor'].widget.attrs['class'] = 'selectpicker'  # Añade clases CSS si es necesario
+        self.fields['proveedor'].queryset = Proveedor.objects.all()  # Ajusta el queryset según tus necesidades
+        
+# forms.py
+from django import forms
+from .models import DetalleCompra
+
+DetalleCompraFormSet = forms.inlineformset_factory(Compra, DetalleCompra, fields=['producto', 'cantidad', 'precio_unitario'])
+        
+# =============================================================================================================
 
 from django import forms
+from .models import Venta
 
 class VentaForm(forms.Form):
-    cliente = forms.ModelChoiceField(queryset=Cliente.objects.all())
-    productos = forms.ModelMultipleChoiceField(queryset=Producto.objects.filter(estado=DISPONIBLE))
-    cantidades = forms.CharField()  # Puedes usar un campo de texto separado por comas o algún otro formato
-    
+    class Meta:
+        model = Venta
+        fields = '__all__'
+
+from django import forms
+from .models import DetalleVenta
+
+class DetalleVentaForm(forms.ModelForm):
+    class Meta:
+        model = DetalleVenta
+        fields = '__all__'
     
 from django import forms
 from .models import Producto

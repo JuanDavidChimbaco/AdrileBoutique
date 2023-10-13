@@ -75,25 +75,29 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     
     
-    
+    path('crear_compra/', views.crear_compra, name='crear_compra'),
+    path('cargar_productos/', views.cargar_productos, name='cargar_productos'),  # Nueva URL para cargar productos
     path('lista_compras/', views.lista_compras, name='lista_compras'),
-    path('entrada_inventario/', views.EntradaInventarioView.as_view(), name='entrada_inventario'),
-    path('registrar_venta/', views.registrar_venta, name='registrar_venta'),
-    path('lista_ventas/', views.lista_ventas, name='lista_ventas'),
+    
     path('lista_stock/', views.lista_stock, name='lista_stock'),
     path('informe_ventas/', views.informe_ventas, name='informe_ventas'),
+    
     path('agregar_producto/', views.agregar_producto, name='agregar_producto'),
+    path('editar_producto/<int:producto_id>/', views.editar_producto, name='editar_producto'),
     path('cambiar_estado/<int:producto_id>/', views.cambiar_estado, name='cambiar_estado'),
+    path('lista_productos/', views.lista_productos, name='lista_productos'),
+    
     
     path('agregar_categoria/', views.agregar_categoria, name='agregar_categoria'),
     path('editar_categoria/<int:categoria_id>/', views.editar_categoria, name='editar_categoria'),
+    path('lista_categorias/', views.lista_categorias, name='lista_categorias'),
+    
     
     path('agregar_proveedor/', views.agregar_proveedor, name='agregar_proveedor'),
     path('editar_proveedor/<int:proveedor_id>/', views.editar_proveedor, name='editar_proveedor'),
-    
-    path('lista_categorias/', views.lista_categorias, name='lista_categorias'),
     path('lista_proveedores/', views.lista_proveedores, name='lista_proveedores'),
     
+     
     path('agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
     path('editar_cliente/<int:cliente_id>/', views.editar_cliente, name='editar_cliente'),
     path('lista_clientes/', views.lista_clientes, name='lista_clientes'),

@@ -29,15 +29,10 @@
             <img src="{% static 'images/imageLogo3.png' %}" alt="" width="70">
         </div>
         <div class="mx-5 fs-1">
-            Gestion Inventario Adrile Boutique
+            <span id="titulo"> </span>Gestion Inventario Adrile Boutique
         </div>
         {% endblock %}
     </header>
-
-    <nav>
-        {% block nav %}
-        {% endblock %}
-    </nav>
 
     <div class="content">
         {% block content %}
@@ -50,28 +45,15 @@
             </div>
             <div class="col-md-6">
                 <!-- Formulario de inicio de sesión -->
-                <div class="card shadow cardLogin p-3">
+                <div class="card shadow card-login p-3">
                     <div class="card-header bg-dark text-white">
                         <h4 class="text-center mt-2 canter"><i class="fa fa-solid fa-user fa-2xl iconoUser"></i></h4>
                     </div>
                     {% if error_message %}
                     <script>
-                        toastr.options = {
-                            "closeButton": true,
-                            "debug": false,
-                            "newestOnTop": false,
-                            "progressBar": true,
-                            "positionClass": "toast-top-center",
-                            "preventDuplicates": true,
-                            "onclick": null,
-                            "showDuration": "300",
-                            "hideDuration": "1000",
-                            "timeOut": "5000",
-                            "extendedTimeOut": "1000",
-                            "showEasing": "swing",
-                            "hideEasing": "linear",
-                            "showMethod": "fadeIn",
-                            "hideMethod": "fadeOut"
+                        toastr.options = {"closeButton": true,"debug": false,"newestOnTop": false,"progressBar": true,"positionClass": "toast-top-right",
+                            "preventDuplicates": true,"onclick": null, "showDuration": "500","hideDuration": "1000", "timeOut": "5000",
+                            "extendedTimeOut": "1000","showEasing": "swing", "hideEasing": "linear","showMethod": "fadeIn","hideMethod": "fadeOut"
                         };
                         
                         toastr.error('{{error_message}}');
@@ -108,7 +90,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="footerLogin">
+                <div class="footer-l                                                                                                                                                                                                                                                                                                                                                                                                                                                            ogin">
                     <div class="col">
                         <small><a
                                 href="https://www.freepik.es/vector-gratis/fondo-monocromatico-blanco-estilo-papel_15518074.htm#query=fondo&position=1&from_view=keyword&track=sph"

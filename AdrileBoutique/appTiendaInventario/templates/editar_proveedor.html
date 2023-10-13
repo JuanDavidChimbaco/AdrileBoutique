@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if proveedor %}Editar{% else %}Agregar{% endif %} Proveedor</title>
+</head>
+<body>
+    <h1>{% if proveedor %}Editar{% else %}Agregar{% endif %} Proveedor</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="{% if proveedor %}Guardar Cambios{% else %}Agregar{% endif %}">
+    </form>
+</body>
+</html>

@@ -1,10 +1,13 @@
+@import url('fonts.css');
+
 body {
+    background-color: rgb(231, 231, 231);
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    font-family: Arial, sans-serif;
+    font-family: roboto-light;
 }
 
 header, nav, footer {
@@ -27,18 +30,4 @@ nav {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-}
-
-.login{
-    --bs-btn-color: #212529;
-    --bs-btn-bg: #ffcce0;
-    --bs-btn-border-color: #ffcce0;
-    --bs-btn-hover-color: #fff;
-    --bs-btn-hover-bg: #fca2c6;
-    --bs-btn-hover-border-color: #ffcce0;
-    transition: all 0.5s;
-    -webkit-transition: all 0.5s;
-    -moz-transition: all 0.5s;
-    -ms-transition: all 0.5s;
-    -o-transition: all 0.5s;
 }

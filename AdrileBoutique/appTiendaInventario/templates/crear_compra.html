@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Compra</title>
+    <!-- Asegúrate de incluir las bibliotecas de JavaScript y CSS necesarias, como jQuery y Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <h1>Crear Compra</h1>
+    <form method="post" id="compra-form">
+        {% csrf_token %}
+        {{ compra_form.as_p }}
+
+        <div class="" style="display: none;">
+            <h2>Productos</h2>
+            {{ detalle_compra_formset.management_form }}
+            <div id="formset-container">
+                {% for detalle_form in detalle_compra_formset %}
+                    <div class="detalle-form">
+                        {{ detalle_form.as_table }}
+                    </div>
+                {% endfor %}
+            </div>
+            <div id="detalle_compra-formset-template" style="display: none;">
+                <!-- Contenido de la plantilla aquí -->
+            </div>
+            <button type="button" id="add-detalle">Agregar Producto</button>
+            <button type="submit">Guardar Compra</button>
+        </div>
+    </form>
+
+    <script>
+        // Agregar manejo de eventos cuando cambia el proveedor seleccionado
+        $('#id_proveedor').change(function() {
+            var proveedor_id = $(this).val();
+
+            $.ajax({
+                url: '/cargar_productos/',  // Ruta de la vista de Django para cargar productos
+                data: {'proveedor_id': proveedor_id},
+                dataType: 'json',
+                success: function(data) {
+                    $('#id_producto').empty();
+                    $.each(data, function(key, value) {
+                        $('#id_producto').append($('<option>', {
+                            value: key,
+                            text: value
+                        }));
+                    });
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $('#add-detalle').click(function() {
+                var form_idx = $('#id_detalle_compra-TOTAL_FORMS').val();
+                $('#formset-container').append($('#detalle_compra-formset-template').html().replace(/__prefix__/g, form_idx));
+                $('#id_detalle_compra-TOTAL_FORMS').val(parseInt(form_idx) + 1);
+            });
+        });
+
+    </script>
+</body>
+</html>

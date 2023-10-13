@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% if cliente %}Editar{% else %}Agregar{% endif %} Cliente</title>
+</head>
+<body>
+    <h1>{% if cliente %}Editar{% else %}Agregar{% endif %} Cliente</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="{% if cliente %}Guardar Cambios{% else %}Agregar{% endif %}">
+    </form>
+</body>
+</html>

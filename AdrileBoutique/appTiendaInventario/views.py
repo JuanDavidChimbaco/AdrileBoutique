@@ -125,7 +125,8 @@ def clientes(request):
 @login_required(login_url="index")
 def entradas(request):
     proveedores = Proveedor.objects.all()
-    return render(request, "inventario/frmEntrada.html", {"proveedores": proveedores})
+    productos = Producto.objects.all()
+    return render(request, "inventario/frmEntrada.html", {"proveedores": proveedores, "productos": productos})
 
 
 @login_required(login_url="index")
@@ -261,7 +262,7 @@ class CrearVenta(APIView):
             return Response(venta_serializer.data, status=status.HTTP_201_CREATED)
         return Response(venta_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+# =======================================================================================================================  
 from django.shortcuts import render, redirect
 from .forms import CompraForm, DetalleCompraForm
 from .models import Compra, DetalleCompra
@@ -297,45 +298,46 @@ class EntradaInventarioView(View):
 
 
     
+# =======================================================================================================================  
+from django.shortcuts import render, redirect
+from .models import Compra, DetalleCompra
+from .forms import CompraForm, DetalleCompraFormSet
+
+def crear_compra(request):
+    if request.method == 'POST':
+        compra_form = CompraForm(request.POST)
+        detalle_compra_formset = DetalleCompraFormSet(request.POST, prefix='detalle_compra')
+
+        if compra_form.is_valid() and detalle_compra_formset.is_valid():
+            compra = compra_form.save()
+            detalle_compra_formset.instance = compra
+            detalle_compra_formset.save()
+            return redirect('lista_compras')  # Redirige a la lista de compras o la página que desees
+
+    else:
+        compra_form = CompraForm()
+        detalle_compra_formset = DetalleCompraFormSet(queryset=DetalleCompra.objects.none(), prefix='detalle_compra')
+
+    return render(request, 'crear_compra.html', {
+        'compra_form': compra_form,
+        'detalle_compra_formset': detalle_compra_formset,
+    })
     
-from django.shortcuts import render
-from .models import Compra
+from django.db.models import Sum
 
 def lista_compras(request):
-    compras = Compra.objects.all()  # Recupera todas las compras en la base de datos
+    compras = Compra.objects.annotate(total_cantidad=Sum('detallecompra__cantidad'))
+    
     return render(request, 'lista_compras.html', {'compras': compras})
 
-from django.shortcuts import render, redirect
-from .models import Cliente, Producto
-from .forms import VentaForm
+from django.http import JsonResponse
 
-def registrar_venta(request):
-    if request.method == 'POST':
-        form = VentaForm(request.POST)
-        if form.is_valid():
-            cliente = form.cleaned_data['cliente']
-            productos = form.cleaned_data['productos']
-            cantidades = form.cleaned_data['cantidades'].split(',')  # Dividir las cantidades ingresadas
+def cargar_productos(request):
+    proveedor_id = request.GET.get('proveedor_id')
+    productos = Producto.objects.filter(proveedor=proveedor_id).values('id', 'nombre')
+    return JsonResponse(list(productos), safe=False)
 
-            for producto, cantidad in zip(productos, cantidades):
-                cantidad = int(cantidad)
-                if cantidad > 0:
-                    # Asegúrate de que haya suficiente stock antes de procesar la venta
-                    if producto.cantidad_stock >= cantidad:
-                        # Registrar la venta (puedes crear un modelo Venta para esto)
-                        venta = Venta(cliente=cliente)
-                        venta.save()
-                        
-                        # Actualizar el stock
-                        producto.cantidad_stock -= cantidad
-                        producto.save()
-            return redirect('lista_ventas')  # Redirige a la página de lista de ventas o a donde lo necesites
-    else:
-        form = VentaForm()
-    
-    return render(request, 'registrar_venta.html', {'form': form})
-
-
+# ===========================================================================================
 from django.shortcuts import render
 from .models import Venta
 
@@ -360,6 +362,10 @@ def informe_ventas(request):
 
     return render(request, 'informe_ventas.html', {'ventas': ventas, 'total_ventas': total_ventas})
 
+def lista_productos(request):
+    productos = Producto.objects.all()
+    return render(request, 'lista_productos.html', {'productos': productos})
+
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import ProductoForm
 from .models import Producto
@@ -378,8 +384,18 @@ def agregar_producto(request, producto_id=None):
             return redirect('lista_productos')  # Redirige a la página de lista de productos o a donde lo necesites
     else:
         form = ProductoForm(instance=producto)
-
     return render(request, 'agregar_producto.html', {'form': form, 'producto': producto})
+
+def editar_producto(request, producto_id):
+    producto = get_object_or_404(Producto, pk=producto_id)
+    if request.method == 'POST':
+        form = ProductoForm(request.POST, instance=producto)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_productos')  # Redirige a la página de lista de proveedores
+    else:
+        form = ProductoForm(instance=producto)
+    return render(request, 'editar_proveedor.html', {'form': form, 'proveedor': producto})
 
 def cambiar_estado(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
