@@ -10,68 +10,85 @@
 </div>
 <hr>
 
-<div class="row justify-content-center mx-2">
-    <div class="col">
-        <form method="post" id="venta-form">
-            {% csrf_token %}
-            <div class="form-floating">
-                <input type="text" id="clienteInput" name="cliente" placeholder="Cliente" class="form-control">
-                <label for="cliente" class="form-label">Cliente:</label>
-            </div>
-            <div class="d-flex justify-content-center mt-2 mb-2">
-                <a class="btn buttons fw-bold" href="{% url 'clientes' %}"><i class="fa-solid fa-circle-plus"></i>
-                    Agregar Clientes
-                </a>
-            </div>
-        </form>
-    </div>
+<div class="row justify-content-center mx-2 mb-2">
     <div class="col">
         <div class="form-floating">
-            <input type="text" id="productoInput" name="productoInput" placeholder="Buscar productos..." class="form-control">
-            <label for="productoInput" class="form-label">Producto:</label>
-        </div>
-        <div class="d-flex justify-content-center mt-2 mb-2">
-            <a class="btn buttons fw-bold" href="{% url 'productos' %}"><i class="fa-solid fa-circle-plus"></i>
-                Agregar Productos
-            </a>
+            <input type="text" id="product-search" class="form-control">
+            <label for="product-search" class="form-label">Buscar producto:</label>
+            <div id="selected-product"></div>
         </div>
     </div>
 </div>
 
-<div class="row mx-2">
-    <div class="col">
-        <div id="cantidad-div">
-            <div class="form-floating">
-                <input type="text" id="cantidad" name="cantidad" placeholder="Cantidad" class="form-control">
-                <label for "cantidad" class="form-label">Cantidad:</label>
-            </div>
+<div class="row justify-content-center mx-2 mb-2">
+    <div id="available-quantity"> </div>
+    <div class="col-3 d-flex">
+        <button id="increase-quantity" class="btn fw-bold">+</button>
+        <div class="form-floating">
+            <input type="text" id="cantidadSalida" name="cantidad" placeholder="Cantidad" class="form-control" readonly>
+            <label for="product-search" class="form-label">Cantidad :</label>
         </div>
+        <button id="decrease-quantity" class="btn fw-bold">-</button>
     </div>
+
     <div class="col">
-        <div id="precio-div">
-            <div class="form-floating">
-                <input type="text" id="precio" name="precio" placeholder="Precio" class="form-control" readonly>
-                <label for="precio" class="form-label">Precio:</label>
-            </div>
+        <div class="form-floating">
+            <input type="text" id="price" name="precio" placeholder="Precio" class="form-control" readonly>
+            <label for="precioSalida" class="form-label">Precio :</label>
         </div>
     </div>
 </div>
+<input type="hidden" name="productoId" id="productoId">
+
+<div class="col text-center">
+    <button id="agregar-producto" class="btn buttons fw-bold">
+        Agregar Producto
+    </button>
+</div>
+
 <hr />
-<div class="row mx-2">
+<div class="row">
     <div class="col">
-        <table class="table">
+        <table id="productos-seleccionados" class="table">
             <thead>
                 <tr>
                     <th>Producto</th>
-                    <th>Cantidad</th>
                     <th>Precio Unitario</th>
-                    <th>Precio Total</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="tabla-venta">
+            <tbody>
+                <!-- Aquí se mostrarán los productos seleccionados -->
             </tbody>
         </table>
     </div>
+</div>
+<p>
+    Total: <span id="total"></span>
+</p>
+
+
+<div class="row mx-2">
+    <div class="col">
+        <div class="form-floating">
+            <select id="cbCliente" name="cliente_id" class="form-select">
+                <option value="">Selecciona un cliente</option>
+                {% for cliente in clientes %}
+                <option data-proveedor="{{ cliente.cliente_id }}" value="{{ cliente.id }}">{{ cliente.nombre }}
+                </option>
+                {% endfor %}
+            </select>
+            <label for="cliente_nombre" class="form-label">Cliente:</label>
+        </div>
+        <div class="d-flex justify-content-center mt-2 mb-2">
+            <a class="btn buttons fw-bold" href="{% url 'clientes' %}"><i class="fa-solid fa-circle-plus"></i>
+                Crear clientes
+            </a>
+        </div>
+    </div>
+
 </div>
 
 <div class="row mx-2">
@@ -81,49 +98,145 @@
 </div>
 <hr>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
 <script>
-$(document).ready(function() {
-    // Configura el autocomplete para el campo de cliente
-    $("#clienteInput").autocomplete({
-        source: function(request, response) {
-            // Utiliza Axios para obtener la lista de clientes desde tu servidor
-            axios.get("{% url 'clientes' %}", {
-                params: { term: request.term }
+    // Hacer una solicitud para obtener la lista de productos con Axios.
+    axios.get('/api/productos/')
+        .then(function (response) {
+            var products = response.data; // Supongamos que la respuesta contiene un arreglo de objetos de productos.
+            console.log(products)
+            // Inicializa el autocompletado en el campo de búsqueda.
+            $("#product-search").autocomplete({
+                source: products.map(function (product) {
+                    return product.nombre; // Muestra solo el nombre del producto.
+                }),
+                select: function (event, ui) {
+                    var selectedProduct = ui.item.value; // Obtiene el nombre del producto seleccionado.
+
+                    products.forEach(function (product) {
+                        if (product.nombre === selectedProduct) {
+                            var selectedProductQuantity = product.cantidad_stock;
+                            var selectedProductPrice = product.precio;
+                            var selectedProductId = product.id;
+                            $("#selected-product").text("Producto seleccionado: " + selectedProduct);
+                            $("#available-quantity").text("Cantidad disponible:" + selectedProductQuantity + "UND");
+
+                            // Validación al campo de cantidad.
+                            $("#cantidadSalida").attr("max", selectedProductQuantity);
+
+                            $("#increase-quantity").on("click", function () {
+                                var currentQuantity = parseInt($("#cantidadSalida").val()) || 0;
+                                if (currentQuantity < selectedProductQuantity) {
+                                    $("#cantidadSalida").val(currentQuantity + 1);
+                                }
+                            });
+
+                            $("#decrease-quantity").on("click", function () {
+                                var currentQuantity = parseInt($("#cantidadSalida").val()) || 0;
+                                if (currentQuantity > 0) {
+                                    $("#cantidadSalida").val(currentQuantity - 1);
+                                }
+                            });
+                            // Formatear el precio con separador de miles y el símbolo COP
+                            const precioFormateado = new Intl.NumberFormat('es-CO', {
+                                style: 'currency',
+                                currency: 'COP',
+                            }).format(selectedProductPrice);
+                            $("#price").val(selectedProductPrice);
+                            $("#productoId").val(selectedProductId);
+                        }
+                    })
+                }
             })
-            .then(function(data) {
-                response(data);
-            })
-            .catch(function(error) {
-                console.log(error);
+        })
+        .catch(function (error) {
+            console.error("Error al obtener la lista de productos:", error);
+        });
+
+
+    function actualizarTabla() {
+        var tabla = document.getElementById("productos-seleccionados").getElementsByTagName('tbody')[0];
+        tabla.innerHTML = "";
+        var total = 0;
+
+        productosSeleccionados.forEach(function (producto) {
+            var fila = tabla.insertRow(tabla.rows.length);
+            var celdaProducto = fila.insertCell(0);
+            var celdaPrecioUnitario = fila.insertCell(1);
+            var celdaCantidad = fila.insertCell(2);
+            var celdaSubtotal = fila.insertCell(3);
+            var celdaAcciones = fila.insertCell(4);
+
+            celdaProducto.innerHTML = producto.nombre;
+            celdaPrecioUnitario.innerHTML = producto.precio;
+            celdaCantidad.innerHTML = producto.cantidad;
+
+            var subtotal = producto.precio * producto.cantidad;
+            celdaSubtotal.innerHTML = subtotal;
+            total += subtotal;
+
+            var eliminarBtn = document.createElement("button");
+            eliminarBtn.textContent = "Eliminar";
+            eliminarBtn.addEventListener("click", function () {
+                eliminarProducto(producto);
             });
+            celdaAcciones.appendChild(eliminarBtn);
+        });
+
+        document.getElementById("total").textContent = total;
+    }
+
+    function eliminarProducto(producto) {
+        var index = productosSeleccionados.indexOf(producto);
+        if (index !== -1) {
+            productosSeleccionados.splice(index, 1);
+            actualizarTabla();
+        }
+    }
+
+    var productosSeleccionados = [];
+    document.getElementById("agregar-producto").addEventListener("click", function () {
+
+        var productoSelect = document.getElementById("productoId");
+        var cantidadInput = document.getElementById("cantidadSalida");
+        var precioInput = document.getElementById("price");
+        var productoNombre = document.getElementById("product-search")
+
+        var selectedProductoId = productoSelect.value;
+        var nombre = productoNombre.value;
+        var cantidad = parseInt(cantidadInput.value);
+        var precio = parseFloat(precioInput.value);
+
+        console.log(selectedProductoId + nombre + cantidad + precio)
+
+        if (selectedProductoId && cantidad > 0 && precio > 0) {
+            productosSeleccionados.push({
+                id: selectedProductoId,
+                nombre: nombre,
+                precio: precio,
+                cantidad: cantidad,
+            });
+
+            localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
+
+            actualizarTabla();
+            productoSelect.value = "";
+            cantidadInput.value = "";
+            precioInput.value = "";
+            productoNombre.value = "";
+        } else {
+            alert('Igrese todos los Campos')
         }
     });
 
-    // Configura el autocomplete para el campo de producto
-    $("#productoInput").autocomplete({
-        source: function(request, response) {
-            // Utiliza Axios para obtener la lista de productos desde tu servidor
-            axios.get("{% url 'productos' %}", {
-                params: { term: request.term }
-            })
-            .then(function(data) {
-                response(data);
-            })
-            .catch(function(error) {
-                console.log(error);
-            });
-        },
-        select: function(event, ui) {
-            // Maneja la selección de un producto y muestra su imagen
-            $("#imagenProducto").html('<img src="' + ui.item.imagen + '">');
-        }
+    document.addEventListener('DOMContentLoaded', function () {
+        // Obtener los datos del localStorage y convertirlos de nuevo a un array
+        var productosSeleccionadosJSON = localStorage.getItem('productosSeleccionados');
+        productosSeleccionados = JSON.parse(productosSeleccionadosJSON) || [];
+    
+        // Actualizar la tabla con los datos restaurados
+        actualizarTabla();
     });
 
-    // Agrega funcionalidad adicional aquí, como la gestión de eventos y el manejo de la tabla de venta.
-});
 </script>
+
 {% endblock %}

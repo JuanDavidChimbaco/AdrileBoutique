@@ -30,7 +30,7 @@ router.register(r'proveedores', views.ProveedorViewSet)
 router.register(r'productos', views.ProductoViewSet)
 router.register(r'clientes', views.ClienteViewSet)
 router.register(r'compras', views.CompraViewSet)
-router.register(r'detalles_compra', views.DetalleCompraViewSet)
+router.register(r'detalles-compra', views.DetalleCompraViewSet)
 router.register(r'ventas', views.VentaViewSet)
 router.register(r'detalles_venta', views.DetalleVentaViewSet)
 

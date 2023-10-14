@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-
+from django.db import transaction
 
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 from .models import (
     Usuario,
@@ -86,13 +87,14 @@ def dashboard(request):
 @login_required(login_url="index")
 def perfil_usuario(request, usuario_id):
     usuario = Usuario.objects.get(pk=usuario_id)
+    user_id = request.user.id 
     pertenece_a_administrador = request.user.groups.filter(
         name="administrador"
     ).exists()
     return render(
         request,
         "inventario/perfil.html",
-        {"usuario": usuario, "es_administrador": pertenece_a_administrador},
+        {"usuario": usuario, "es_administrador": pertenece_a_administrador, 'user_id': user_id},
     )
 
 
@@ -175,6 +177,31 @@ class CompraViewSet(viewsets.ModelViewSet):
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
 
+    def create(self, request):
+        # Obtener los datos de la solicitud
+        proveedor_id = request.data.get('proveedor')
+        detalles = request.data.get('detalles')  # Quita la lista de productos
+
+        # Crear la compra
+        compra = Compra.objects.create(proveedor_id=proveedor_id)
+
+        for detalle_data in detalles:
+            producto_id = detalle_data['producto']
+            cantidad = detalle_data['cantidad']
+            precio_unitario = detalle_data['precio_unitario']
+
+            # Asociar el producto con la compra a través de DetalleCompra
+            DetalleCompra.objects.create(compra=compra, producto_id=producto_id, cantidad=cantidad, precio_unitario=precio_unitario)
+
+            # Actualizar la cantidad de stock del producto
+            producto = Producto.objects.get(id=producto_id)
+            producto.cantidad_stock += cantidad
+            producto.save()
+
+        # Actualizar la compra serializada
+        serializer = CompraSerializer(compra)
+        return Response(serializer.data)
+
 
 class DetalleCompraViewSet(viewsets.ModelViewSet):
     queryset = DetalleCompra.objects.all()
@@ -184,6 +211,52 @@ class DetalleCompraViewSet(viewsets.ModelViewSet):
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
+
+    # Método personalizado para crear una venta y sus detalles
+    @action(detail=False, methods=['post'])
+    def create_venta(self, request):
+        # Obtén los datos de la solicitud JSON
+        data = request.data
+
+        # Valida y procesa los datos para crear una nueva venta y detalles de venta
+        try:
+            cliente_id = data.get('cliente_id')
+            productos = data.get('productos')
+
+            # Crea la venta
+            venta = Venta.objects.create(cliente_id=cliente_id)
+
+            detalles_venta = []
+            with transaction.atomic():
+                for producto_data in productos:
+                    producto_id = producto_data.get('id')
+                    cantidad = producto_data.get('cantidad')
+                    precio_unitario = producto_data.get('precio')
+
+                # Obtén el producto correspondiente
+                producto = Producto.objects.get(pk=producto_id)
+        
+                if producto.cantidad_stock >= cantidad:
+                    # Crea un detalle de venta y lo asocia a la venta creada
+                    detalle_venta = DetalleVenta.objects.create(
+                        venta=venta,
+                        producto=producto,
+                        cantidad=cantidad,
+                        precio_unitario=precio_unitario
+                    )
+                    detalles_venta.append(detalle_venta)
+
+                    # Actualiza la cantidad en stock del producto
+                    producto.cantidad_stock -= cantidad
+                    producto.save()
+                else:
+                    return Response({'error': f"No hay suficiente stock para {producto.nombre}"}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer = VentaSerializer(venta)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DetalleVentaViewSet(viewsets.ModelViewSet):

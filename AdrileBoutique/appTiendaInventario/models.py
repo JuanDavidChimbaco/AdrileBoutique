@@ -96,7 +96,6 @@ class Cliente(models.Model):
 class Compra(models.Model):
     fecha_compra = models.DateTimeField(auto_now_add=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    productos = models.ManyToManyField(Producto, through='DetalleCompra')
 
     def __str__(self):
         return f"Compra #{self.id} - {self.fecha_compra}"
@@ -109,7 +108,7 @@ class DetalleCompra(models.Model):
 
     def __str__(self):
         return f"Detalle de compra #{self.id}"
-    
+
     
 # ====================[Ventas]==============================
 class Venta(models.Model):

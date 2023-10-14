@@ -16,7 +16,7 @@
 <div class="row justify-content-center mx-2">
     <div class="col">
         <div class="form-floating ">
-            <select name="proveedor" id="proveedor" class="form-select">
+            <select name="proveedor" id="cbProveedor" class="form-select">
                 <option value="">Selecciona un proveedor</option>
                 {% for proveedor in proveedores %}
                 <option value="{{ proveedor.id }}">{{ proveedor.nombre_empresa}}</option>
@@ -28,7 +28,7 @@
 
     <div class="col">
         <div class="form-floating">
-            <select id="producto" name="producto_id" class="form-select">
+            <select id="cbProducto" name="producto_id" class="form-select">
                 <option value="">Selecciona un producto</option>
                 {% for producto in productos %}
                 <option data-proveedor="{{ producto.proveedor_id }}" value="{{ producto.id }}">{{ producto.nombre }}
@@ -42,14 +42,14 @@
 <div class="row justify-content-center mx-2">
     <div class="col">
         <div class="form-floating">
-            <input type="number" id="cantidad" name="cantidad" placeholder="cantidad" class="form-control">
+            <input type="number" id="txtCantidad" name="cantidad" placeholder="cantidad" class="form-control">
             <label for="cantidad" class="form-label">cantidad:</label>
         </div>
     </div>
 
     <div class="col">
         <div class="form-floating">
-            <input type="number" id="precio" name="precio" placeholder="Precio" class="form-control">
+            <input type="number" id="txtPrecio" name="precio" placeholder="Precio" class="form-control">
             <label for="precio" class="form-label">Precio unitario:</label>
         </div>
     </div>
@@ -81,202 +81,18 @@
         </table>
     </div>
 </div>
-
-<!-- <div class="row mx-2" id="form-producto">
+<p>
+    Total: <span id="total"></span>
+</p>
     
-    
-</div> -->
-
 <div class="row mx-2">
     <div class="col d-flex justify-content-center mt-3">
         <button id="crear-entrada" type="button" class="btn buttons mx-1 mt-3 fw-bold">Crear entrada</button>
     </div>
+    <div class="col d-flex justify-content-center mt-3">
+        <button id="cancelar-entrada" type="button" class="btn buttons mx-1 mt-3 fw-bold" >cancelar entrada</button>
+    </div>
 </div>
 <hr>
-
-<script>
-    // Variables para mantener un seguimiento de los productos seleccionados
-    var productosSeleccionados = [];
-
-    // Función para actualizar la tabla con los productos seleccionados
-    function actualizarTabla() {
-        var tabla = document.getElementById("productos-seleccionados").getElementsByTagName('tbody')[0];
-        tabla.innerHTML = ""; // Limpiar la tabla
-
-        var total = 0;
-
-        productosSeleccionados.forEach(function (producto) {
-            var fila = tabla.insertRow(tabla.rows.length);
-            var celdaProducto = fila.insertCell(0);
-            var celdaPrecioUnitario = fila.insertCell(1);
-            var celdaCantidad = fila.insertCell(2);
-            var celdaSubtotal = fila.insertCell(3);
-            var celdaAcciones = fila.insertCell(4);
-
-            celdaProducto.innerHTML = producto.nombre;
-            celdaPrecioUnitario.innerHTML = producto.precio;
-            celdaCantidad.innerHTML = producto.cantidad;
-
-            var subtotal = producto.precio * producto.cantidad;
-            celdaSubtotal.innerHTML = subtotal;
-            total += subtotal;
-
-            var eliminarBtn = document.createElement("button");
-            eliminarBtn.textContent = "Eliminar";
-            eliminarBtn.addEventListener("click", function () {
-                eliminarProducto(producto);
-            });
-            celdaAcciones.appendChild(eliminarBtn);
-        });
-
-        // Actualizar el total en algún lugar de tu formulario
-        document.getElementById("total").textContent = total;
-    }
-
-    // Función para eliminar un producto de la lista
-    function eliminarProducto(producto) {
-        var index = productosSeleccionados.indexOf(producto);
-        if (index !== -1) {
-            productosSeleccionados.splice(index, 1);
-            actualizarTabla();
-        }
-    }
-
-    document.getElementById("agregar-producto").addEventListener("click", function () {
-        var productoSelect = document.getElementById("producto");
-        var cantidadInput = document.getElementById("cantidad");
-        var precioInput = document.getElementById("precio");
-
-        var selectedProductoId = productoSelect.value;
-        var cantidad = parseInt(cantidadInput.value);
-        var precio = parseFloat(precioInput.value);
-
-        if (selectedProductoId && cantidad > 0 && precio > 0) {
-            // Obtener los detalles del producto seleccionado
-            var selectedProducto = productos.find(function (producto) {
-                return producto.id === selectedProductoId;
-            });
-
-            if (selectedProducto) {
-                // Agregar el producto a la lista
-                productosSeleccionados.push({
-                    id: selectedProducto.id,
-                    nombre: selectedProducto.nombre,
-                    precio: precio,
-                    cantidad: cantidad,
-                });
-
-                // Actualizar la tabla
-                actualizarTabla();
-
-                // Limpiar los campos del formulario
-                productoSelect.value = "";
-                cantidadInput.value = "";
-                precioInput.value = "";
-            }
-        }
-    });
-
-    document.getElementById("proveedor").addEventListener("change", function () {
-        var selectedProveedorId = this.value;
-
-        var productoSelect = document.getElementById("producto");
-        var options = productoSelect.getElementsByTagName("option");
-
-        for (var i = 0; i < options.length; i++) {
-            var option = options[i];
-            var productoProveedorId = option.getAttribute("data-proveedor");
-
-            if (!selectedProveedorId || selectedProveedorId === productoProveedorId) {
-                option.style.display = "block";
-            } else {
-                option.style.display = "none";
-            }
-        }
-    });
-
-    $('#producto').change(async function () {
-        $('#form-producto').show();
-    })
-</script>
-<!-- <script>
-    $('#crear-entrada').click(function () {
-        var proveedor = $('#proveedor').val();
-        var product_name = $('#product_name').val();
-        var precio = $('#precio').val();
-        var cantidad = $('#cantidad').val();
-
-        // Crea un objeto con los datos
-        var data = {
-            proveedor: proveedor,
-            detalles: [
-                {
-                    producto: product_name,
-                    cantidad: cantidad,
-                    precio_unitario: precio
-                }
-            ]
-        };
-        axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
-        axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
-
-        // Realiza una solicitud POST a la API de creación de compra utilizando Axios
-        axios.post("{% url 'crear_compra_api' %}", data, {
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-            .then(response => {
-                // Maneja la respuesta de la API, por ejemplo, muestra un mensaje de éxito o error
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    });
-
-
-    $('#proveedor').change(async function () {
-        var proveedorSeleccionado = $(this).val();
-        if (proveedorSeleccionado) {
-            axios.defaults.xsrfCookieName = 'csrftoken';
-            axios.defaults.xsrfHeaderName = 'X-CSRFToken';
-            try {
-                const response = await axios.post("/productos_por_proveedor/" + proveedorSeleccionado + "/");
-                console.log(response.data);
-                $('#contenido-productos').show();
-                var productSelect = $('#product_name');
-                productSelect.empty();
-
-                if (response.data.length > 0) {
-
-                    response.data.forEach(product => {
-                        productSelect.append($('<option>', {
-                            value: product.id,
-                            text: product.nombre
-                        }));
-                    });
-                } else {
-                    // No se encontraron productos, muestra un mensaje en el select.
-                    productSelect.append($('<option>', {
-                        value: '',
-                        text: 'No hay productos disponibles para este proveedor'
-                    }));
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        } else {
-            // Si no se ha seleccionado un proveedor, limpia y deshabilita el select de productos.
-            $('#contenido-productos').hide();
-            var productSelect = $('#product_name');
-            productSelect.empty().append($('<option>', {
-                value: '',
-                text: 'Selecciona un producto'
-            }));
-        }
-    });
-
-    
-</script> -->
+<script src="{% static 'js/entrada.js' %}"></script>
 {% endblock %}
