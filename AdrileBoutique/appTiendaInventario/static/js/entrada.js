@@ -133,9 +133,9 @@ document.getElementById("crear-entrada").addEventListener("click", function () {
     });
 
     axios.post("/api/compras/", {
-            proveedor: proveedor,
-            detalles: detalles
-        })
+        proveedor: proveedor,
+        detalles: detalles
+    })
         .then(function (response) {
             console.log(response.data);
             Swal.fire({
@@ -144,9 +144,22 @@ document.getElementById("crear-entrada").addEventListener("click", function () {
                 showConfirmButton: false,
                 timer: 1500 // tiempo en milisegundos para que se cierre automáticamente
             });
+            
+            var productoSelect = document.getElementById("cbProducto");
+            var cantidadInput = document.getElementById("txtCantidad");
+            var precioInput = document.getElementById("txtPrecio");
+
+            productoSelect.value = "";
+            cantidadInput.value = "";
+            precioInput.value = "";
+
+            // Limpiar el localStorage
+            localStorage.removeItem('productosSeleccionados');
+
+            // Limpiar la tabla
             productosSeleccionados = []; // Limpiar productos seleccionados
             actualizarTabla();
-            location.href = 'lista_compras/';
+            location.href = '/lista_compras/';
         })
         .catch(function (error) {
             console.error(error);

@@ -1,0 +1,16 @@
+{% extends 'tienda/index.html' %}
+{% block contenido %}
+{% load static %}
+    <div class="container my-5 shadow p-3 mb-5 bg-body rounded">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Acerca De Nosotros</h2>
+                <p>Somos una tienda de ropa femenina dedicada a brindar las últimas tendencias de la moda a precios asequibles. Desde nuestra fundación, nos hemos comprometido a ofrecer a nuestras clientes una experiencia de compra excepcional y a proporcionar productos de calidad que realcen su estilo y personalidad.</p>
+                <p>En nuestra tienda, encontrarás una amplia gama de prendas de vestir y accesorios cuidadosamente seleccionados, diseñados para adaptarse a una variedad de gustos y ocasiones. Nuestro equipo está constantemente buscando nuevas marcas y tendencias para asegurarse de que siempre estés a la vanguardia de la moda.</p>
+            </div>
+            <div class="col-md-6">
+                <img src="{% static 'imgages/l.jpg' %}" class="img-fluid" alt="Acerca De Nosotros">
+            </div>
+        </div>
+    </div>
+{% endblock %}

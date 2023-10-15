@@ -1,0 +1,32 @@
+{% extends 'tienda/index.html' %}
+{% block contenido %}
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Contáctanos</h2>
+                <p>¡Estamos encantados de escucharte! Si tienes alguna pregunta, comentario o sugerencia, no dudes en contactarnos. Nuestro equipo de atención al cliente estará encantado de ayudarte y resolver cualquier duda que puedas tener. Puedes comunicarte con nosotros a través de los siguientes medios:</p>
+                <ul>
+                    <li><strong>Teléfono:</strong> +1 123-456-7890</li>
+                    <li><strong>Correo Electrónico:</strong> <a href="mailto:info@tutiendaderopafemenina.com">info@tutiendaderopafemenina.com</a></li>
+                    <li><strong>Dirección:</strong> 123 Calle Principal, Ciudad, País</li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <input type="text" class="form-control" name="name" placeholder="Nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" name="email" placeholder="Correo Electrónico" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" name="message" rows="5" placeholder="Mensaje" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Enviar</button>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+{% endblock %}

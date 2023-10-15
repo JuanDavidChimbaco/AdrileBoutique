@@ -30,7 +30,7 @@ router.register(r'proveedores', views.ProveedorViewSet)
 router.register(r'productos', views.ProductoViewSet)
 router.register(r'clientes', views.ClienteViewSet)
 router.register(r'compras', views.CompraViewSet)
-router.register(r'detalles-compra', views.DetalleCompraViewSet)
+router.register(r'detalles_compra', views.DetalleCompraViewSet)
 router.register(r'ventas', views.VentaViewSet)
 router.register(r'detalles_venta', views.DetalleVentaViewSet)
 
@@ -47,10 +47,7 @@ urlpatterns = [
     
     # gestion de Perfil
     path("perfil/<int:usuario_id>/", views.perfil_usuario, name="perfil"),
-
-    
-    # funciones extras
-    path('autocomplete_product_name/', views.autocomplete_product_name, name='autocomplete_product_name'),
+    # path("/modificarUsuario/<int:usuario_id>/", views.modificarDatosUserPerfil(), name="modificar_perfil"),
     
     # URL de gestion inventario
     path('dashboard/', views.dashboard, name='dashboard'),
@@ -60,7 +57,6 @@ urlpatterns = [
     path("frmSalidas/", views.salidas, name="salidas"),
     
     
-     path('crear_compra_api/', views.CrearCompra.as_view(), name='crear_compra_api'),
      path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
      
     
@@ -75,9 +71,10 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     
     
-    path('crear_compra/', views.crear_compra, name='crear_compra'),
+
     path('cargar_productos/', views.cargar_productos, name='cargar_productos'),  # Nueva URL para cargar productos
     path('lista_compras/', views.lista_compras, name='lista_compras'),
+    path('lista_ventas/', views.lista_ventas, name='lista_ventas'),
     
     path('lista_stock/', views.lista_stock, name='lista_stock'),
     path('informe_ventas/', views.informe_ventas, name='informe_ventas'),
@@ -101,6 +98,11 @@ urlpatterns = [
     path('agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
     path('editar_cliente/<int:cliente_id>/', views.editar_cliente, name='editar_cliente'),
     path('lista_clientes/', views.lista_clientes, name='lista_clientes'),
+
+    #----------- tienda
+    path('tienda/', views.inicio_Tienda, name='tienda'),
+    path('acerca/', views.acercaDe, name='acerca'),
+    path('contactanos/', views.contactanos, name='contactanos'),
     
 ]
 if settings.DEBUG:

@@ -6,7 +6,7 @@
 </div>
 <div class="bg-white rounded p-2" id="profile-section">
     <h1>Perfil de Usuario</h1>
-    <form>
+    <form action="/modificarUsuario/{{user.id}}" enctype="multipart/form-data"  method="post" class="needs-validation" novalidate>
         {% csrf_token %}
         <div class="row d-flex">
             <div class="col">

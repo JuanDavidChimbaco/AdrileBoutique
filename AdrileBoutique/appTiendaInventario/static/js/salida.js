@@ -1,0 +1,209 @@
+ // Hacer una solicitud para obtener la lista de productos con Axios.
+ axios.get('/api/productos/')
+ .then(function (response) {
+     var products = response.data; // Supongamos que la respuesta contiene un arreglo de objetos de productos.
+     console.log(products)
+     // Inicializa el autocompletado en el campo de búsqueda.
+     $("#product-search").autocomplete({
+         source: products.map(function (product) {
+             return product.nombre; // Muestra solo el nombre del producto.
+         }),
+         select: function (event, ui) {
+             var selectedProduct = ui.item.value; // Obtiene el nombre del producto seleccionado.
+
+             products.forEach(function (product) {
+                 if (product.nombre === selectedProduct) {
+                     var selectedProductQuantity = product.cantidad_stock;
+                     var selectedProductPrice = product.precio;
+                     var selectedProductId = product.id;
+                     $("#selected-product").text("Producto seleccionado: " + selectedProduct);
+                     $("#available-quantity").text("Cantidad disponible:" + selectedProductQuantity + "UND");
+
+                     // Validación al campo de cantidad.
+                     $("#cantidadSalida").attr("max", selectedProductQuantity);
+
+                     $("#increase-quantity").on("click", function () {
+                         var currentQuantity = parseInt($("#cantidadSalida").val()) || 0;
+                         if (currentQuantity < selectedProductQuantity) {
+                             $("#cantidadSalida").val(currentQuantity + 1);
+                         }
+                     });
+
+                     $("#decrease-quantity").on("click", function () {
+                         var currentQuantity = parseInt($("#cantidadSalida").val()) || 0;
+                         if (currentQuantity > 0) {
+                             $("#cantidadSalida").val(currentQuantity - 1);
+                         }
+                     });
+                     // Formatear el precio con separador de miles y el símbolo COP
+                     const precioFormateado = new Intl.NumberFormat('es-CO', {
+                         style: 'currency',
+                         currency: 'COP',
+                     }).format(selectedProductPrice);
+                     $("#price").val(selectedProductPrice);
+                     $("#productoId").val(selectedProductId);
+                 }
+             })
+         }
+     })
+ })
+ .catch(function (error) {
+     console.error("Error al obtener la lista de productos:", error);
+ });
+
+
+function actualizarTabla() {
+ var tabla = document.getElementById("productos-seleccionados").getElementsByTagName('tbody')[0];
+ tabla.innerHTML = "";
+ var total = 0;
+
+ productosSeleccionados.forEach(function (producto) {
+     var fila = tabla.insertRow(tabla.rows.length);
+     var celdaProducto = fila.insertCell(0);
+     var celdaPrecioUnitario = fila.insertCell(1);
+     var celdaCantidad = fila.insertCell(2);
+     var celdaSubtotal = fila.insertCell(3);
+     var celdaAcciones = fila.insertCell(4);
+
+     celdaProducto.innerHTML = producto.nombre;
+     celdaPrecioUnitario.innerHTML = producto.precio;
+     celdaCantidad.innerHTML = producto.cantidad;
+
+     var subtotal = producto.precio * producto.cantidad;
+     celdaSubtotal.innerHTML = subtotal;
+     total += subtotal;
+
+     var eliminarBtn = document.createElement("button");
+     eliminarBtn.textContent = "Eliminar";
+     eliminarBtn.addEventListener("click", function () {
+         eliminarProducto(producto);
+     });
+     celdaAcciones.appendChild(eliminarBtn);
+ });
+
+ document.getElementById("total").textContent = total;
+}
+
+function eliminarProducto(producto) {
+ var index = productosSeleccionados.indexOf(producto);
+ if (index !== -1) {
+     productosSeleccionados.splice(index, 1);
+     actualizarTabla();
+ }
+}
+
+var productosSeleccionados = [];
+document.getElementById("agregar-producto").addEventListener("click", function () {
+
+ var productoSelect = document.getElementById("productoId");
+ var cantidadInput = document.getElementById("cantidadSalida");
+ var precioInput = document.getElementById("price");
+ var productoNombre = document.getElementById("product-search")
+
+ var selectedProductoId = productoSelect.value;
+ var nombre = productoNombre.value;
+ var cantidad = parseInt(cantidadInput.value);
+ var precio = parseFloat(precioInput.value);
+
+
+ console.log(selectedProductoId + nombre + cantidad + precio)
+
+ if (selectedProductoId && cantidad > 0 && precio > 0) {
+     productosSeleccionados.push({
+         id: selectedProductoId,
+         nombre: nombre,
+         precio: precio,
+         cantidad: cantidad,
+     });
+
+     localStorage.setItem('productosSeleccionadosVenta', JSON.stringify(productosSeleccionados));
+
+     actualizarTabla();
+     productoSelect.value = "";
+     cantidadInput.value = "";
+     precioInput.value = "";
+     productoNombre.value = "";
+ } else {
+     alert('Igrese todos los Campos')
+ }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+ // Obtener los datos del localStorage y convertirlos de nuevo a un array
+ var productosSeleccionadosJSON = localStorage.getItem('productosSeleccionadosVenta');
+ productosSeleccionados = JSON.parse(productosSeleccionadosJSON) || [];
+
+ // Actualizar la tabla con los datos restaurados
+ actualizarTabla();
+});
+
+document.getElementById("realizar-venta").addEventListener("click", function () {
+ // Realizar la solicitud de venta con los productos seleccionados
+ axios.defaults.xsrfCookieName = 'csrftoken';
+ axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+
+ var cliente = document.getElementById("cbCliente").value;
+ var detalles = productosSeleccionados.map(function (producto) {
+     return {
+         producto: producto.id,
+         cantidad: producto.cantidad,
+         precio_unitario: producto.precio,
+     };
+ });
+
+ axios.post("/api/ventas/", {
+     cliente: cliente, // Cambiar a "cliente_id" en lugar de "proveedor"
+     detalles: detalles // Cambiar a "productos" en lugar de "detalles"
+ })
+     .then(function (response) {
+         console.log(response.data);
+         Swal.fire({
+             icon: 'success',
+             title: 'Venta realizada con éxito.',
+             showConfirmButton: false,
+             timer: 1500 // tiempo en milisegundos para que se cierre automáticamente
+         });
+
+         var productoSelect = document.getElementById("product-search");
+         var cantidadInput = document.getElementById("cantidadSalida");
+         var precioInput = document.getElementById("price");
+
+         productoSelect.value = "";
+         cantidadInput.value = "";
+         precioInput.value = "";
+
+         // Limpiar el localStorage
+         localStorage.removeItem('productosSeleccionadosVenta');
+
+         // Limpiar la tabla
+         productosSeleccionados = []; // Limpiar productos seleccionados
+         actualizarTabla();
+
+         // Cambiar la redirección si es necesario
+         location.href = '/lista_ventas/';
+     })
+     .catch(function (error) {
+         console.error(error);
+     });
+});
+
+document.getElementById("cancelar-salida").addEventListener("click", function () {
+
+ var productoSelect = document.getElementById("product-search");
+ var cantidadInput = document.getElementById("cantidadSalida");
+ var precioInput = document.getElementById("price");
+
+ productoSelect.value = "";
+ cantidadInput.value = "";
+ precioInput.value = "";
+
+ // Limpiar el localStorage
+ localStorage.removeItem('productosSeleccionadosVenta');
+
+ // Limpiar la tabla
+ productosSeleccionados = []; // Limpiar productos seleccionados
+ actualizarTabla();
+
+ // Cambiar la redirección si es necesario
+ location.href = '/lista_ventas/';
+});

@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="{% static 'images/svg/image.svg' %}" class="rounded"/>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--jquery-->
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+
+    <!-- autocomplete -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+    <!-- DataTable CSS-->
+    <link rel="stylesheet" href="{% static 'DataTables/datatables.min.css' %}" />
+
+    <!-- DataTable JS-->
+    <script src="{% static 'DataTables/datatables.min.js' %}"></script>
+ 
+    <!-- bootstrap local -->
+    <link rel="stylesheet" href="{% static 'bootstrap-5.3.1-dist/css/bootstrap.min.css' %}" />
+    <script src="{% static 'bootstrap-5.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
+
+    <!--sweet alert-->
+    <script src="{% static 'js/sweetalert2@11.js' %}"></script>
+
+    <!--font awesome-->
+    <link rel="stylesheet" href="{% static 'fontawesome-free-6.4.2-web/css/all.min.css' %}">
+
+    <!-- axios -->
+    <script src="{% static 'js/axios.min.js' %}"></script>
+    
+    <!-- staticos locales -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <script src="{% static 'js/app.js' %}" defer></script>
+</head>
+
+<body>
+    <div class="container-fluid d-flex flex-column min-vh-100">
+        <header>
+            <div class="container-fluid mb-2">
+                <div class="row rounded-bottom headercolor bg-dark">
+
+                    <div class="col-2 d-flex align-items-center justify-content-start">
+                        <img src="{% static 'images/svg/logo2.svg' %}" alt="logo" width="50" class="" />
+                    </div>
+
+                    <div class="col d-flex  align-items-center">
+                        <span class="text-white w-100">
+                            <marquee behavior="" direction="left" class="rounded-start-circle rounded-end-circle">Adrile
+                                Boutique</marquee>
+                        </span>
+                    </div>
+
+                    <div class="col d-flex align-items-center">
+                        <span class="text-white">Los Mejores Precios !!!</span>
+                    </div>
+
+                    <div class="col-1 d-flex  align-items-center justify-content-center">
+                        <i class="fa fa-shoe-prints text-white fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-expand-lg rounded">
+                <div class="container-fluid">
+
+                    <a class="navbar-brand" href="/inicio/">
+                        <img src="{% static 'images/Logo.png' %}" alt="logo" width="150" />
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                        <form role="search">
+                            <div class="input-group w-100">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="search" class="form-control rounded-end" name="txtBuscar" id="txtBuscar"
+                                    placeholder="Buscar" onkeyup="autoComplete()">
+                                <div id="listaProductos"></div>
+                            </div>
+                        </form>
+
+                        <ul class="navbar-nav mb-2 mb-lg-0 d-flex justify-content-end w-100 mx-2">
+                            {% block navbar_content %}
+                            <li class="nav-item linxD">
+                                <a class="nav-link active" aria-current="page" href="/inicio_tienda/"> Productos </a>
+                            </li>
+                            <li class="nav-item linxD">
+                                <a class="nav-link active linxD" aria-current="page" href="/acerca/"> Acerca De </a>
+                            </li>
+                            <li class="nav-item linxD">
+                                <a class="nav-link active linxD" aria-current="page" href="/contactanos/"> Contactanos </a>
+                            </li>
+                            
+                            <li class="nav-item linxD">
+                                <a class="nav-link active" aria-current="page" href="/"> Iniciar Sesión </a>
+                            </li>
+                            {% endblock %}
+                        </ul>
+
+                    </div>
+
+                </div>
+            </nav>
+        </header>
+        <div class="d-flex">
+            <main class="flex-grow-1">
+                {% block contenido %}
+
+                {% endblock %}
+            </main>
+
+        </div>
+        <footer class="bg-dark text-white p-4">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h4>Enlaces</h4>
+                        <ul class="list-unstyled">
+                            <li><a href="/tienda/" class="linkFooter">Inicio</a></li>
+                            <li><a href="#productosContainer" class="linkFooter">Productos</a></li>
+                            <li><a href="#" class="linkFooter">Contacto</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Contacto</h4>
+                        <address>
+                            <strong>Adrile Boutique</strong><br />
+                            Carrera 9a # 4-17<br />
+                            Palermo, Huila, Colombia<br />
+                            Teléfono: (+57) 316 759 96 27<br />
+                            Email: info@adrileboutique.com
+                        </address>
+                    </div>
+                    <div class="col-md-4">
+                        <h4>Síguenos</h4>
+                        <ul class="list-unstyled">
+                            <li><a href="https://web.facebook.com/shoesadrian/" target="_blank" class="linkFooter"><i
+                                        class="fab fa-facebook"></i> Facebook</a></li>
+                            <li><a href="https://wa.me/+573167599628?text=Hola,%20Me%20interesa%20un%20producto"
+                                    target="_blank" class="linkFooter"><i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+                            <li><a href="https://www.instagram.com/adrile.boutique" target="_blank"
+                                    class="linkFooter"><i class="fab fa-instagram"></i> Instagram</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+{% extends 'inventario/index.html' %}
+
+{% block contenido %}
+{% load static %}
+<h1>Lista de Ventas</h1>
+<hr>
+<div class="">
+    <a href="{% url 'salidas' %}" class="btn btn-primary">Agregar Venta</a>
+</div>
+<hr>
+<div class="row mx-2">
+    <table id="ventas-table" class="display nowrap" style="width:100%">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fecha de Venta</th>
+                <th>Cliente</th>
+                <th>Total Cantidad</th>
+                <th>Opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for venta in ventas %}
+            <tr>
+                <td scope="row">{{ forloop.counter }}</td>
+                <td>{{ venta.fecha_venta }}</td>
+                <td>{{ venta.cliente }}</td>
+                <td>{{ venta.total_cantidad }}</td>
+                <td><button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#detalleVentaModal"
+                        onclick="detalle('{{ venta.id }}')">Ver Detalles</button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="modal fade" id="detalleVentaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalles de la Venta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" >
+                <div id="contenidoDetalle">
+                    <!-- contenido venta -->
+                </div>
+                
+                <h4>Detalles de la Venta:</h4>
+                <table class="table table-dark"> 
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cantidad</th>
+                            <th>Precio Unitario</th>
+                        </tr>
+                    </thead>
+                    <tbody id="datos">
+                        <!-- datos  -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/lista_ventas.js' %}"></script>
+
+{% endblock %}

@@ -1,42 +1,53 @@
-{% extends 'inventario/index.html'%} {% block contenido %} {% load static %}
-    <h1>Lista de Entradas</h1>
-    <!-- Agregar una tabla con un ID para DataTables -->
-    <hr>
-    <div class="">
-        <a href="{% url 'entradas' %}" class="btn btn-primary">Agregar Entrada</a>
-    </div>
-    <hr>
-    <div class="row mx-2">
-        <table id="compras-table" class="display">
-            <thead>
-                <tr>
-                    <th>Fecha de Compra</th>
-                    <th>Proveedor</th>
-                    <th>Total Cantidad</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for compra in compras %}
-                    <tr>
-                        <td>{{ compra.fecha_compra }}</td>
-                        <td>{{ compra.proveedor }}</td>
-                        <td>{{ compra.total_cantidad }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
-    <script>
-        // Inicializar la tabla con DataTables
-        $(document).ready(function() {
-            $('#compras-table').DataTable({
-                "scrollY": "300px", // Ajusta la altura del scroll según tus necesidades
-                "scrollCollapse": true,
-                "paging": true, // Deshabilitar paginación
-                "pageLength": 2,
-                "responsive": true
-            });
+{% extends 'inventario/index.html'%}
+{% block contenido %}
+{% load static %}
+<h1>Lista de Entradas</h1>
+<!-- Agregar una tabla con un ID para DataTables -->
+<hr>
+<div class="">
+    <a href="{% url 'entradas' %}" class="btn btn-primary">Agregar Entrada</a>
+</div>
+<hr>
+<div class="row mx-2">
+    <table id="compras-table" class="display " style="width:100%">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Fecha de Compra</th>
+                <th>Proveedor</th>
+                <th># de Productos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for compra  in compras %}
+            <tr>
+                <td scope="row">{{ forloop.counter }}</td>
+                <td>{{ compra.fecha_compra }}</td>
+                <td>{{ compra.proveedor }}</td>
+                <td>{{ compra.total_cantidad }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // Inicializar la tabla con DataTables
+    document.addEventListener("DOMContentLoaded", function() {
+        var table = document.getElementById("compras-table");
+        var dataTable = new DataTable(table, {
+            "language": {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
+            },
+            "paging": false,
+            "scrollCollapse": true,
+            "scrollY": "50vh",
+            "scrollX": "100%",
+            responsive: true
         });
-    </script>
+        
+        dataTable.columns.adjust();
+    });
+    
+</script>
 {% endblock %}

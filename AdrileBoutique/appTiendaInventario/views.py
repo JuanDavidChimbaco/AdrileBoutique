@@ -2,7 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
+from django.http import Http404
 from django.db import transaction
+import os
+import logging
+logger = logging.getLogger(__name__)
 
 from rest_framework import viewsets, status
 from rest_framework.views import APIView
@@ -35,7 +39,7 @@ from .serializers import (
 # Create your views here.
 
 
-# ===[login y logout sin Api]===
+# ===[login y logout sin Api]=======================================================================0
 def login_view(request):
     if request.method == "POST":
         username = request.POST["username"].strip()
@@ -62,7 +66,7 @@ def custom_logout(request):
     return redirect("index")
 
 
-# ===[vistas templates]===
+# ===[vistas templates]===============================================================================
 @login_required(login_url="index")
 def inicio(request):
     return redirect("dashboard")
@@ -74,29 +78,120 @@ def index(request):
 
 @login_required(login_url="index")
 def dashboard(request):
-    pertenece_a_administrador = request.user.groups.filter(
-        name="administrador"
-    ).exists()
-    return render(
-        request,
-        "inventario/dashboard.html",
-        {"user": request.user, "es_administrador": pertenece_a_administrador},
-    )
+    pertenece_a_administrador = request.user.groups.filter(name="administrador").exists()
+    retorno = {"user": request.user, "es_administrador": pertenece_a_administrador}
+    return render( request,"inventario/dashboard.html", retorno)
 
 
 @login_required(login_url="index")
 def perfil_usuario(request, usuario_id):
-    usuario = Usuario.objects.get(pk=usuario_id)
-    user_id = request.user.id 
-    pertenece_a_administrador = request.user.groups.filter(
-        name="administrador"
-    ).exists()
+    print("ID del usuario logueado:", request.user.id)
+    print("ID del usuario solicitado:", usuario_id)
+    try:
+        usuario = Usuario.objects.get(pk=usuario_id)
+        print("Usuario encontrado:", usuario)
+    except Usuario.DoesNotExist:
+        raise Http404("Usuario no encontrado")
+    pertenece_a_administrador = request.user.groups.filter(name="administrador").exists()
     return render(
         request,
         "inventario/perfil.html",
-        {"usuario": usuario, "es_administrador": pertenece_a_administrador, 'user_id': user_id},
+        {"usuario": usuario, "es_administrador": pertenece_a_administrador},
     )
 
+from django.db import Error, transaction
+
+def modificarDatosUserPerfil(request,id):
+    if request.method == "POST":
+        try:
+            nombres = request.POST["name"]
+            apellidos = request.POST["last"]
+            email = request.POST["email"]
+            telefono = request.POST["phone"]
+            direccion = request.POST["address"]
+            usuario = request.POST["user"]
+            foto = request.FILES.get("fileFoto", False)
+
+            with transaction.atomic():
+                user = Usuario().objects.get(pk=id)
+                user.username=usuario
+                user.first_name=nombres
+                user.last_name=apellidos
+                user.email=email
+                user.telefono=telefono
+                user.direccion=direccion
+                if(foto):
+                    if user.fotoPerfil == "":
+                        user.fotoPerfil=foto
+                    else:
+                        os.remove('./media/'+str(user.fotoPerfil))
+                        user.fotoPerfil=foto
+                user.save()
+                mensaje = "Datos Modificados Correctamente"
+                retorno = {"mensaje": mensaje,"estado":True}
+
+                return render(request, 'inventario/perfil.html',retorno)
+
+        except Error as error:
+            transaction.rollback()
+            if 'user.username' in str(error):
+                mensaje = "Ya existe un usuario con este nombre de usuario"
+            elif 'user.email' in str(error):
+                mensaje = "Ya existe un usuario con ese correo electronico"
+            else:
+                mensaje = error
+        retorno = {"mensaje":mensaje,"estado":False}
+        return render(request, 'inventario/perfil.html',retorno)
+
+
+# def modificarDatosUserPerfil(request,id):
+#     if request.method == "POST":
+#         try:
+#             nombres = request.POST["txtCedula"]
+#             apellidos = request.POST["txtNombres"]
+#             email = request.POST["txtApellido"]
+#             telefono = request.POST["txtTelefono"]
+#             direccion = request.POST["txtDireccion"]
+#             foto = request.FILES.get("fileFoto", False)
+#             username = request.POST["txtUserName"]
+#             with transaction.atomic():
+#                 user = Usuario().objects.get(pk=id)
+#                 user.username=username
+#                 user.first_name=nombres
+#                 user.last_name=apellidos
+#                 user.email=email
+#                 user.telefono=telefono
+#                 user.direccion=direccion
+#                 user.userTelefono=telefono
+#                 if(foto):
+#                     if user.userFoto == "":
+#                         user.userFoto=foto
+#                     else:
+#                         os.remove('./media/'+str(user.userFoto))
+#                         user.userFoto=foto
+#                 user.save()
+#                 mensaje = "Datos Modificados Correctamente"
+#                 retorno = {"mensaje": mensaje,"estado":True}
+#                 if user.userTipo == "Administrador":
+#                     return render(request, 'administrador/perfilUsuario.html',retorno)
+#                 else:
+#                     return render(request, 'asesor/perfilUsuario.html',retorno)
+#         except Error as error:
+#             transaction.rollback()
+#             if 'username' in str(error):
+#                 mensaje = "Ya existe un usuario con esta cedula"
+#             elif 'user.username' in str(error):
+#                 mensaje = "Ya existe un usuario con este nombre de usuario"
+#             elif 'user.email' in str(error):
+#                 mensaje = "Ya existe un usuario con ese correo electronico"
+#             else:
+#                 mensaje = error
+#         retorno = {"mensaje":mensaje,"estado":False}
+#         if user.userTipo == "Administrador":
+#             return render(request, 'administrador/perfilUsuario.html',retorno)
+#         else:
+#             return render(request, 'asesor/perfilUsuario.html',retorno)
+        
 
 @login_required(login_url="index")
 def categorias(request):
@@ -137,17 +232,7 @@ def salidas(request):
     clientes = Cliente.objects.all()
     return render(request,"inventario/frmSalidas.html",{"clientes": clientes, "productos": productos})
 
-
-# ===[Funciones Extras]===
-def autocomplete_product_name(request):
-    term = request.GET.get("term", "")
-    products = Producto.objects.filter(nombre__icontains=term).values_list(
-        "nombre", flat=True
-    )
-    return JsonResponse(list(products), safe=False)
-
-
-# ===[Api]===
+# ===[Api]========================================================================================================
 class UsuarioViewSet(viewsets.ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
@@ -200,7 +285,7 @@ class CompraViewSet(viewsets.ModelViewSet):
 
         # Actualizar la compra serializada
         serializer = CompraSerializer(compra)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class DetalleCompraViewSet(viewsets.ModelViewSet):
@@ -212,51 +297,29 @@ class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
 
-    # Método personalizado para crear una venta y sus detalles
-    @action(detail=False, methods=['post'])
-    def create_venta(self, request):
+    def create(self, request):
         # Obtén los datos de la solicitud JSON
-        data = request.data
-
-        # Valida y procesa los datos para crear una nueva venta y detalles de venta
-        try:
-            cliente_id = data.get('cliente_id')
-            productos = data.get('productos')
+            cliente_id = request.data.get('cliente')
+            detalles = request.data.get('detalles')
 
             # Crea la venta
             venta = Venta.objects.create(cliente_id=cliente_id)
+            
+            for detalle_data in detalles:
+                producto_id = detalle_data.get('producto')
+                cantidad = detalle_data.get('cantidad')
+                precio_unitario = detalle_data.get('precio_unitario')
 
-            detalles_venta = []
-            with transaction.atomic():
-                for producto_data in productos:
-                    producto_id = producto_data.get('id')
-                    cantidad = producto_data.get('cantidad')
-                    precio_unitario = producto_data.get('precio')
-
-                # Obtén el producto correspondiente
-                producto = Producto.objects.get(pk=producto_id)
-        
-                if producto.cantidad_stock >= cantidad:
-                    # Crea un detalle de venta y lo asocia a la venta creada
-                    detalle_venta = DetalleVenta.objects.create(
-                        venta=venta,
-                        producto=producto,
-                        cantidad=cantidad,
-                        precio_unitario=precio_unitario
-                    )
-                    detalles_venta.append(detalle_venta)
-
-                    # Actualiza la cantidad en stock del producto
-                    producto.cantidad_stock -= cantidad
-                    producto.save()
-                else:
-                    return Response({'error': f"No hay suficiente stock para {producto.nombre}"}, status=status.HTTP_400_BAD_REQUEST)
+                # Asociar el producto con la venta a través de DetalleCompra
+                DetalleVenta.objects.create(venta=venta, producto_id=producto_id, cantidad=cantidad, precio_unitario=precio_unitario)
+                
+                # Actualizar la cantidad de stock del producto
+                producto = Producto.objects.get(id=producto_id)
+                producto.cantidad_stock -= cantidad
+                producto.save()
 
             serializer = VentaSerializer(venta)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DetalleVentaViewSet(viewsets.ModelViewSet):
@@ -264,36 +327,7 @@ class DetalleVentaViewSet(viewsets.ModelViewSet):
     serializer_class = DetalleVentaSerializer
 
 
-# ===[otros metodos]===
-class CrearCompra(APIView):
-    def post(self, request, format=None):
-        compra_serializer = CompraSerializer(data=request.data)
-        if compra_serializer.is_valid():
-            compra = compra_serializer.save()
-
-            detalles_data = request.data.get("detalles")
-            for detalle_data in detalles_data:
-                detalle_data["compra"] = compra.id
-                detalle_serializer = DetalleCompraSerializer(data=detalle_data)
-                if detalle_serializer.is_valid():
-                    detalle_serializer.save()
-
-                    # Actualiza el stock del producto
-                    producto = Producto.objects.get(id=detalle_data["producto"])
-                    cantidad_comprada = detalle_data["cantidad"]
-                    producto.cantidad_stock += int(cantidad_comprada)
-                    producto.save()
-
-                else:
-                    # Maneja el error en caso de detalles no válidos
-                    return Response(
-                        detalle_serializer.errors, status=status.HTTP_400_BAD_REQUEST
-                    )
-
-            return Response(compra_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(compra_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+# ===[otros metodos]============================================================================================
 def productos_por_proveedor(request, proveedor_id):
     if request.method == "POST":
         if proveedor_id:
@@ -306,102 +340,20 @@ def productos_por_proveedor(request, proveedor_id):
             return JsonResponse(productos_list, safe=False)
     # Si no se encontraron productos o hay un error, devuelve una respuesta de error
     return JsonResponse([], safe=False)
-
-
-class CrearVenta(APIView):
-    def post(self, request, format=None):
-        venta_serializer = VentaSerializer(data=request.data)
-        if venta_serializer.is_valid():
-            venta = venta_serializer.save()
-            
-            detalles_data = request.data.get('detalles')
-            for detalle_data in detalles_data:
-                detalle_data['venta'] = venta.id
-                detalle_serializer = DetalleVentaSerializer(data=detalle_data)
-                if detalle_serializer.is_valid():
-                    detalle_serializer.save()
-                    
-                    # Actualiza el stock del producto
-                    producto = Producto.objects.get(id=detalle_data['producto'])
-                    cantidad_vendida = detalle_data['cantidad']
-                    if cantidad_vendida > producto.cantidad_stock:
-                        return Response({'error': 'No hay suficiente stock para este producto'}, status=status.HTTP_400_BAD_REQUEST)
-                    producto.cantidad_stock -= cantidad_vendida
-                    producto.save()
-                else:
-                    # Maneja el error en caso de detalles no válidos
-                    return Response(detalle_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            
-            return Response(venta_serializer.data, status=status.HTTP_201_CREATED)
-        return Response(venta_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# =======================================================================================================================  
-from django.shortcuts import render, redirect
-from .forms import CompraForm, DetalleCompraForm
-from .models import Compra, DetalleCompra
-from django.views.generic import View
-
-class EntradaInventarioView(View):
-    def get(self, request):
-        compra_form = CompraForm()
-        detalle_form = DetalleCompraForm()
-        return render(request, 'entrada_inventario.html', {'compra_form': compra_form, 'detalle_form': detalle_form})
-
-    def post(self, request):
-        compra_form = CompraForm(request.POST)
-        detalle_form = DetalleCompraForm(request.POST)
-        
-        if compra_form.is_valid() and detalle_form.is_valid():
-            compra = compra_form.save()  # Guardar la información de la compra
-            
-            # Obtener los datos del formulario de detalle
-            producto = detalle_form.cleaned_data['producto']
-            cantidad = detalle_form.cleaned_data['cantidad']
-            precio_unitario = detalle_form.cleaned_data['precio_unitario']
-            
-            # Crear un nuevo registro de detalle de compra
-            detalle_compra = DetalleCompra(compra=compra, producto=producto, cantidad=cantidad, precio_unitario=precio_unitario)
-            detalle_compra.save()
-            
-            # Puedes redirigir a la misma página o a otra, según tu preferencia
-            return redirect('entrada_inventario')
-        
-        # Si los formularios no son válidos, puedes manejar los errores aquí
-        return render(request, 'entrada_inventario.html', {'compra_form': compra_form, 'detalle_form': detalle_form})
-
-
     
 # =======================================================================================================================  
-from django.shortcuts import render, redirect
-from .models import Compra, DetalleCompra
-from .forms import CompraForm, DetalleCompraFormSet
-
-def crear_compra(request):
-    if request.method == 'POST':
-        compra_form = CompraForm(request.POST)
-        detalle_compra_formset = DetalleCompraFormSet(request.POST, prefix='detalle_compra')
-
-        if compra_form.is_valid() and detalle_compra_formset.is_valid():
-            compra = compra_form.save()
-            detalle_compra_formset.instance = compra
-            detalle_compra_formset.save()
-            return redirect('lista_compras')  # Redirige a la lista de compras o la página que desees
-
-    else:
-        compra_form = CompraForm()
-        detalle_compra_formset = DetalleCompraFormSet(queryset=DetalleCompra.objects.none(), prefix='detalle_compra')
-
-    return render(request, 'crear_compra.html', {
-        'compra_form': compra_form,
-        'detalle_compra_formset': detalle_compra_formset,
-    })
-    
 from django.db.models import Sum
 
 def lista_compras(request):
     compras = Compra.objects.annotate(total_cantidad=Sum('detallecompra__cantidad'))
-    
     return render(request, 'lista_compras.html', {'compras': compras})
+
+@login_required(login_url="index")
+def lista_ventas(request):
+    ventas = Venta.objects.all()
+    for venta in ventas:
+        venta.total_cantidad = venta.detalleventa_set.aggregate(total_cantidad=Sum('cantidad'))['total_cantidad']
+    return render(request, 'lista_ventas.html', {'ventas': ventas})
 
 from django.http import JsonResponse
 
@@ -411,12 +363,6 @@ def cargar_productos(request):
     return JsonResponse(list(productos), safe=False)
 
 # ===========================================================================================
-from django.shortcuts import render
-from .models import Venta
-
-def lista_ventas(request):
-    ventas = Venta.objects.all()
-    return render(request, 'lista_ventas.html', {'ventas': ventas})
 
 from django.shortcuts import render
 from .models import Producto
@@ -597,3 +543,13 @@ def lista_clientes(request):
     clientes = Cliente.objects.all()
     return render(request, 'lista_clientes.html', {'clientes': clientes})
 
+# -------------==================== tienda ===========================-------------------
+
+def inicio_Tienda(request):
+    return render(request, "tienda/index.html",{})
+
+def acercaDe(request):
+    return render(request, "tienda/acercaDe.html",{})
+
+def contactanos(request):
+    return render(request, "tienda/contactanos.html",{})
