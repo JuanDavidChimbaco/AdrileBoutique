@@ -75,15 +75,8 @@ const initDataTable = async () => {
 async function getProducts() {
     try {
         const response = await axios.get('/api/productos/');
-        let categorias = JSON.parse(localStorage.categoria);
-        let categoryName = '';
         let data = '';
         response.data.forEach((element, index) => {
-            categorias.forEach((categoria) => {
-                if (categoria.id === element.categoria) {
-                    categoryName = categoria.nombre;
-                }
-            });
             // Formatear el precio con separador de miles y el símbolo COP
             const precioFormateado = new Intl.NumberFormat('es-CO', {
                 style: 'currency',
@@ -112,7 +105,7 @@ async function addProducts() {
     axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
     var formData = new FormData();
     formData.append('codigo', txtCodigo.value);
-    formData.append('nombre', txtNombre.value);
+    formData.append('nombre', txtNombre.value.toLowerCase());
     formData.append('descripcion', txtDescripcion.value);
     formData.append('precio', txtPrecio.value);
     formData.append('imagen', fileFoto.files[0]);

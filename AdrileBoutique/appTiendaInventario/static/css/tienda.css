@@ -11,7 +11,7 @@ body {
 
 nav {
   background-color: #333;
-  color: #fff4f4;
+  color: #fcfcfc;
   padding: 10px;
   background-color: transparent;
 }
@@ -283,7 +283,7 @@ element.style {
 }
 
 .contenido {
-  background-image: url('../images/background.jpg');
+  background-image: url('../images/5594016.jpg');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
@@ -316,4 +316,20 @@ element.style {
   -moz-transition: all 1s;
   -ms-transition: all 1s;
   -o-transition: all 1s;
+}
+
+/*====================[botones]==========================*/ 
+.buttons{
+  background-color: #000;
+  color: #fff;
+  transition: .5s;
+}
+.buttons:hover{
+  background-color: #ffffff;
+  color: #fd90bc;
+  border: 1px solid #FFCCE0;
+  font-size: medium;
+  transition: .5s;
+  border-color: #fba3c6;
+  box-shadow: 5px 0 5px rgba(0, 0, 0, 0.2);
 }

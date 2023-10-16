@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 async function get_categories() {
     let data = '';
-    let data2 = '';
     try {
-        const response = await axios.get('/api/v1.0/categoriaCliente/');
+        const response = await axios.get('/api/categoriasCliente/');
+        console.log(response)
         response.data.forEach((category) => {
             data += `
                    <a class="categoriaitem" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" onclick="ProductsByCategory(${category.id})">
@@ -39,70 +39,13 @@ async function get_categories() {
                         <span class="fw-bold">${category.nombre}</span>
                    </a>
               `;
-            data2 += `
-              <li><a class="dropdown-item" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" onclick="ProductsByCategory(${category.id})"> ${category.nombre}</a></li>
-        `;
         });
-        listaCategorias.innerHTML = data2;
         contenedorCategorias.innerHTML = data;
     } catch (error) {
         console.error(error);
     }
 }
 
-function viewLogin() {
-    let login = document.getElementById('login');
-    login.style.display = block;
-}
-
-async function login() {
-    const formData = {
-        username: id_username.value,
-        password: id_password.value,
-        rememberme: remember_me.value,
-    };
-    axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
-    axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF;
-    try {
-        const response = await axios.post('/api/v1.0/sesion_cliente/', formData);
-        console.log(response);
-        Swal.fire({
-            position: 'center',
-            icon: 'success',
-            iconColor: '#2ECC71',
-            title: '¡Genial! ' + response.data.message,
-            showConfirmButton: true,
-            confirmButtonColor: '#17202A',
-            allowOutsideClick: false,
-        }).then(() => {
-            if (response.data.user.groups[0] === 2) {
-                var miModal = document.getElementById('exampleModal');
-                this.username = '';
-                this.password = '';
-                this.rememberme = false;
-                $(miModal).modal('hide');
-                location.reload();
-            }
-            if (response.data.user.groups[0] === 1) {
-                window.location.href = '/dashboard/';
-            }
-        });
-    } catch (error) {
-        console.error(error.response.data);
-        Swal.fire({
-            position: 'center',
-            icon: 'error',
-            title: 'Oops... ' + error.response.data.message,
-            showConfirmButton: false,
-            allowOutsideClick: false,
-            timer: 2000,
-        }).then(() => {
-            id_username.value = '';
-            id_password.value = '';
-            remember_me.value = false;
-        });
-    }
-}
 
 async function ProductsByCategory(idCategoria) {
     let productByCategory = document.getElementById('productosPorCategoria');
@@ -133,46 +76,49 @@ async function ProductsByCategory(idCategoria) {
 
 //-------------------Funcion de Autocompletado ------------------
 function autoComplete() {
-    if(e.keyCode == 13) {
-        e.preventDefault();
-      }
-    fetch(`/api/v1.0/productosPaginacion2/?limit=100offset=0`)
+    fetch(`/api/productosCliente/`)
         .then(response => response.json())
         .then(data => {
             let textoBuscar = document.getElementById("txtBuscar").value
             if (textoBuscar.length >= 2) {
-                let lista = `<div class='list-group'>`
-                let filtroProducto = data.filter(filtrarP)
-                filtroProducto.forEach(element => {
-                    iconoProducto(element.id)
-                    lista += `<a class='list-group-item list-group-item-action' href="/detalle_producto?id=${element.id}" onclick="${productoSeleccionado(element.id)}">${element.nombre} <img id="icono${element.imagen}" style="width:20%"></a>`
-                });
-                lista += `</div>`
-                document.getElementById("listaProductos").innerHTML = lista
-                document.getElementById("listaProductos").style = `position:absolute;top:38px;width:100%;z-index:2000; height:600px;overflow:auto;`
+                let lista = `<div class='list-group'>`;
+                let filtroProducto = data.filter(filtrar)
+                    console.log(filtroProducto);
+                    filtroProducto.forEach(element => {
+                        iconoProducto(element.id);
+                        lista += `<a class='list-group-item list-group-item-action' href="/detalle_producto?id=${element.id}" onclick="${productoSeleccionado(element.id)}">${element.nombre} <img id="icono${element.imagen}" style="width:20%"></a>`;
+                    });
+            
+                lista += `</div>`;
+                document.getElementById("listaProductos").innerHTML = lista;
+                document.getElementById("listaProductos").style = `position:absolute;top:38px;width:100%;z-index:2000; height:600px;overflow:auto;`;
             }
+            
             if (textoBuscar == 0) {
                 document.getElementById("listaProductos").innerHTML = ""
             }
         })
-
 }
 
 //-------------------Funcion Filtrar producto------------------
-function filtrarP(element) {
+function filtrar(element) {
     let textoBuscar = document.getElementById("txtBuscar").value
     let nombre = element.nombre
-    return nombre.includes(textoBuscar.toLowerCase())
+    let filtrado =  nombre.includes(textoBuscar.toLowerCase())
+    console.log(filtrado);
+    return filtrado ;
 }
 
 //------------------Funcion Icono producto---------------------
 function iconoProducto(id) {
-    fetch('/api/v1.0/productosCliente/'+id)        
+    fetch('/api/productosCliente/' + id)
         .then(response => response.json())
         .then(data => {
             document.getElementById(`icono${data.imagen}`).src = data.imagen
         })
 }
+
+  
 
 //cargar las categorias apenas cargue el DOOM
 get_categories();

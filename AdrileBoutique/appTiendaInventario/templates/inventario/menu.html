@@ -107,7 +107,7 @@
             <p class="title-user">Cuenta</p>
             <ul>
                 <li>
-                    <a href="#">
+                    <a href="{% url 'perfil' user.id%}">
                         <i class="icon ph-bold ph-gear"></i>
                         <span class="text">Configuración</span>
                     </a>
@@ -130,80 +130,3 @@
 </div>
 
 <script src="{% static 'js/nav.js' %}"></script>
-
-
-
-<!-- <nav class="rounded my-2 mx-2">
-
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item linxD w-100 mx-2 p-1">
-            <a class="nav-link" href="{% url 'dashboard' %}">
-                Panel de Control &nbsp; <i class="fa-solid fa-house"></i>
-            </a>
-        </li>
-    </ul>
-
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item linxD w-100">
-            <a class="nav-link" href="/frmCategorias">
-                Categorías &nbsp;
-            </a>
-        </li>
-
-        <li class="nav-item linxD w-100">
-            <a class="nav-link" href="/frmProductos">
-                Productos &nbsp;
-            </a>
-        </li>
-
-        <li class="nav-item linxD  w-100">
-            <a class="nav-link" href="{% url 'lista_compras' %}">
-                Entradas &nbsp;
-            </a>
-        </li>
-
-        <li class="nav-item linxD  w-100">
-            <a class="nav-link" href="{% url 'lista_ventas' %}">
-                Salidas
-            </a>
-        </li>
-
-        {% if es_administrador %}
-        <li class="nav-item linxD  w-100">
-            <a class="nav-link" href="#">
-                Gestionar Empleados &nbsp;
-            </a>
-        </li>
-        {% endif %}
-    </ul>
-
-    {% if user.is_authenticated %}
-
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
-            <div class="dropdown-center dropend">
-
-                <a class="nav-link dropdown-toggle linxD" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span>{{ user }}</span>
-                </a>
-
-                <ul class="dropdown-menu">
-
-                    <li class="nav-item">
-                        <a class="dropdown-item" href="{% url 'perfil' user.id%}">Ver Perfil &nbsp;
-                            <i class="fa-regular fa-user"></i>
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="dropdown-item" href="{% url 'logout' %}">Cerrar Sesión &nbsp;
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </li>
-    </ul>
-
-    {% endif %}
-</nav> -->

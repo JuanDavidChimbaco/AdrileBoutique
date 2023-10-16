@@ -1,9 +1,8 @@
-// ---------------------Categorias-------------------------------
 let dataTable;
 let dataTableIsInitialized = false;
 let id = 0;
 
-const dataTableOptions = {
+var dataTableOptions = {
     language: {
         url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json',
     },
@@ -71,7 +70,7 @@ const dataTableOptions = {
     responsive: true,
 };
 
-const initDataTable = async () => {
+var initDataTable = async () => {
     if (dataTableIsInitialized) {
         dataTable.destroy();
     }

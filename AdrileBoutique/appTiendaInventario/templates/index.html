@@ -1,6 +1,6 @@
 {% extends 'tienda/index.html' %}
 {% load static %}
-{% block contenido %}
+{% block content_main %}
 
     <div class="content">
         {% block content %}
@@ -53,7 +53,7 @@
                         </form>
                         <div class="row">
                             <div class="col mt-3 text-center">
-                                <a href="#" class="link-secondary"> Olvido su contraseña ? </a>
+                                <a href="{% url 'validarCorreo' %}" class="link-secondary"> Olvido su contraseña ? </a>
                             </div>
                         </div>
                     </div>

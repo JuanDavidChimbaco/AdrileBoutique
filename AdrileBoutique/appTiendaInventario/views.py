@@ -6,16 +6,22 @@ from django.http import JsonResponse
 from django.http import Http404
 from django.db import transaction
 from django.conf import settings
+from django.contrib.auth.models import User
+from django.urls import reverse
 
+from datetime import datetime, timedelta
 import os
 import logging
 
 logger = logging.getLogger(__name__)
 
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
+from rest_framework.views import APIView
+from rest_framework_jwt.settings import api_settings
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from .models import (
     Usuario,
@@ -57,35 +63,38 @@ from .forms import ProductoForm,CategoriaForm,ProveedorForm,ClienteForm
 
 # ===[login y logout sin Api]=======================================================================0
 def login_view(request):
-    if request.method == "POST":
-        username = request.POST["username"].strip()
-        password = request.POST["password"]
-        remember_me = request.POST.get("remember_me")
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if not remember_me:
-                # Si remember_me no está marcado, establece la sesión para que expire después de 1 hora
-                request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    else:
+        if request.method == "POST":
+            username = request.POST["username"].strip()
+            password = request.POST["password"]
+            remember_me = request.POST.get("remember_me")
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if not remember_me:
+                    # Si remember_me no está marcado, establece la sesión para que expire después de 1 hora
+                    request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+                else:
+                    # Si remember_me está marcado, la sesión no expirará cuando se cierre el navegador
+                    request.session.set_expiry(0)
+                return redirect("dashboard")
             else:
-                # Si remember_me está marcado, la sesión no expirará cuando se cierre el navegador
-                request.session.set_expiry(0)
-            return redirect("dashboard")
-        else:
-            # El inicio de sesión falló, muestra un mensaje de error
-            error_message = "Nombre de usuario o contraseña incorrectos."
-            return render(request, "index.html", {"error_message": error_message})
-    return render(request, "index.html", locals())
+                # El inicio de sesión falló, muestra un mensaje de error
+                error_message = "Nombre de usuario o contraseña incorrectos."
+                return render(request, "index.html", {"error_message": error_message})
+        return render(request, "index.html", locals())
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def custom_logout(request):
     logout(request)
-    return redirect("index")
+    return redirect("inicio_tienda")
 
 
 # ===[vistas templates]===============================================================================
-@login_required(login_url="index")
+@login_required
 def inicio(request):
     return redirect("dashboard")
 
@@ -94,14 +103,27 @@ def index(request):
     return render(request, "index.html", {})
 
 
-@login_required(login_url="index")
+def restPasswordRequest(request): # vista para validar correo y enviar el enlace de restablecimiento
+    return render(request, "registration/restablecer_password.html")
+
+
+def mensajeCorreo(request): # vista para mostrar mensaje de que se envio el correo
+    return render(request, "registration/mensaje_correo.html")
+
+
+def restPassword(request): # vista para digitar la nueva contraseña
+    token = request.GET.get("token", "")
+    return render(request, "registration/restablecer_password_form.html", {"token": token})
+
+
+@login_required(login_url="login")
 def dashboard(request):
     pertenece_a_administrador = request.user.groups.filter(name="administrador").exists()
     retorno = {"user": request.user, "es_administrador": pertenece_a_administrador}
     return render( request,"inventario/dashboard.html", retorno)
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def perfil_usuario(request, usuario_id):
     print("ID del usuario logueado:", request.user.id)
     print("ID del usuario solicitado:", usuario_id)
@@ -118,12 +140,12 @@ def perfil_usuario(request, usuario_id):
     )
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def categorias(request):
     return render(request, "inventario/frmCategorias.html", {})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def productos(request):
     proveedores = Proveedor.objects.all()
     categorias = Categoria.objects.all()
@@ -134,24 +156,24 @@ def productos(request):
     )
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def proveedores(request):
     return render(request, "inventario/frmProveedores.html", {})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def clientes(request):
     return render(request, "inventario/frmClientes.html", {})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def entradas(request):
     proveedores = Proveedor.objects.all()
     productos = Producto.objects.all()
     return render(request, "inventario/frmEntrada.html", {"proveedores": proveedores, "productos": productos})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def lista_compras(request):
     compras = Compra.objects.annotate(total_cantidad=Sum('detallecompra__cantidad'))
     for compra in compras:
@@ -159,14 +181,14 @@ def lista_compras(request):
     return render(request, 'lista_compras.html', {'compras': compras})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def salidas(request):
     productos = Producto.objects.all()
     clientes = Cliente.objects.all()
     return render(request,"inventario/frmSalidas.html",{"clientes": clientes, "productos": productos})
 
 
-@login_required(login_url="index")
+@login_required(login_url="login")
 def lista_ventas(request):
     ventas = Venta.objects.annotate(total_cantidad=Sum('detalleventa__cantidad'))
     for venta in ventas:
@@ -183,6 +205,12 @@ class UsuarioViewSet(viewsets.ModelViewSet):
 class CategoriaViewSet(viewsets.ModelViewSet):
     queryset = Categoria.objects.all()
     serializer_class = CategoriaSerializer
+    
+class CategoriaViewSetCliente(viewsets.ReadOnlyModelViewSet):
+    queryset = Categoria.objects.all()
+    serializer_class = CategoriaSerializer
+    authentication_classes = []  # Deshabilita la autenticación
+    permission_classes = [permissions.AllowAny]  # Permite a cualquiera acceder
 
 
 class ProveedorViewSet(viewsets.ModelViewSet):
@@ -190,9 +218,46 @@ class ProveedorViewSet(viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
 
 
+class ProductoViewSetCliente(viewsets.ReadOnlyModelViewSet):
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+    authentication_classes = []  # Deshabilita la autenticación
+    permission_classes = [permissions.AllowAny]  # Permite a cualquiera acceder
+    
 class ProductoViewSet(viewsets.ModelViewSet):
     queryset = Producto.objects.all()
     serializer_class = ProductoSerializer
+    
+    
+class ProductosPorCategoriaViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ProductoSerializer
+    authentication_classes = []  # Deshabilita la autenticación
+    permission_classes = [permissions.AllowAny]  # Permite a cualquiera acceder
+    def get_queryset(self):
+        categoria_id = self.kwargs.get('categoria_id')
+        return Producto.objects.filter(categoria__id=categoria_id)
+       
+    
+class ProductoPagination(PageNumberPagination):
+    page_size = 4  # Número de productos por página
+    page_size_query_param = 'page_size'
+    max_page_size = 10  # Límite máximo de productos por página
+
+
+class ProductoPaginationViewSet(viewsets.ReadOnlyModelViewSet):
+    authentication_classes = []  # Deshabilita la autenticación
+    permission_classes = [permissions.AllowAny]  # Permite a cualquiera acceder
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+    pagination_class = ProductoPagination  # Asigna la paginación personalizada 
+    
+
+class ProductoPaginationLimitViewSet(viewsets.ReadOnlyModelViewSet):
+    authentication_classes = []  # Deshabilita la autenticación
+    permission_classes = [permissions.AllowAny]  # Permite a cualquiera acceder
+    queryset = Producto.objects.all()
+    serializer_class = ProductoSerializer
+    pagination_class = LimitOffsetPagination
 
 
 class ClienteViewSet(viewsets.ModelViewSet):
@@ -381,7 +446,53 @@ def modificarDatosUserPerfil(request,id):
                 mensaje = error
         retorno = {"mensaje":mensaje,"estado":False}
         return render(request, 'inventario/perfil.html',retorno)
+    
 
+# Se encarga de enviar el correo electrónico con el enlace de restablecimiento
+class PasswordResetRequestView(APIView):
+    permission_classes = [AllowAny]
+    def post(self, request):
+        email = request.data.get("email")
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            mensaje = "Correo no encontrado"
+            return render(request, "registration/restablecer_password.html", {"mensaje": mensaje})
+        # Generar el token de restablecimiento
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+        # se encarga de establecer el usuario y la expiración del token
+        payload = jwt_payload_handler(user)
+        payload["exp"] = datetime.utcnow() + timedelta(hours=1)  # Establecer la expiración a 1 hora
+        token = jwt_encode_handler(payload)
+        # Construir el enlace para la vista de restablecimiento de contraseña
+        reset_link = request.build_absolute_uri(reverse("nuevaContra") + f"?token={token}")
+        # Enviar el correo electrónico con el enlace de restablecimiento
+        subject = "Restablecimiento de contraseña"
+        message = f"Haz clic en el siguiente enlace para restablecer tu contraseña:\n\n{reset_link}"
+        send_mail(subject, message, "info@adrileboutique.com", [email])
+        mensaje = "Se ha enviado un enlace de restablecimiento a su correo electrónico."
+        return render(request, "registration/mensaje.html", {"mensaje": mensaje})
+
+
+# obtiene el token y la nueva contraseña y actualiza la contraseña del usuario
+class PasswordResetView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        token = request.data.get("token")
+        new_password = request.data.get("new_password")
+        try:
+            payload = api_settings.JWT_DECODE_HANDLER(token)
+            user = Usuario.objects.get(id=payload["user_id"])
+        except Usuario.DoesNotExist: 
+            return Response({"detail": "El token no es válido."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Actualizar la contraseña del usuario
+        user.set_password(new_password)
+        user.save()
+        return render(request, "registration/reset_password_success.html")
+  
 
 # -------------==================== tienda ===========================-------------------
 def inicio_Tienda(request):
@@ -395,6 +506,9 @@ def contactanos(request):
 
 def inicioTienda(request):
     return render(request, "tienda/inicio.html",{})
+
+def detalleProduto(request):
+    return render(request, "tienda/detalle.html")
 
 
 def enviarCorreo(asunto, mensaje, destinatarios):

@@ -25,8 +25,12 @@ from appTiendaInventario import views
 router = DefaultRouter()
 router.register(r'usuarios', views.UsuarioViewSet)
 router.register(r'categorias', views.CategoriaViewSet)
+router.register(r'categoriasCliente', views.CategoriaViewSetCliente)
 router.register(r'proveedores', views.ProveedorViewSet)
 router.register(r'productos', views.ProductoViewSet)
+router.register(r'productosCliente', views.ProductoViewSetCliente)
+router.register(r"productosPagination", views.ProductoPaginationViewSet)
+router.register(r"productosPaginacionLimit", views.ProductoPaginationLimitViewSet)
 router.register(r'clientes', views.ClienteViewSet)
 router.register(r'compras', views.CompraViewSet)
 router.register(r'detalles_compra', views.DetalleCompraViewSet)
@@ -38,7 +42,8 @@ router.register(r'detalles_compra_por_compra', views.DetalleCompraPorCompraViewS
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.inicio, name='inicio'),
-    path('index', views.index, name='index'),
+    path('login', views.index, name='login'),
+    path('inicio/', views.inicioTienda, name='inicio_tienda'),
     # rutas de la Api
     path("api/", include(router.urls)),
     
@@ -70,9 +75,18 @@ urlpatterns = [
     path('contactanos/', views.contactanos, name='contactanos'),
     path('contact/',views.contact),
     path('enviarCorreo', views.enviarCorreo),
+    path("detalle_producto/", views.detalleProduto, name="detalle_producto"),
     
     # funciones extras
     path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
+    path('productos/categoria/<int:categoria_id>/', views.ProductosPorCategoriaViewSet.as_view({'get': 'list'}), name='productos_por_categoria'),
+    
+    # rutas para restablecer contraseña (Admin)
+    path("validarCorreo/", views.restPasswordRequest, name="validarCorreo"),
+    path("nuevaContra/", views.restPassword, name="nuevaContra"),
+    path("mensajeCorreo/", views.mensajeCorreo, name="mensajeCorreo"),
+    path("resetLink/", views.PasswordResetRequestView.as_view(), name="resetLink"),
+    path("resetPassword/", views.PasswordResetView.as_view(), name="resetPassword"),
     
     # formularios pruebas sin diseño
     path('lista_stock/', views.lista_stock, name='lista_stock'),

@@ -9,7 +9,7 @@ function configCarousel() {
 
 async function ultimosProductos(){
     try {
-        url = '/api/v1.0/categoriaCliente'
+        url = '/api/categoriasCliente/'
         const response = await axios.get(url)
         const categorias = response.data;
 

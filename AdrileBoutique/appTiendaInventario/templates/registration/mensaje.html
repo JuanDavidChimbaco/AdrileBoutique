@@ -1,6 +1,25 @@
-{% extends 'registration/base_generic.html'%}
+{% extends 'index.html'%}
 
-{% block contenido %}
-<h2>Ingrese a su Correo</h2>
-<p>{{mensaje}}</p>
+{% block content %}
+{% load static %}
+<div class="container">
+    <h1 class="text-center mt-5">Restablecimiento de contraseña</h1>
+
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-5">
+            <h2>Ingrese a su Correo</h2>
+            <p>{{mensaje}}</p>
+        </div>
+    </div>
+
+    <img src="{% static 'images/logo.png'%}" alt="logo" width="200" >
+    <p>
+        <small>
+            | <a href="{% url 'login' %}" class="nav-item">Iniciar sesión</a> |
+        </small>
+    </p>
+    <div class="py-5">
+        <br>
+    </div>
+</div>
 {% endblock %}

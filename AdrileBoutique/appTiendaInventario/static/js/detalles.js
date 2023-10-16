@@ -6,7 +6,7 @@ const idProducto = urlParams.get('id');
 
 if (idProducto) {
     // solicitud GET al servidor con el ID incluido en la URL
-    fetch(`http://127.0.0.1:8000/api/v1.0/productosCliente/${idProducto}`)
+    fetch(`/api/productosCliente/${idProducto}`)
         .then((response) => {
             if (response.ok) {
                 console.log(response)
@@ -36,7 +36,7 @@ if (idProducto) {
                                 <p class="card-text">
                                     <strong>Descripción:</strong> ${producto.descripcion}
                                 </p>
-                                <button class="btn btn-warning">Comprar Ahora</button>
+                                <p class="card-text">¡Descubre la exclusiva colección de <strong>${producto.nombre}</strong> en nuestra tienda física! Sumérgete en una experiencia única y llena de estilo con nuestra amplia selección de productos.</p>
                             </div>
                     </div>
                 </div>

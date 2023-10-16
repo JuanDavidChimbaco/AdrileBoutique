@@ -1,9 +1,17 @@
-{% extends 'registration/base_generic.html' %}
+{% extends 'index.html' %}
 
-{% block contenido %}
+{% block content %}
+<div class="container">
     <div class="row d-flex justify-content-center">
         <div class="col-md-8">
             <p>Usuario, por favor revisa tu bandeja de entrada de correo electrónico para completar el proceso de restablecimiento de contraseña.</p>
         </div>
     </div>
+    <img src="{% static 'images/logo.png'%}" alt="logo" width="200" >
+    <p>
+        <small>
+            | <a href="{% url 'login' %}" class="nav-item">Iniciar sesión</a> |
+        </small>
+    </p>
+</div>
 {% endblock %}
