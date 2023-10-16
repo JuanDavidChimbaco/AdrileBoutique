@@ -9,12 +9,41 @@ const dataTableOptions = {
     },
     dom: 'Bfrtip',
     buttons: [
-        'copy',
-        'csv',
-        'excel',
-        'pdf',
+        {
+            extend:'copy',
+            text: '<i class="fa-solid fa-copy"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2],
+            },
+        },
+        {
+            extend:'csv',
+            text: '<i class="fa-solid fa-file-csv"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2],
+            },
+        },
+        {
+            extend:'excel',
+            text: '<i class="fa-solid fa-file-excel"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2],
+            },
+        },
+        {
+            extend: 'pdf',
+            text: '<i class="fa-solid fa-file-pdf"></i>',
+            exportOptions: {
+                stripHtml: false,
+                columns: [0, 1, 2],
+            },
+        },
         {
             extend: 'print',
+            text: '<i class="fa-solid fa-print"></i>',
             exportOptions: {
                 stripHtml: false,
                 columns: [0, 1, 2],
@@ -35,7 +64,9 @@ const dataTableOptions = {
             targets: [0, 3],
         },
     ],
-    pageLength: 10,
+    "paging": false,
+    "scrollCollapse": true,
+    "scrollY": "40vh",
     destroy: true,
     responsive: true,
 };
@@ -65,7 +96,7 @@ async function listarCat() {
                         </td>
                         <td>${categoriaPadre}</td>
                         <td class="align-middle">
-                            <input type="radio" name="checkOpcion"  onclick='load(${JSON.stringify(element)})' class="form-check-input">
+                            <input type="radio" name="checkOpcion"  onclick='load(${JSON.stringify(element)})' class="form-check-input" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
                         </td>
                     </tr>`;
         });

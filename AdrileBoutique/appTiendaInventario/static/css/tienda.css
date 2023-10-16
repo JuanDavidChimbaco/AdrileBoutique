@@ -1,0 +1,319 @@
+@import url('fonts.css');
+
+.headercolor {
+  background-color: transparent;
+}
+
+body {
+  font-family: roboto-light;
+  overflow-x: hidden;
+}
+
+nav {
+  background-color: #333;
+  color: #fff4f4;
+  padding: 10px;
+  background-color: transparent;
+}
+
+.link {
+  text-decoration: none;
+  transition: all 0.5s;
+}
+
+.link:hover {
+  background-color: #ffcce0;
+  border-radius: 5px;
+  transition: all 0.5s;
+}
+
+/* ====================[Tienda banner]=========================== */
+span marquee {
+  font-family: lucida-handwriting-italic;
+  font-size: xx-large;
+}
+
+/* ===============================================[Categorias]============================================================== */
+/* Diseño para el contenedor de las categorias */
+#contenedorCategorias {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+#contenedorCategorias::-webkit-scrollbar {
+  display: none;
+}
+
+/* Diseño de de cada item de la categoria */
+.categoriaitem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #202020;
+}
+
+.categoriaitem:hover {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: #ffcce0;
+  animation: spin 1s linear forwards;
+  -webkit-animation: spin 1s cubic-bezier(0.78, -0.42, 0, 1.21) forwards;
+}
+
+
+
+/* Carta de los productos traidos por categoria */
+.producto-card {
+  transition: box-shadow 0.3s;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  width: 200px;
+  /* Ancho de la tarjeta de producto */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.producto-card:hover {
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.5);
+}
+
+#productosPorCategoria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  /* Espacio entre los productos */
+  justify-content: space-around;
+  /* Alineación horizontal en el centro */
+  padding: 20px;
+  /* Espacio interior */
+}
+
+/* ======================================[Loader o pantalla de carga]============================================================ */
+/* Estilo para la pantalla de carga */
+.loader-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgb(255, 255, 255);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  /* Asegura que esté por encima de otros elementos */
+}
+
+.loader {
+  border: 4px solid #ffcce0;
+  border-radius: 50%;
+  border-top: 4px solid #1c1d1e;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+/* Animación de rotación */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==================================[Boton para volver a la parte superior]================================================ */
+.scroll-to-top {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #0d6efd;
+  /* Color de fondo del botón */
+  color: #fff;
+  /* Color del texto */
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: none;
+  transition: background-color 0.3s ease;
+}
+
+.scroll-to-top a {
+  text-decoration: none;
+  color: #fff;
+}
+
+.scroll-to-top:hover {
+  background-color: #0a53be;
+  /* Color de fondo del botón al pasar el cursor */
+}
+
+
+/* ============================[Productos paginados]=============================================== */
+/* Estilos para los productos */
+#productosContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  /* Espacio entre los productos */
+  justify-content: space-around;
+  /* Alineación horizontal en el centro */
+  padding: 20px;
+  /* Espacio interior */
+  background-color: transparent;
+}
+
+
+/* Card de los productos paginados */
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  width: 200px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.linkCard {
+  text-decoration: none;
+  color: #202020;
+}
+
+.product-name {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-card:hover {
+  box-shadow: 0px 0px 15px 0px rgba(0, 0, 0, 0.5);
+  transform: translateY(-10px);
+}
+
+.product-card img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Estilos para la paginación */
+#paginationContainer {
+  display: flex;
+  justify-content: center;
+  /* Centrar horizontalmente */
+  margin-top: 20px;
+  /* Espacio superior */
+  padding: 10px;
+  background-color: transparent;
+}
+
+.pagination {
+  list-style: none;
+  display: flex;
+  gap: 5px;
+  /* Espacio entre los botones de paginación */
+}
+
+.page-item {
+  display: flex;
+  align-items: center;
+}
+
+.page-link {
+  text-decoration: none;
+  color: #333;
+  background-color: #eee;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+
+.page-link:hover {
+  background-color: #f3afca;
+  border: 1px solid #f3afca;
+  color: #FFF;
+}
+
+.none {
+  display: none;
+}
+
+/* ============================[Busqueda de productos]=============================================== */
+
+element.style {
+  position: absolute;
+  top: 38px;
+  right: 210px;
+  width: 30%;
+  z-index: 2000;
+  height: 600px;
+  overflow: auto;
+}
+
+/* ============================[Foco del buscador]=============================================== */
+.form-control:focus {
+  color: var(--bs-body-color);
+  background-color: var(--bs-body-bg);
+  border-color: #ffcce0;
+  outline: 0;
+  box-shadow: 0 0 0 1px #ffcce0;
+}
+
+.contenido {
+  background-image: url('../images/background.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  font-family: coves !important;
+}
+
+/* ======================[links]=================================== */
+.linxD {
+  border-radius: 5px;
+  text-align: center;
+  width: 9rem;
+  transition: all 0.5s;
+}
+
+.linxD:hover {
+  background-color: #ffcce0;
+  border-radius: 5px;
+  letter-spacing: 2px;
+}
+
+/* =================[links-footers]================================ */
+.linkFooter {
+  text-decoration: none;
+}
+
+.linkFooter:hover {
+  color: #ffcce0;
+  transition: all 1s;
+  -webkit-transition: all 1s;
+  -moz-transition: all 1s;
+  -ms-transition: all 1s;
+  -o-transition: all 1s;
+}

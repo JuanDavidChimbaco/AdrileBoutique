@@ -7,8 +7,9 @@ const dataTableOptions = {
     language: {
         url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json',
     },
-    scrollY: "300px",
-    paging: false,
+    "paging": false,
+    "scrollCollapse": true,
+    "scrollY": "40vh",
     dom: 'Bfrtip',
     buttons: [
         {

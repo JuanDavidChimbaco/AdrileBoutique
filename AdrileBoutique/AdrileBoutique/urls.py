@@ -15,7 +15,6 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
@@ -33,6 +32,8 @@ router.register(r'compras', views.CompraViewSet)
 router.register(r'detalles_compra', views.DetalleCompraViewSet)
 router.register(r'ventas', views.VentaViewSet)
 router.register(r'detalles_venta', views.DetalleVentaViewSet)
+router.register(r'detalles_venta_por_venta', views.DetalleVentaPorVentaViewSet , basename='detalles_venta_por_venta')
+router.register(r'detalles_compra_por_compra', views.DetalleCompraPorCompraViewSet , basename='detalles_compra_por_compra')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -41,9 +42,11 @@ urlpatterns = [
     # rutas de la Api
     path("api/", include(router.urls)),
     
-    # URL para iniciar sesión y para cerrar sesión
+    # URL para iniciar sesión y para cerrar sesión web y api 
     path('login/', views.login_view, name='login'),
     path("logout/", views.custom_logout, name="logout"),
+    path('api/login/', views.login_api_view, name='api_login'),
+     path('api/logout/', views.logout_api_view, name='api_logout'),
     
     # gestion de Perfil
     path("perfil/<int:usuario_id>/", views.perfil_usuario, name="perfil"),
@@ -55,27 +58,23 @@ urlpatterns = [
     path("frmProductos/", views.productos, name="productos"),
     path("frmEntradas/", views.entradas, name="entradas"),
     path("frmSalidas/", views.salidas, name="salidas"),
-    
-    
-     path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
-     
-    
-    # formularios
-    path('proveedores/', views.proveedores, name='proveedores'),
-    path('clientes/', views.clientes, name='clientes'),
-
-    # URL para restablecer contraseña
-    path('reset_password/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('reset_password/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
-    
-    
-
-    path('cargar_productos/', views.cargar_productos, name='cargar_productos'),  # Nueva URL para cargar productos
     path('lista_compras/', views.lista_compras, name='lista_compras'),
     path('lista_ventas/', views.lista_ventas, name='lista_ventas'),
+    path('proveedores/', views.proveedores, name='proveedores'),
+    path('clientes/', views.clientes, name='clientes'),
     
+    #----------- tienda
+    path('inicio/', views.inicioTienda, name='inicio_tienda'),
+    path('tienda/', views.inicio_Tienda, name='tienda'),
+    path('acerca/', views.acercaDe, name='acerca'),
+    path('contactanos/', views.contactanos, name='contactanos'),
+    path('contact/',views.contact),
+    path('enviarCorreo', views.enviarCorreo),
+    
+    # funciones extras
+    path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
+    
+    # formularios pruebas sin diseño
     path('lista_stock/', views.lista_stock, name='lista_stock'),
     path('informe_ventas/', views.informe_ventas, name='informe_ventas'),
     
@@ -98,11 +97,6 @@ urlpatterns = [
     path('agregar_cliente/', views.agregar_cliente, name='agregar_cliente'),
     path('editar_cliente/<int:cliente_id>/', views.editar_cliente, name='editar_cliente'),
     path('lista_clientes/', views.lista_clientes, name='lista_clientes'),
-
-    #----------- tienda
-    path('tienda/', views.inicio_Tienda, name='tienda'),
-    path('acerca/', views.acercaDe, name='acerca'),
-    path('contactanos/', views.contactanos, name='contactanos'),
     
 ]
 if settings.DEBUG:

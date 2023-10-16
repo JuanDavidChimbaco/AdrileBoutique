@@ -1,105 +1,60 @@
-@import url('fonts.css');
-
-/* ===[Header e hijos]=== */
+/*  Header e hijos */
 
 .fa-shoe-prints{
     color: #FFCCE0;
 }
 
-
-/* ===[Nav e hijos]=== */
-nav{
-    width: 250px;
-    height: 80vh;
-    background-color: #eee;
-    border: 1px solid #dedede;
-    box-shadow: 5px 0 5px rgba(0, 0, 0, 25%);
-    display: flex;
-    flex-direction: column;
-    z-index: 999;
-}
-
-
-#vistaPrevia{
-    cursor: pointer;
-}
-
-#link{
-    cursor: pointer;
-}
-
-#titulo{
+#title{
     cursor: default !important;
-    font-family: canter-bold;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
 }
 
-#titulo:hover{
-    cursor: default !important;
-}
-
-body {
-    cursor: default; 
-}
-
-
-.footerColor{
+/* footer */
+.footer{
     background-color: #FFCCE0;
 }
 
-.panelColor{
+/* contenido dashboard */
+.panel-title{
     background-color: #FFCCE0;
 }
+h2.title {
+    color: #000;
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+.card{
+    transition: all 0.4s;
+}
+.card:hover{
+    transform: translateY(5px);
+    color: #FFCCE0;
+    background: #2e2e2e;
+}
 
+/* botones en los formularios */
 .buttons{
-    background-color: #FFCCE0;
-    color: #2e2e2e;
-    font-size: small;
+    background-color: #000;
+    color: #fff;
     transition: .5s;
 }
 .buttons:hover{
     background-color: #ffffff;
     color: #fd90bc;
+    border: 1px solid #FFCCE0;
     font-size: medium;
     transition: .5s;
     border-color: #fba3c6;
+    box-shadow: 5px 0 5px rgba(0, 0, 0, 0.2);
 }
 
-.dropdown-item.active, .dropdown-item:active {
-    background-color: #FFCCE0;
-    border-radius: 5px;
-}
-.contenedor-buttons{
-    height: 50px;
-}
 
 .shadow{
     box-shadow: 5px 5px 5px 1px rgba(114, 114, 114, 0.5) !important;
     border-radius: 5px;
 }
 
-.linxD{
-    border-radius: 5px;
-    text-align: center;
-    width: 9rem;
-    display: flex;
-    align-items: center;
-}
 
-.linxD:hover{
-    background-color: #FFCCE0;
-    border-radius: 5px;
-    letter-spacing: 2px;
-}
 
-.card{
-    transition: all 0.5s;
-}
-
-.card:hover{
-    transform: translateY(10px);
-    color: #FFF;
-    background: #FFCCE0;
-}
 
 .nav-link{
     transition: all 0.5s;
@@ -178,4 +133,9 @@ tbody, td, tfoot, th, thead, tr {
 table.dataTable tbody th,
 table.dataTable tbody td {
     white-space: nowrap;
+}
+
+p {
+    margin-top: 0;
+    margin-bottom: 0;
 }

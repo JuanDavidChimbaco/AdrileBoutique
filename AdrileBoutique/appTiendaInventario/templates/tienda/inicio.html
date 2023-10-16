@@ -1,6 +1,60 @@
-{% extends 'tienda/index.html' %} {% block contenido %}
+{% extends 'tienda/index.html' %} 
+{% block contenido %}
 {% load static %}
+<script src="{% static 'js/tienda.js' %}" defer></script>
+<script src="{% static 'js/tienda_productos.js' %}" defer></script>
+<script src="{% static 'js/categorias.js' %}" defer></script>
 
+<div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+  <div class="carousel-inner">
+    <div class="carousel-item active">
+      <div class="d-flex w-100 justify-content-center bg-light">
+        <img src="{% static 'images/5594016.jpg' %}" class="rounded img-fluid " alt="...">
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="d-flex w-100 justify-content-center">
+        <img src="https://cdn.vuetifyjs.com/images/cards/hotel.jpg" class="rounded img-fluid" alt="...">
+      </div>
+    </div>
+    <div class="carousel-item">
+      <div class="d-flex w-100 justify-content-center">
+        <img src="https://cdn.vuetifyjs.com/images/cards/sunshine.jpg" class="rounded  img-fluid" alt="...">
+      </div>
+    </div>
+  </div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Previous</span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+    <span class="visually-hidden">Next</span>
+  </button>
+  <div class="text-center">
+    <span>
+      <small>
+        Imagen de
+        <a
+          href="https://www.freepik.es/vector-gratis/plantilla-banner-venta-horizontal_13185405.htm#query=banner%20tienda%20ropa&position=4&from_view=keyword&track=ais">
+          Freepik
+        </a>
+      </small>
+    </span>
+  </div>
+</div>
 
+<div class="mt-2" id="contenedorCategorias">
+  <!-- contenido categorias -->
+</div>
+
+<div class="collapse bg-secondary rounded" id="collapseExample">
+  <div id="productosPorCategoria">
+      <!-- productos por categoria  -->
+  </div>
+</div>
+
+<div id="productosContainer" class="contenido"></div>
+<div id="paginationContainer"></div>
 
 {% endblock %}

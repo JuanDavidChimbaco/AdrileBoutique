@@ -34,6 +34,9 @@
     <!-- axios -->
     <script src="{% static 'js/axios.min.js' %}"></script>
     
+    <!-- phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
     <!-- staticos locales -->
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
     <script src="{% static 'js/app.js' %}" defer></script>
@@ -46,7 +49,7 @@
        <header>{% include 'inventario/encabezado.html' %}</header>
        <div class="d-flex">
            {% include 'inventario/menu.html' %}
-           <main class="flex-grow-1">
+           <main class="flex-grow-1 p-4">
                {% block contenido %}
                 aqui va el contenido 
                {% endblock %}

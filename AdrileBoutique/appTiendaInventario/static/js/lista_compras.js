@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-    var table = document.getElementById("ventas-table");
+    var table = document.getElementById("compras-table");
     var dataTable = new DataTable(table, {
         "language": {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 async function detalle(id) {
     try {
-        const response = await axios.get('/api/detalles_venta_por_venta/?venta='+id);
+        const response = await axios.get('/api/detalles_compra_por_compra/?compra=' + id);
         let data = "";
 
         // Utiliza un bucle for...of para asegurarte de que las peticiones se completen en orden
@@ -33,18 +33,20 @@ async function detalle(id) {
 
         datos.innerHTML = data;
 
-        const response2 = await axios.get('/api/ventas/' + id);
-        const fechaISO8601 = response2.data.fecha_venta;
+        const response2 = await axios.get('/api/compras/' + id);
+        const fechaISO8601 = response2.data.fecha_compra;
 
         const fecha = new Date(fechaISO8601);
         const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
-        const formattedFecha = fecha.toLocaleString('es-CO', options);
+        const formattedFecha = fecha.toLocaleString('es-ES', options);
 
-        const response4 = await axios.get('/api/clientes/' + response2.data.cliente);
-        const cliente = response4.data.nombre;
+        console.log(formattedFecha);
 
-        let data2 = `<p>Fecha de Venta: ${formattedFecha} </p>
-                    <p>Cliente: ${cliente}</p>`;
+        const response4 = await axios.get('/api/proveedores/' + response2.data.proveedor);
+        const proveedor = response4.data.nombre_empresa;
+
+        let data2 = `<p>Fecha de Compra: ${formattedFecha} </p>
+                    <p>proveedor: ${proveedor}</p>`;
 
         contenidoDetalle.innerHTML = data2;
     } catch (e) {

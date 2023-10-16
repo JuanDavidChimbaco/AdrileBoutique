@@ -1,38 +1,6 @@
+{% extends 'tienda/index.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-
-<head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="{% static 'images/svg/image.svg' %}" class="rounded icon" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adrile Boutique</title>
-    <!--jquery-->
-    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
-    <!-- bootstrap local -->
-    <link rel="stylesheet" href="{% static 'bootstrap-5.3.1-dist/css/bootstrap.min.css' %}" />
-    <script src="{% static 'bootstrap-5.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
-    <!-- fontawesome -->
-    <link rel="stylesheet" href="{% static 'fontawesome-free-6.4.2-web/css/all.min.css' %}">
-    <!-- toarst -->
-    <link rel="stylesheet" href="{% static 'css/toastr.min.css' %}">
-    <script src="{% static 'js/toastr.min.js' %}"></script>
-    <!-- estilos locales -->
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/login.css' %}">
-</head>
-
-<body>
-    <header class="d-flex bg-dark text-white align-items-center">
-        {% block header %}
-        <div>
-            <img src="{% static 'images/imageLogo3.png' %}" alt="" width="70">
-        </div>
-        <div class="mx-5 fs-1">
-            <span id="titulo"> </span>Gestion Inventario Adrile Boutique
-        </div>
-        {% endblock %}
-    </header>
+{% block contenido %}
 
     <div class="content">
         {% block content %}
@@ -104,13 +72,4 @@
         {% endblock %}
     </div>
 
-    <footer class="d-flex bg-dark text-white align-items-center justify-content-center">
-        {% block footer %}
-        <div>
-            <p class="text-white ">&copy; 2023 Devs Aprendices SENA</p>
-        </div>
-        {% endblock %}
-    </footer>
-</body>
-
-</html>
+{% endblock %}

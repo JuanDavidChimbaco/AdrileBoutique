@@ -1,17 +1,21 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.http import JsonResponse
 from django.http import Http404
 from django.db import transaction
+from django.conf import settings
+
 import os
 import logging
+
 logger = logging.getLogger(__name__)
 
 from rest_framework import viewsets, status
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.decorators import action
 
 from .models import (
     Usuario,
@@ -36,6 +40,18 @@ from .serializers import (
     DetalleVentaSerializer,
 )
 
+# Importa los módulos necesarios correo
+from django.core.mail import send_mail
+from django.shortcuts import render
+from django.conf import settings
+import threading
+
+#================== de prueba ==================================
+from django.shortcuts import render, get_object_or_404, redirect
+from django.db.models import Sum
+from .models import Producto,Categoria,Proveedor,DetalleVenta,Venta,Cliente
+from .forms import ProductoForm,CategoriaForm,ProveedorForm,ClienteForm
+
 # Create your views here.
 
 
@@ -49,9 +65,11 @@ def login_view(request):
         if user is not None:
             login(request, user)
             if not remember_me:
-                request.session.set_expiry(
-                    0
-                )  # La sesión expirará cuando se cierre el navegador
+                # Si remember_me no está marcado, establece la sesión para que expire después de 1 hora
+                request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+            else:
+                # Si remember_me está marcado, la sesión no expirará cuando se cierre el navegador
+                request.session.set_expiry(0)
             return redirect("dashboard")
         else:
             # El inicio de sesión falló, muestra un mensaje de error
@@ -99,99 +117,6 @@ def perfil_usuario(request, usuario_id):
         {"usuario": usuario, "es_administrador": pertenece_a_administrador},
     )
 
-from django.db import Error, transaction
-
-def modificarDatosUserPerfil(request,id):
-    if request.method == "POST":
-        try:
-            nombres = request.POST["name"]
-            apellidos = request.POST["last"]
-            email = request.POST["email"]
-            telefono = request.POST["phone"]
-            direccion = request.POST["address"]
-            usuario = request.POST["user"]
-            foto = request.FILES.get("fileFoto", False)
-
-            with transaction.atomic():
-                user = Usuario().objects.get(pk=id)
-                user.username=usuario
-                user.first_name=nombres
-                user.last_name=apellidos
-                user.email=email
-                user.telefono=telefono
-                user.direccion=direccion
-                if(foto):
-                    if user.fotoPerfil == "":
-                        user.fotoPerfil=foto
-                    else:
-                        os.remove('./media/'+str(user.fotoPerfil))
-                        user.fotoPerfil=foto
-                user.save()
-                mensaje = "Datos Modificados Correctamente"
-                retorno = {"mensaje": mensaje,"estado":True}
-
-                return render(request, 'inventario/perfil.html',retorno)
-
-        except Error as error:
-            transaction.rollback()
-            if 'user.username' in str(error):
-                mensaje = "Ya existe un usuario con este nombre de usuario"
-            elif 'user.email' in str(error):
-                mensaje = "Ya existe un usuario con ese correo electronico"
-            else:
-                mensaje = error
-        retorno = {"mensaje":mensaje,"estado":False}
-        return render(request, 'inventario/perfil.html',retorno)
-
-
-# def modificarDatosUserPerfil(request,id):
-#     if request.method == "POST":
-#         try:
-#             nombres = request.POST["txtCedula"]
-#             apellidos = request.POST["txtNombres"]
-#             email = request.POST["txtApellido"]
-#             telefono = request.POST["txtTelefono"]
-#             direccion = request.POST["txtDireccion"]
-#             foto = request.FILES.get("fileFoto", False)
-#             username = request.POST["txtUserName"]
-#             with transaction.atomic():
-#                 user = Usuario().objects.get(pk=id)
-#                 user.username=username
-#                 user.first_name=nombres
-#                 user.last_name=apellidos
-#                 user.email=email
-#                 user.telefono=telefono
-#                 user.direccion=direccion
-#                 user.userTelefono=telefono
-#                 if(foto):
-#                     if user.userFoto == "":
-#                         user.userFoto=foto
-#                     else:
-#                         os.remove('./media/'+str(user.userFoto))
-#                         user.userFoto=foto
-#                 user.save()
-#                 mensaje = "Datos Modificados Correctamente"
-#                 retorno = {"mensaje": mensaje,"estado":True}
-#                 if user.userTipo == "Administrador":
-#                     return render(request, 'administrador/perfilUsuario.html',retorno)
-#                 else:
-#                     return render(request, 'asesor/perfilUsuario.html',retorno)
-#         except Error as error:
-#             transaction.rollback()
-#             if 'username' in str(error):
-#                 mensaje = "Ya existe un usuario con esta cedula"
-#             elif 'user.username' in str(error):
-#                 mensaje = "Ya existe un usuario con este nombre de usuario"
-#             elif 'user.email' in str(error):
-#                 mensaje = "Ya existe un usuario con ese correo electronico"
-#             else:
-#                 mensaje = error
-#         retorno = {"mensaje":mensaje,"estado":False}
-#         if user.userTipo == "Administrador":
-#             return render(request, 'administrador/perfilUsuario.html',retorno)
-#         else:
-#             return render(request, 'asesor/perfilUsuario.html',retorno)
-        
 
 @login_required(login_url="index")
 def categorias(request):
@@ -227,10 +152,27 @@ def entradas(request):
 
 
 @login_required(login_url="index")
+def lista_compras(request):
+    compras = Compra.objects.annotate(total_cantidad=Sum('detallecompra__cantidad'))
+    for compra in compras:
+        compra.fecha_compra = compra.fecha_compra.strftime('%Y-%m-%d')
+    return render(request, 'lista_compras.html', {'compras': compras})
+
+
+@login_required(login_url="index")
 def salidas(request):
     productos = Producto.objects.all()
     clientes = Cliente.objects.all()
     return render(request,"inventario/frmSalidas.html",{"clientes": clientes, "productos": productos})
+
+
+@login_required(login_url="index")
+def lista_ventas(request):
+    ventas = Venta.objects.annotate(total_cantidad=Sum('detalleventa__cantidad'))
+    for venta in ventas:
+        venta.fecha_venta = venta.fecha_venta.strftime('%Y-%m-%d')
+    return render(request, 'lista_ventas.html', {'ventas': ventas})
+
 
 # ===[Api]========================================================================================================
 class UsuarioViewSet(viewsets.ModelViewSet):
@@ -293,6 +235,17 @@ class DetalleCompraViewSet(viewsets.ModelViewSet):
     serializer_class = DetalleCompraSerializer
 
 
+class DetalleCompraPorCompraViewSet(viewsets.ModelViewSet):
+    serializer_class = DetalleCompraSerializer
+
+    def get_queryset(self):
+        queryset = DetalleCompra.objects.all()
+        compra_id = self.request.query_params.get('compra')# Obtener el valor del parámetro 'compra' de la solicitud (si existe)
+        if compra_id:
+            queryset = queryset.filter(compra=compra_id)# Filtrar por compra si se proporciona el parámetro 'compra'
+        return queryset
+
+
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
@@ -327,6 +280,50 @@ class DetalleVentaViewSet(viewsets.ModelViewSet):
     serializer_class = DetalleVentaSerializer
 
 
+class DetalleVentaPorVentaViewSet(viewsets.ModelViewSet):
+    serializer_class = DetalleVentaSerializer
+
+    def get_queryset(self):
+        queryset = DetalleVenta.objects.all()
+        venta_id = self.request.query_params.get('venta')# Obtener el valor del parámetro 'venta' de la solicitud (si existe)
+        if venta_id:
+            queryset = queryset.filter(venta=venta_id)# Filtrar por venta si se proporciona el parámetro 'venta'
+        return queryset
+
+
+# ===[login y logout con Api]===========================================================================================
+from rest_framework_simplejwt.tokens import RefreshToken
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_api_view(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+
+    # Verificar las credenciales del usuario
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        # El usuario es válido, generar un token de acceso
+        refresh = RefreshToken.for_user(user)
+        access_token = str(refresh.access_token)
+
+        # Devolver el token de acceso en la respuesta
+        return Response({'access_token': access_token})
+    else:
+        return Response({'message': 'Nombre de usuario o contraseña incorrectos'}, status=status.HTTP_UNAUTHORIZED)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout_api_view(request):
+    # Invalidar el token de acceso forzando su expiración
+    refresh_token = RefreshToken(request.data['refresh_token'])
+    refresh_token.blacklist()
+
+    return Response({'message': 'Cierre de sesión exitoso'})
+
+
 # ===[otros metodos]============================================================================================
 def productos_por_proveedor(request, proveedor_id):
     if request.method == "POST":
@@ -340,40 +337,108 @@ def productos_por_proveedor(request, proveedor_id):
             return JsonResponse(productos_list, safe=False)
     # Si no se encontraron productos o hay un error, devuelve una respuesta de error
     return JsonResponse([], safe=False)
+  
+
+from django.db import Error, transaction
+def modificarDatosUserPerfil(request,id):
+    if request.method == "POST":
+        try:
+            nombres = request.POST["name"]
+            apellidos = request.POST["last"]
+            email = request.POST["email"]
+            telefono = request.POST["phone"]
+            direccion = request.POST["address"]
+            usuario = request.POST["user"]
+            foto = request.FILES.get("fileFoto", False)
+
+            with transaction.atomic():
+                user = Usuario().objects.get(pk=id)
+                user.username=usuario
+                user.first_name=nombres
+                user.last_name=apellidos
+                user.email=email
+                user.telefono=telefono
+                user.direccion=direccion
+                if(foto):
+                    if user.fotoPerfil == "":
+                        user.fotoPerfil=foto
+                    else:
+                        os.remove('./media/'+str(user.fotoPerfil))
+                        user.fotoPerfil=foto
+                user.save()
+                mensaje = "Datos Modificados Correctamente"
+                retorno = {"mensaje": mensaje,"estado":True}
+
+                return render(request, 'inventario/perfil.html',retorno)
+
+        except Error as error:
+            transaction.rollback()
+            if 'user.username' in str(error):
+                mensaje = "Ya existe un usuario con este nombre de usuario"
+            elif 'user.email' in str(error):
+                mensaje = "Ya existe un usuario con ese correo electronico"
+            else:
+                mensaje = error
+        retorno = {"mensaje":mensaje,"estado":False}
+        return render(request, 'inventario/perfil.html',retorno)
+
+
+# -------------==================== tienda ===========================-------------------
+def inicio_Tienda(request):
+    return render(request, "tienda/index.html",{})
+
+def acercaDe(request):
+    return render(request, "tienda/acercaDe.html",{})
+
+def contactanos(request):
+    return render(request, "tienda/contactanos.html",{})
+
+def inicioTienda(request):
+    return render(request, "tienda/inicio.html",{})
+
+
+def enviarCorreo(asunto, mensaje, destinatarios):
+    send_mail(asunto, mensaje, settings.EMAIL_HOST_USER, destinatarios, fail_silently=False)
+
+
+# Función para enviar correo electrónico
+def enviarCorreo(asunto, mensaje, remitente, destinatario):
+    send_mail(asunto, mensaje, remitente, [destinatario], fail_silently=False)
+
+
+# Vista para la página de contacto
+def contact(request):
+    if request.method == 'POST':
+        if 'name' in request.POST and 'email' in request.POST and 'message' in request.POST:
+            message_name = request.POST['name']
+            message_email = request.POST['email']
+            message = request.POST['message']
+
+            if message_name and message_email and message:  # Verifica si todos los campos están completos
+                asunto = 'Mensaje de la tienda de ropa femenina'
+                mensajeCorreo = f'El cliente {message_name} con la dirección de correo {message_email} ha enviado el siguiente mensaje: {message}'
+
+                thread = threading.Thread(target=enviarCorreo, args=(asunto, mensajeCorreo, message_email, settings.EMAIL_HOST_USER))
+                thread.start()
+
+                mensaje = 'Mensaje enviado, pronto nos pondremos en contacto contigo.'
+                return render(request, 'tienda/contactanos.html', {'mensaje': mensaje})
+            else:
+                mensaje_Complete = 'Asegúrate de completar todos los campos.'
+                return render(request, 'tienda/contactanos.html', {'mensaje_Complete': mensaje_Complete})
+        else:
+            mensaje_E = 'Campos faltantes.'
+            return render(request, 'tienda/contactanos.html', {'mensaje_E': mensaje_E})
+    else:
+        mensaje_Error = 'Intentalo más tarde.'
+        return render(request, 'tienda/contactanos.html', {'mensaje_Error': mensaje_Error})
     
-# =======================================================================================================================  
-from django.db.models import Sum
-
-def lista_compras(request):
-    compras = Compra.objects.annotate(total_cantidad=Sum('detallecompra__cantidad'))
-    return render(request, 'lista_compras.html', {'compras': compras})
-
-@login_required(login_url="index")
-def lista_ventas(request):
-    ventas = Venta.objects.all()
-    for venta in ventas:
-        venta.total_cantidad = venta.detalleventa_set.aggregate(total_cantidad=Sum('cantidad'))['total_cantidad']
-    return render(request, 'lista_ventas.html', {'ventas': ventas})
-
-from django.http import JsonResponse
-
-def cargar_productos(request):
-    proveedor_id = request.GET.get('proveedor_id')
-    productos = Producto.objects.filter(proveedor=proveedor_id).values('id', 'nombre')
-    return JsonResponse(list(productos), safe=False)
-
-# ===========================================================================================
-
-from django.shortcuts import render
-from .models import Producto
-
+    
+# ====================[pruebas sin diseño ]================================================================
 def lista_stock(request):
     productos = Producto.objects.all()
     return render(request, 'lista_stock.html', {'productos': productos})
 
-from django.shortcuts import render
-from .models import Venta, DetalleVenta
-from django.db.models import Sum
 
 def informe_ventas(request):
     ventas = Venta.objects.all()
@@ -381,13 +446,11 @@ def informe_ventas(request):
 
     return render(request, 'informe_ventas.html', {'ventas': ventas, 'total_ventas': total_ventas})
 
+
 def lista_productos(request):
     productos = Producto.objects.all()
     return render(request, 'lista_productos.html', {'productos': productos})
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProductoForm
-from .models import Producto
 
 def agregar_producto(request, producto_id=None):
     if producto_id:
@@ -405,6 +468,7 @@ def agregar_producto(request, producto_id=None):
         form = ProductoForm(instance=producto)
     return render(request, 'agregar_producto.html', {'form': form, 'producto': producto})
 
+
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
     if request.method == 'POST':
@@ -416,15 +480,13 @@ def editar_producto(request, producto_id):
         form = ProductoForm(instance=producto)
     return render(request, 'editar_proveedor.html', {'form': form, 'proveedor': producto})
 
+
 def cambiar_estado(request, producto_id):
     producto = get_object_or_404(Producto, pk=producto_id)
     producto.estado = not producto.estado  # Cambiar el estado (de True a False o de False a True)
     producto.save()
     return redirect('lista_productos')  # Redirige a la página de lista de productos o a donde lo necesites
 
-
-from django.shortcuts import render, redirect
-from .forms import CategoriaForm
 
 def agregar_categoria(request):
     if request.method == 'POST':
@@ -436,10 +498,6 @@ def agregar_categoria(request):
         form = CategoriaForm()
     return render(request, 'agregar_categoria.html', {'form': form})
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import CategoriaForm
-from .models import Categoria
 
 def editar_categoria(request, categoria_id):
     categoria = get_object_or_404(Categoria, pk=categoria_id)
@@ -453,10 +511,6 @@ def editar_categoria(request, categoria_id):
     return render(request, 'editar_categoria.html', {'form': form, 'categoria': categoria})
 
 
-
-from django.shortcuts import render, redirect
-from .forms import ProveedorForm
-
 def agregar_proveedor(request):
     if request.method == 'POST':
         form = ProveedorForm(request.POST)
@@ -467,10 +521,6 @@ def agregar_proveedor(request):
         form = ProveedorForm()
     return render(request, 'agregar_proveedor.html', {'form': form})
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ProveedorForm
-from .models import Proveedor
 
 def editar_proveedor(request, proveedor_id):
     proveedor = get_object_or_404(Proveedor, pk=proveedor_id)
@@ -484,30 +534,20 @@ def editar_proveedor(request, proveedor_id):
     return render(request, 'editar_proveedor.html', {'form': form, 'proveedor': proveedor})
 
 
-from django.shortcuts import render
-from .models import Categoria
-
 def lista_categorias(request):
     categorias = Categoria.objects.all()
     return render(request, 'lista_categorias.html', {'categorias': categorias})
 
 
-from django.shortcuts import render
-from .models import Proveedor
-
 def lista_proveedores(request):
     proveedores = Proveedor.objects.all()
     return render(request, 'lista_proveedores.html', {'proveedores': proveedores})
 
-from django.shortcuts import render
-from .models import Cliente
 
 def lista_clientes(request):
     clientes = Cliente.objects.all()
     return render(request, 'lista_clientes.html', {'clientes': clientes})
 
-from django.shortcuts import render, redirect
-from .forms import ClienteForm
 
 def agregar_cliente(request):
     if request.method == 'POST':
@@ -520,11 +560,6 @@ def agregar_cliente(request):
     return render(request, 'agregar_cliente.html', {'form': form})
 
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import ClienteForm
-from .models import Cliente
-
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, pk=cliente_id)
     if request.method == 'POST':
@@ -536,20 +571,9 @@ def editar_cliente(request, cliente_id):
         form = ClienteForm(instance=cliente)
     return render(request, 'editar_cliente.html', {'form': form, 'cliente': cliente})
 
-from django.shortcuts import render
-from .models import Cliente
 
 def lista_clientes(request):
     clientes = Cliente.objects.all()
     return render(request, 'lista_clientes.html', {'clientes': clientes})
 
-# -------------==================== tienda ===========================-------------------
 
-def inicio_Tienda(request):
-    return render(request, "tienda/index.html",{})
-
-def acercaDe(request):
-    return render(request, "tienda/acercaDe.html",{})
-
-def contactanos(request):
-    return render(request, "tienda/contactanos.html",{})

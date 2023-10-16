@@ -114,9 +114,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-CO'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -139,9 +139,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media')
 
-# Tiempo de sesión en segundos (30 minutos) por defecto
 
-SESSION_COOKIE_AGE = 1 * 60 * 60 # 1 hora
+# Tiempo de sesión en segundos 
+SESSION_COOKIE_AGE = 4 * 60 * 60 # 4 horas
+
 
 # 
 REST_FRAMEWORK = {
@@ -159,11 +160,12 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # Tiempo de vida del token de acceso (60 minutos por defecto)
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Tiempo de vida del token de actualización (1 día por defecto)
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=14),  # Tiempo de vida máxima del token de actualización (14 días por defecto)
-    'SLIDING_TOKEN_REFRESH_LIFETIME_GRACE_PERIOD': timedelta(days=1),  # Período de gracia para la actualización del token (1 día por defecto)
-    'SLIDING_TOKEN_REFRESH_EACH_TIME': False,  # True si el token de acceso debe actualizarse cada vez que se utiliza, False por defecto
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Duración del token de acceso
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Duración antes de que expire el token deslizante
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=1),  # Duración del token deslizante
+    'SLIDING_TOKEN_REFRESH_GRACE_PERIOD': timedelta(days=0),  # Período de gracia para actualizar el token deslizante
+    'SLIDING_TOKEN_TYPES': {'sliding': 'rest_framework_simplejwt.tokens.SlidingToken'},
+    'SLIDING_TOKEN_REFRESH_SCOPE': None,
 }
 
 # permitir solicitudes solo desde un origen específico
@@ -179,12 +181,11 @@ CORS_ALLOWED_ORIGINS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 load_dotenv()
 
-EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo para Gmail
-EMAIL_PORT = 587  # Puerto para Gmail
-EMAIL_USE_TLS = True  # Usar TLS (True para Gmail)
-EMAIL_USE_SSL = False  # No usar SSL (False para Gmail)
-EMAIL_HOST_USER = os.getenv('EMAIL_SENDER')  # Dirección de correo
-EMAIL_HOST_PASSWORD = os.getenv('PASSWORD_SENDER')  # Contraseña de correo
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT=587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER="ronald.persanchez33@gmail.com"
+EMAIL_HOST_PASSWORD='yphtztyqukqvroizq'
 
 # Opcional: Configuración para manejar correos en el entorno de desarrollo
 if DEBUG:
@@ -199,7 +200,7 @@ LOGIN_REDIRECT_URL = '/dashboard/'
 # ruta la cual sera redirigido cuando caduque la sesion
 LOGIN_URL = '/dashboard/'
 
-AUTH_USER_MODEL = 'auth.User'
+# AUTH_USER_MODEL = 'auth.User'
 
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
