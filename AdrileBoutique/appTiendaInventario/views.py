@@ -605,8 +605,43 @@ class PasswordResetRequestView(APIView):
         send_mail(subject, message, "info@adrileboutique.com", [email])
         mensaje = "Se ha enviado un enlace de restablecimiento a su correo electrónico."
         return render(request, "registration/mensaje.html", {"mensaje": mensaje})
+# api/views.py
 
+from django.contrib.auth.views import PasswordResetView
+from rest_framework.generics import CreateAPIView
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import permission_classes
+from rest_framework.permissions import AllowAny
 
+from .serializers import CustomPasswordResetSerializer
+from .serializers import CustomPasswordResetSerializer
+
+@permission_classes([AllowAny])
+class CustomPasswordResetView(CreateAPIView):
+    serializer_class = CustomPasswordResetSerializer
+
+    def create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        email = serializer.validated_data['email']
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            # Genera un token de recuperación de contraseña
+            from django.contrib.auth.tokens import default_token_generator
+            from django.utils.http import urlsafe_base64_encode
+
+            from django.utils.http import urlsafe_base64_encode
+
+            return Response({'detail': 'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'No se encontró ninguna cuenta asociada a este correo electrónico.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+def recuperarContra(request):
+    return render(request, 'recuperar_contraseña.html')
 
 # obtiene el token y la nueva contraseña y actualiza la contraseña del usuario
 class PasswordResetView(APIView):

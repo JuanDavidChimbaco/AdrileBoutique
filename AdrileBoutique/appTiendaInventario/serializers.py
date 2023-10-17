@@ -47,7 +47,17 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
     class Meta:
         model = DetalleVenta
         fields = '__all__'
+        
+from django.contrib.auth.forms import PasswordResetForm
            
+class CustomPasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        # Valida si el correo electrónico existe en la base de datos.
+        PasswordResetForm({'email': value})  # Utiliza Django's PasswordResetForm para validar el correo electrónico.
+
+        return value
 
 # Serializer para el registro de usuarios (Solo para los empleados)
 class RegistroEmpleadosSerializer(serializers.ModelSerializer):

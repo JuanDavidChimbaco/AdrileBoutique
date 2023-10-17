@@ -191,15 +191,16 @@ CORS_ALLOWED_ORIGINS = [
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 load_dotenv()
 
-EMAIL_HOST="smtp.gmail.com"
-EMAIL_PORT=587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER="ronald.persanchez33@gmail.com"
-EMAIL_HOST_PASSWORD="emqb hzkl zgtb tagc"
+EMAIL_HOST = 'smtp.gmail.com'  # Ejemplo para Gmail
+EMAIL_PORT = 587  # Puerto para Gmail
+EMAIL_USE_TLS = True  # Usar TLS (True para Gmail)
+EMAIL_USE_SSL = False  # No usar SSL (False para Gmail)
+EMAIL_HOST_USER = os.getenv('EMAIL_SENDER')  # Dirección de correo
+EMAIL_HOST_PASSWORD = os.getenv('PASSWORD_SENDER')  # Contraseña de correo
 
-# Opcional: Configuración para manejar correos en el entorno de desarrollo
-if DEBUG:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Muestra los correos en la consola en lugar de enviarlos
+# # Opcional: Configuración para manejar correos en el entorno de desarrollo
+# if DEBUG:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Muestra los correos en la consola en lugar de enviarlos
 
 # ruta a la cual sera redirigido cuando termine su sesion
 LOGOUT_REDIRECT_URL = '/'

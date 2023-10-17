@@ -81,6 +81,8 @@ urlpatterns = [
     path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
     path('productos/categoria/<int:categoria_id>/', views.ProductosPorCategoriaViewSet.as_view({'get': 'list'}), name='productos_por_categoria'),
     path('informes_combinados/', views.informes_combinados, name='informes_combinados'),
+    path('recuperar-contrasena/', views.CustomPasswordResetView.as_view(), name='custom_password_reset'),
+    path('recuperarContra/', views.recuperarContra, name='recuperarContra'),
     
     # rutas para restablecer contraseña (Admin)
     path("validarCorreo/", views.restPasswordRequest, name="validarCorreo"),
