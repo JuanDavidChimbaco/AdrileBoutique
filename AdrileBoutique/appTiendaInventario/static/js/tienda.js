@@ -34,7 +34,7 @@ async function get_categories() {
     let data = '';
     try {
         const response = await axios.get('/api/categoriasCliente/');
-        console.log(response)
+        //console.log(response)
         response.data.forEach((category) => {
             data += `
                    <a class="categoriaitem" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample" onclick="ProductsByCategory(${category.id})">
@@ -86,7 +86,7 @@ function autoComplete() {
             if (textoBuscar.length >= 2) {
                 let lista = `<div class='list-group'>`;
                 let filtroProducto = data.filter(filtrar)
-                    console.log(filtroProducto);
+                    //console.log(filtroProducto);
                     filtroProducto.forEach(element => {
                         iconoProducto(element.id);
                         lista += `<a class='list-group-item list-group-item-action' href="/detalle_producto?id=${element.id}" onclick="${productoSeleccionado(element.id)}">${element.nombre} <img id="icono${element.imagen}" style="width:20%"></a>`;
@@ -108,7 +108,7 @@ function filtrar(element) {
     let textoBuscar = document.getElementById("txtBuscar").value
     let nombre = element.nombre
     let filtrado =  nombre.includes(textoBuscar.toLowerCase())
-    console.log(filtrado);
+    //console.log(filtrado);
     return filtrado ;
 }
 

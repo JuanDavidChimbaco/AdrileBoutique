@@ -39,11 +39,12 @@ async function ultimosProductos(){
             // carouselInner.appendChild(carouselItem);
         });
 
-        console.log('categorias', categorias);
+        //console.log('categorias', categorias);
     } catch (error) {
         console.error(error);
     }
 }
+
 window.onload = () => {
     configCarousel();
     ultimosProductos();

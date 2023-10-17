@@ -1,9 +1,8 @@
 var dataTable = ""
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function () {
     // Obtener los datos del localStorage y convertirlos de nuevo a un array
     var productosSeleccionadosJSON = localStorage.getItem('productosSeleccionadosVenta');
     productosSeleccionados = JSON.parse(productosSeleccionadosJSON) || [];
-
     // Actualizar la tabla con los datos restaurados
     actualizarTabla(productosSeleccionados);
     dataTable = $('#productos-seleccionados').DataTable({
@@ -15,8 +14,6 @@ document.addEventListener('DOMContentLoaded', function () {
         "scrollY": "40vh",
         responsive: true
     });
-    dataTable.columns.adjust();
-
 });
 
 function pintarDatatable() {
@@ -30,7 +27,6 @@ function pintarDatatable() {
         "scrollY": "40vh",
         responsive: true
     });
-    dataTable.columns.adjust();
 }
 
 let cantidadDisponible = 0
@@ -115,12 +111,13 @@ function actualizarTabla(productos) {
 
         var eliminarBtn = document.createElement("button");
         eliminarBtn.textContent = "Eliminar";
-        eliminarBtn.className = "btn buttons"; // Asigna una clase CSS
+        eliminarBtn.className = "btn buttons"; 
         eliminarBtn.addEventListener("click", function () {
             eliminarProducto(producto);
         });
         celdaAcciones.appendChild(eliminarBtn);
     });
+    document.getElementById("total").textContent = total;
 }
 
 function eliminarProducto(producto) {
@@ -216,15 +213,17 @@ document.getElementById("realizar-venta").addEventListener("click", function () 
             icon: 'error',
             title: 'Agregue un producto a la tabla para realizar la venta o salida.',
             showConfirmButton: false,
+            confirmButtonColor: '#0d6efd',
             timer: 1500 // tiempo en milisegundos para que se cierre automáticamente
         });
     } else {
         axios.post("/api/ventas/", { cliente: cliente, detalles: detalles })
             .then(function (response) {
-                console.log(response.data);
+                //console.log(response.data);
                 Swal.fire({
                     icon: 'success',
                     title: 'Venta realizada con éxito.',
+                    confirmButtonColor: '#0d6efd',
                     showConfirmButton: true,
                 }).then((result) => {
                     if (result.isConfirmed) {

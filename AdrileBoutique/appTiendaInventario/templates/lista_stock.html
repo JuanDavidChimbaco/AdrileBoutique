@@ -1,24 +1,24 @@
 {% extends 'inventario/index.html'%}
 {% block contenido %}
 
-<div class="row mb-2">
+<div class="row mb-2 mx-1">
     <h1 class="text-center">Stock de Productos</h1>
 </div>
 
-<div class="row">
+<div class="row mx-1">
     <div class="col d-flex justify-content-md-evenly mb-2">
-      <button type="button" class="btn btn-primary mx-1" onclick="history.back()">
-        <i class="fa-solid fa-arrow-left"></i>
-        volver
-      </button>
-      <button type="button" class="btn btn-primary mx-1" onclick="location.href='/dashboard/'">
-        <i class="fa-solid fa-ban"></i>
-        Cancelar
-      </button>
+        <button type="button" class="btn btn-primary mx-1" onclick="history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
+            volver
+        </button>
+        <button type="button" class="btn btn-primary mx-1" onclick="location.href='/dashboard/'">
+            <i class="fa-solid fa-ban"></i>
+            Cancelar
+        </button>
     </div>
-  </div>
+</div>
 
-<div class="row justify-content-center">
+<div class="row justify-content-center mx-1">
     <div class="col-10">
         <table id="productosTable" class="display" style="width: 100%;">
             <thead>
@@ -55,20 +55,19 @@
 </div>
 
 <script>
+    var dataTable;
     document.addEventListener("DOMContentLoaded", function () {
-        var table = document.getElementById("productosTable");
-        var dataTable = new DataTable(table, {
+        dataTable = $('#productosTable').DataTable({
             "language": {
                 url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
             },
             "paging": false,
             "scrollCollapse": true,
             "scrollY": "40vh",
-            "scrollX": "100%",
             responsive: true
         });
-        dataTable.columns.adjust();
     });
+
     function change_stock(id) {
         var cantidadInput = document.getElementById("edit-cantidad-" + id);
         var originalCantidad = document.getElementById("original-cantidad-" + id);
@@ -92,12 +91,12 @@
                 icon: 'error',
                 title: 'Error',
                 text: 'Ingresa un número positivo o cero.',
-                confirmButtonColor: '#0762AB',
+                confirmButtonColor: '#0d6efd',
             })
             cantidadInput.value = originalCantidad.textContent;
         }
     }
-    <!-- #2FA9E1 -->
+
 </script>
 
 {% endblock %}

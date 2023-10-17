@@ -558,6 +558,13 @@ def modificarDatosUserPerfil(request, id):
 
 
 # Se encarga de enviar el correo electrónico con el enlace de restablecimiento
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.http import Http404
+from rest_framework.reverse import reverse
+import logging
+
+logger = logging.getLogger(__name__)
+
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
@@ -565,6 +572,15 @@ class PasswordResetRequestView(APIView):
         email = request.data.get("email")
         try:
             user = User.objects.get(email=email)
+        except User.MultipleObjectsReturned:
+            # Handle the case when multiple objects are returned
+            # Log the issue or raise an appropriate error
+            # For example:
+            logger.error(f"Multiple users found with email {email}")
+            mensaje = "Se ha producido un error. Por favor, póngase en contacto con el soporte."
+            return render(
+                request, "registration/restablecer_password.html", {"mensaje": mensaje}
+            )
         except User.DoesNotExist:
             mensaje = "Correo no encontrado"
             return render(
@@ -589,6 +605,7 @@ class PasswordResetRequestView(APIView):
         send_mail(subject, message, "info@adrileboutique.com", [email])
         mensaje = "Se ha enviado un enlace de restablecimiento a su correo electrónico."
         return render(request, "registration/mensaje.html", {"mensaje": mensaje})
+
 
 
 # obtiene el token y la nueva contraseña y actualiza la contraseña del usuario
@@ -790,12 +807,13 @@ def contact(request):
                 asunto = "Mensaje de la tienda de ropa femenina"
                 mensajeCorreo = f"El cliente {message_name} con la dirección de correo {message_email} ha enviado el siguiente mensaje: {message}"
 
+                # Configuración de la función enviarCorreo
                 thread = threading.Thread(
                     target=enviarCorreo,
                     args=(
                         asunto,
                         mensajeCorreo,
-                        [message_email],
+                        [settings.EMAIL_HOST_USER],  # Agrega aquí la dirección de correo de la tienda
                     ),
                 )
                 thread.start()

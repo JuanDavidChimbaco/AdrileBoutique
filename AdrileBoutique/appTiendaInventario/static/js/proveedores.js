@@ -53,7 +53,7 @@ async function listarProveedores() {
         const response = await axios.get('/api/proveedores/');
         let data = '';
         localStorage.proveedores = JSON.stringify(response.data);
-        console.log(response);
+        //console.log(response);
         response.data.forEach((element, index) => {
             data += ` <tr>
                         <th scope="row">${index + 1}</th>

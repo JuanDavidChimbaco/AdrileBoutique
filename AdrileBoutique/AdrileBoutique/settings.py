@@ -195,7 +195,7 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER="ronald.persanchez33@gmail.com"
-EMAIL_HOST_PASSWORD="emqbhzklzgtbtagc"
+EMAIL_HOST_PASSWORD="emqb hzkl zgtb tagc"
 
 # Opcional: Configuración para manejar correos en el entorno de desarrollo
 if DEBUG:

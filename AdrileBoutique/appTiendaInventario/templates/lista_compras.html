@@ -1,16 +1,22 @@
 {% extends 'inventario/index.html'%}
 {% block contenido %}
 {% load static %}
+
+<div class="loader-wrapper">
+    <div class="loader"></div>
+</div>
+
 <h1>Lista de Entradas</h1>
-<!-- Agregar una tabla con un ID para DataTables -->
 <hr>
-<div class="row ">
+
+<div class=" ">
     <div class="col d-flex justify-content-center">
         <a href="{% url 'entradas' %}" class="btn btn-primary">Agregar Entrada</a>
     </div>
-  </div>
+</div>
+
 <hr>
-<div class="row mx-2 d-flex justify-content-center">
+<div class=" mx-2 d-flex justify-content-center">
     <div class="col-10">
         <table id="compras-table" class="display" style="width:100%">
             <thead>
@@ -23,15 +29,21 @@
                 </tr>
             </thead>
             <tbody>
-                {% for compra  in compras %}
+                {% for compra in compras %}
                 <tr>
                     <td scope="row">{{ forloop.counter }}</td>
                     <td>{{ compra.fecha_compra }}</td>
                     <td>{{ compra.proveedor }}</td>
                     <td>{{ compra.total_cantidad }}</td>
-                    <td><button class="btn btn-info" data-bs-toggle="modal" data-bs-target="#detalleCompraModal"
-                        onclick="detalle('{{ compra.id }}')">Ver Detalles</button>
-                </td>
+                    <td>
+                        <a class="btn " data-bs-toggle="modal" data-bs-target="#detalleCompraModal"
+                            onclick="detalle('{{ compra.id }}')" title="Ver detalles">
+                            <i class="fa-solid fa-eye"></i>
+                        </a>
+                        <a onclick="invalidarCompra('{{ compra.id }}')" title="Eliminar" class="btn">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -47,13 +59,13 @@
                 <h5 class="modal-title">Detalles de la Compra</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" >
+            <div class="modal-body">
                 <div id="contenidoDetalle">
                     <!-- contenido venta -->
                 </div>
-                
+
                 <h4>Detalles de la Compra:</h4>
-                <table class="table table-dark "> 
+                <table class="table table-dark ">
                     <thead>
                         <tr>
                             <th>Producto</th>

@@ -84,7 +84,7 @@ async function listarCat() {
         const response = await axios.get('/api/categorias/');
         let data = '';
         localStorage.categorias = JSON.stringify(response.data);
-        console.log(response);
+        //console.log(response);
         response.data.forEach((element, index) => {
             const categoriaPadre = obtenerNombreCategoriaPadre(element.categoria_padre);
             data += ` <tr>
@@ -120,6 +120,7 @@ async function agregarCat() {
             position: 'center',
             icon: 'success',
             title: 'Categoria agregada correctamente',
+            confirmButtonColor: '#0d6efd',
             showConfirmButton: true,
             allowOutsideClick: false,
             timer: 2000,
@@ -147,6 +148,7 @@ async function modificarCat() {
             position: 'center',
             icon: 'warning',
             title: 'No ha selecionado una categoria para modificar',
+            confirmButtonColor: '#0d6efd',
             showConfirmButton: true,
             allowOutsideClick: false,
             timer: 1500,
@@ -158,6 +160,7 @@ async function modificarCat() {
                 position: 'center',
                 icon: 'success',
                 title: 'Categoria Modificada correctamente',
+                confirmButtonColor: '#0d6efd',
                 showConfirmButton: true,
                 allowOutsideClick: false,
                 timer: 1500,
@@ -179,7 +182,7 @@ async function eliminarCat() {
             text: 'No podras Recuperar esto!',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#3085d6',
+            confirmButtonColor: '#0d6efd',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Si, Borrar!',
         });
@@ -234,6 +237,7 @@ function listaErrores(error) {
             icon: 'error',
             title: 'Oops...',
             html: errorMessageList, // Utilizamos "html" para insertar la lista como HTML
+            confirmButtonColor: '#0d6efd',
             showConfirmButton: true,
             allowOutsideClick: false,
             timer: 5000,
@@ -249,7 +253,6 @@ function obtenerNombreCategoriaPadre(idCategoriaPadre) {
 
 function obtenerCat() {
     let categorias = JSON.parse(localStorage.categorias);
-    console.log(categorias);
     let opcion = `<option value="0">Seleccione categoria padre</option>`;
     categorias.forEach((item) => {
         opcion += `<option value="${item.id}">${item.nombre}</option>`;

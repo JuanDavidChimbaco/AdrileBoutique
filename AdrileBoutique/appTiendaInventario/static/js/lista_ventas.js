@@ -1,6 +1,6 @@
-var dataTable; // Define dataTable fuera del alcance de la función para que sea accesible en todo el documento
+var dataTable; // DataTable fuera del alcance de la función para que sea accesible en todo el documento
 
-document.addEventListener("DOMContentLoaded", function () {
+$(document).ready(function() {
     // Inicializa la tabla DataTables
     dataTable = $('#ventas-table').DataTable({
         "language": {
@@ -18,7 +18,7 @@ async function invalidarVenta(id) {
         title: 'Eliminar?',
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#3085d6',
+        confirmButtonColor: '#0d6efd',
         cancelButtonColor: '#d33',
         confirmButtonText: 'Si, Eliminarlo!'
     }).then(async (result) => {
@@ -28,8 +28,15 @@ async function invalidarVenta(id) {
                 axios.defaults.xsrfCookieName = 'csrftoken';
                 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
                 const res = await axios.delete(url);
-                console.log(res);
-                location.reload()
+                Swal.fire(
+                    'Borrado!',
+                    'Su salida ha sido eliminada.',
+                    'success'
+                  ).then(result => {
+                    if (result.isConfirmed) {
+                        location.reload()
+                    }
+                  })
             } catch (error) {
                 console.error(error);
             }
@@ -37,26 +44,22 @@ async function invalidarVenta(id) {
     });
 }
 
-
-
 async function detalle(id) {
     try {
         const response = await axios.get('/api/detalles_venta_por_venta/?venta=' + id);
         let data = "";
 
-        // Utiliza un bucle for...of para asegurarte de que las peticiones se completen en orden
+        // Bucle for...of para asegurar de que las peticiones se completen en orden
         for (const element of response.data) {
             const response3 = await axios.get('/api/productos/' + element.producto);
             const producto = response3.data.nombre;
 
-            // Agrega cada detalle a la cadena de datos
             data += `<tr>
                 <td>${producto}</td>
                 <td>${element.cantidad}</td>
                 <td>${element.precio_unitario}</td>
             </tr>`;
         }
-
         datos.innerHTML = data;
 
         const response2 = await axios.get('/api/ventas/' + id);

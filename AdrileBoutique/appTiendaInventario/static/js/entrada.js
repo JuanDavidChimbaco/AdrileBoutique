@@ -1,32 +1,33 @@
-document.addEventListener('DOMContentLoaded', function () {
+var dataTable = ""
+$(document).ready(function () {
     // Obtener los datos del localStorage y convertirlos de nuevo a un array
     var productosSeleccionadosJSON = localStorage.getItem('productosSeleccionados');
     productosSeleccionados = JSON.parse(productosSeleccionadosJSON) || [];
-
     // Actualizar la tabla con los datos restaurados
-    actualizarTabla();
+    actualizarTabla(productosSeleccionados);
+    dataTable = $('#productos-seleccionados').DataTable({
+        "language": {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
+        },
+        "paging": false,
+        "scrollCollapse": true,
+        "scrollY": "40vh",
+        responsive: true
+    });
 });
 
-
-document.getElementById("cancelar-entrada").addEventListener("click", function () {
-    // Limpiar los campos del formulario
-    var productoSelect = document.getElementById("cbProducto");
-    var cantidadInput = document.getElementById("txtCantidad");
-    var precioInput = document.getElementById("txtPrecio");
-
-    productoSelect.value = "";
-    cantidadInput.value = "";
-    precioInput.value = "";
-
-    // Limpiar el localStorage
-    localStorage.removeItem('productosSeleccionados');
-
-    // Limpiar la tabla
-    productosSeleccionados = [];
-    actualizarTabla();
-    location.href = '/lista_compras/'
-});
-
+function pintarDatatable() {
+    var table = document.getElementById("productos-seleccionados");
+    var dataTable = new DataTable(table, {
+        "language": {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
+        },
+        "paging": false,
+        "scrollCollapse": true,
+        "scrollY": "40vh",
+        responsive: true
+    });
+}
 
 document.getElementById("cbProveedor").addEventListener("change", function () {
     var selectedProveedorId = this.value;
@@ -46,15 +47,13 @@ document.getElementById("cbProveedor").addEventListener("change", function () {
     }
 });
 
-var productosSeleccionados = [];
 
-function actualizarTabla() {
+function actualizarTabla(productos) {
     var tabla = document.getElementById("productos-seleccionados").getElementsByTagName('tbody')[0];
     tabla.innerHTML = "";
-
     var total = 0;
 
-    productosSeleccionados.forEach(function (producto) {
+    productos.forEach(function (producto) {
         var fila = tabla.insertRow(tabla.rows.length);
         var celdaProducto = fila.insertCell(0);
         var celdaPrecioUnitario = fila.insertCell(1);
@@ -72,12 +71,12 @@ function actualizarTabla() {
 
         var eliminarBtn = document.createElement("button");
         eliminarBtn.textContent = "Eliminar";
+        eliminarBtn.className = "btn buttons";
         eliminarBtn.addEventListener("click", function () {
             eliminarProducto(producto);
         });
         celdaAcciones.appendChild(eliminarBtn);
     });
-
     document.getElementById("total").textContent = total;
 }
 
@@ -85,10 +84,14 @@ function eliminarProducto(producto) {
     var index = productosSeleccionados.indexOf(producto);
     if (index !== -1) {
         productosSeleccionados.splice(index, 1);
-        actualizarTabla();
+        localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
+        actualizarTabla(productosSeleccionados);
+        dataTable.destroy();
+        pintarDatatable();
     }
 }
 
+var productosSeleccionados = [];
 document.getElementById("agregar-producto").addEventListener("click", function () {
     var productoSelect = document.getElementById("cbProducto");
     var cantidadInput = document.getElementById("txtCantidad");
@@ -98,7 +101,14 @@ document.getElementById("agregar-producto").addEventListener("click", function (
     var cantidad = parseInt(cantidadInput.value);
     var precio = parseFloat(precioInput.value);
 
-    if (selectedProductoId && cantidad > 0 && precio > 0) {
+    if (!selectedProductoId || cantidad === 0 || precio === 0) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Elija un producto',
+            showConfirmButton: true,
+            timer: 2500
+        });
+    } else {
         var selectedProductoOption = productoSelect.options[productoSelect.selectedIndex];
         var productoNombre = selectedProductoOption.text;
 
@@ -108,61 +118,74 @@ document.getElementById("agregar-producto").addEventListener("click", function (
             precio: precio,
             cantidad: cantidad,
         });
-
         localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
 
-        actualizarTabla();
+        actualizarTabla(productosSeleccionados);
         productoSelect.value = "";
         cantidadInput.value = "";
         precioInput.value = "";
     }
 });
 
-document.getElementById("crear-entrada").addEventListener("click", function () {
-    // Realizar la solicitud de compra con los productos seleccionados
-    axios.defaults.xsrfCookieName = 'csrftoken';
-    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+$("#crear-entrada").on("click", async function () {
+    try {
+        // Realizar la solicitud de compra con los productos seleccionados
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
-    var proveedor = document.getElementById("cbProveedor").value;
-    var detalles = productosSeleccionados.map(function (producto) {
-        return {
-            producto: producto.id,
-            cantidad: producto.cantidad,
-            precio_unitario: producto.precio,
-        };
-    });
-
-    axios.post("/api/compras/", {
-        proveedor: proveedor,
-        detalles: detalles
-    })
-        .then(function (response) {
-            console.log(response.data);
+        var proveedor = $("#cbProveedor").val();
+        var producto = $("cbProducto").val();
+        var detalles = productosSeleccionados.map(function (producto) {
+            return {
+                producto: producto.id,
+                cantidad: producto.cantidad,
+                precio_unitario: producto.precio
+            };
+        });
+        if (!proveedor || detalles.length === 0) {
             Swal.fire({
-                icon: 'success',
-                title: 'Compra confirmada con éxito.',
+                icon: 'error',
+                title: 'Agregue un producto a la tabla para realizar la compras o Entradas.',
+                confirmButtonColor: '#0d6efd',
                 showConfirmButton: false,
                 timer: 1500 // tiempo en milisegundos para que se cierre automáticamente
             });
-            
-            var productoSelect = document.getElementById("cbProducto");
-            var cantidadInput = document.getElementById("txtCantidad");
-            var precioInput = document.getElementById("txtPrecio");
+        } else {
+            const response = await axios.post("/api/compras/", { proveedor: proveedor, detalles: detalles });
+            Swal.fire({
+                icon: 'success',
+                title: 'Compra confirmada con éxito.',
+                showConfirmButton: true,
+                confirmButtonColor: '#0d6efd',
+            }).then(result => {
+                if (result.isConfirmed) {
+                    $("#cbProducto").val("");
+                    $("#cbProveedor").val("");
+                    $("#txtCantidad").val("");
+                    $("#txtPrecio").val("");
+                    localStorage.removeItem('productosSeleccionados');
+                    productosSeleccionados = [];
+                    actualizarTabla(productosSeleccionados);
+                    location.href = '/lista_compras/';
+                }
+            })
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
 
-            productoSelect.value = "";
-            cantidadInput.value = "";
-            precioInput.value = "";
+$("#cancelar-entrada").on("click", function () {
+    // Limpiar los campos del formulario
+    $("#cbProducto").val("");
+    $("#txtCantidad").val("");
+    $("#txtPrecio").val("");
 
-            // Limpiar el localStorage
-            localStorage.removeItem('productosSeleccionados');
+    // Limpiar el localStorage
+    localStorage.removeItem('productosSeleccionados');
 
-            // Limpiar la tabla
-            productosSeleccionados = []; // Limpiar productos seleccionados
-            actualizarTabla();
-            location.href = '/lista_compras/';
-        })
-        .catch(function (error) {
-            console.error(error);
-        });
-
+    // Limpiar la tabla
+    productosSeleccionados = [];
+    actualizarTabla(productosSeleccionados);
+    location.href = '/lista_compras/';
 });

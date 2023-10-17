@@ -9,7 +9,7 @@ if (idProducto) {
     fetch(`/api/productosCliente/${idProducto}`)
         .then((response) => {
             if (response.ok) {
-                console.log(response)
+                //console.log(response)
                 return response.json();
             } else {
                 throw new Error('No se pudo obtener el producto');

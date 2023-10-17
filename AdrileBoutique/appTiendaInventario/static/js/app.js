@@ -1,3 +1,8 @@
+$(window).on('load', function() {
+  var loaderWrapper = $('.loader-wrapper');
+  loaderWrapper.css('display', 'none');
+});
+
 function mostrarImagen(evento){
     const archivos = evento.target.files
     const archivo = archivos[0]

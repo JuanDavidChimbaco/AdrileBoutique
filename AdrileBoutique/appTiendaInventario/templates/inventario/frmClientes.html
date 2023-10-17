@@ -1,11 +1,11 @@
 {% extends 'inventario/index.html'%} {% block contenido %} {% load static %}
 <link rel="stylesheet" href="{% static 'css/frm.css' %}" />
 <script src="{% static 'js/clientes.js'%}"></script>
-<div class="row">
+<div class="row mx-1">
     <h1 class="text-center">Clientes</h1>
 </div>
 <hr>
-<div class="row d-grid justify-content-center">
+<div class="row d-grid justify-content-center mx-1">
     <form>
         <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
         <div class="row">

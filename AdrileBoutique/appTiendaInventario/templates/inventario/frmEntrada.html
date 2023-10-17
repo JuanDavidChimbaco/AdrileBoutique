@@ -1,72 +1,68 @@
 {% extends 'inventario/index.html'%} {% block contenido %} {% load static %}
-<div class="row mt-3 mx-3">
-    <h3>Entrada de Productos</h3>
+
+<div class="loader-wrapper">
+    <div class="loader"></div>
 </div>
+
+<h2>Entrada de Productos</h2>
 <hr>
 
-<div class="col mb-2">
-    <a class="btn buttons fw-bold" href="{% url 'proveedores' %}"><i class="fa-solid fa-circle-plus"></i>
-        Crear Proveedor
-    </a>
-    <a class="btn buttons fw-bold" href="{% url 'productos' %}"><i class="fa-solid fa-circle-plus"></i>
-        Crear Producto
-    </a>
+<div class=" ">
+    <div class="col mb-2 d-flex justify-content-center">
+        <a class="btn buttons fw-bold mx-2" href="{% url 'proveedores' %}"><i class="fa-solid fa-circle-plus"></i>
+            Crear Proveedor
+        </a>
+        <a class="btn buttons fw-bold mx-2" href="{% url 'productos' %}"><i class="fa-solid fa-circle-plus"></i>
+            Crear Producto
+        </a>
+    </div>
 </div>
+
 
 <div class="row justify-content-center mx-2">
-    <div class="col">
-        <div class="form-floating mb-2">
-            <select name="proveedor" id="cbProveedor" class="form-select">
-                <option value="">Selecciona un proveedor</option>
-                {% for proveedor in proveedores %}
-                <option value="{{ proveedor.id }}">{{ proveedor.nombre_empresa}}</option>
-                {% endfor %}
-            </select>
-            <label for="proveedor" class="form-label">Proveedor:</label>
-        </div>
+    <div class="col mb-2">
+        <select name="proveedor" id="cbProveedor" class="form-select">
+            <option value="">Selecciona un proveedor</option>
+            {% for proveedor in proveedores %}
+            <option value="{{ proveedor.id }}">{{ proveedor.nombre_empresa}}</option>
+            {% endfor %}
+        </select>
     </div>
-
-    <div class="col">
-        <div class="form-floating mb-2">
-            <select id="cbProducto" name="producto_id" class="form-select">
-                <option value="">Selecciona un producto</option>
-                {% for producto in productos %}
-                <option data-proveedor="{{ producto.proveedor_id }}" value="{{ producto.id }}">{{ producto.nombre }}
-                </option>
-                {% endfor %}
-            </select>
-            <label for="product_name" class="form-label">Producto:</label>
-        </div>
+    <div class="col mb-2">
+        <select id="cbProducto" name="producto_id" class="form-select">
+            <option value="">Selecciona un producto</option>
+            {% for producto in productos %}
+            <option data-proveedor="{{ producto.proveedor_id }}" value="{{ producto.id }}">{{ producto.nombre }}
+            </option>
+            {% endfor %}
+        </select>
     </div>
-
 </div>
+
+
 <div class="row justify-content-center mx-2">
-    <div class="col">
-        <div class="form-floating mb-2">
-            <input type="number" id="txtCantidad" name="cantidad" placeholder="cantidad" class="form-control">
-            <label for="cantidad" class="form-label">cantidad:</label>
-        </div>
+    <div class="col mb-2">
+        <input type="number" id="txtCantidad" name="cantidad" placeholder="cantidad" class="form-control" min="0">
     </div>
-
-    <div class="col">
-        <div class="form-floating mb-2">
-            <input type="number" id="txtPrecio" name="precio" placeholder="Precio" class="form-control">
-            <label for="precio" class="form-label">Precio unitario:</label>
-        </div>
+    <div class="col mb-2">
+        <input type="number" id="txtPrecio" name="precio" placeholder="Precio por Unidad" class="form-control" min="0">
     </div>
 </div>
+
 
 <div class="row mx-2 mb-2">
     <div class="col d-flex justify-content-center">
         <button id="agregar-producto" class="btn buttons fw-bold">
-            Agregar a la tabla 
+            Agregar a la tabla
         </button>
     </div>
 </div>
 
-<div class="row">
-    <div class="col">
-        <table id="productos-seleccionados" class="table">
+<hr>
+
+<div class="d-flex justify-content-center ">
+    <div class="col-10">
+        <table id="productos-seleccionados" class="display" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Producto</th>
@@ -82,16 +78,20 @@
         </table>
     </div>
 </div>
-<p>
-    Total: <span id="total"></span>
-</p>
-    
+
+<div class="d-flex justify-content-center">
+    <p>
+        Total: <span id="total"></span>
+    </p>
+</div>
+
+
 <div class="row mx-2">
     <div class="col d-flex justify-content-center mt-3">
         <button id="crear-entrada" type="button" class="btn buttons mx-1 mt-3 fw-bold">Crear entrada</button>
     </div>
     <div class="col d-flex justify-content-center mt-3">
-        <button id="cancelar-entrada" type="button" class="btn buttons mx-1 mt-3 fw-bold" >Cancelar entrada</button>
+        <button id="cancelar-entrada" type="button" class="btn buttons mx-1 mt-3 fw-bold">Cancelar entrada</button>
     </div>
 </div>
 <hr>

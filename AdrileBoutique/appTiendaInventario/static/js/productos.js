@@ -68,7 +68,7 @@ const initDataTable = async () => {
         dataTable.destroy();
     }
     await getProducts();
-    dataTable = $('#tablaProducto').DataTable(dataTableOptions).columns.adjust();;
+    dataTable = $('#tablaProducto').DataTable(dataTableOptions)
     dataTableIsInitialized = true;
 };
 
@@ -228,7 +228,7 @@ async function deleteProducts(id) {
 
 function getProductById(element) {
     this.id = element.id;
-    console.log(element);
+    //console.log(element);
     txtCodigo.value = element.codigo;
     txtTalla.value = element.talla;
     txtNombre.value = element.nombre;
