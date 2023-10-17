@@ -1,0 +1,54 @@
+Informe del paquete
+
+-----------------------------------------------------------------------------
+Documento:
+Nombre: tarjeta de presentación.ai2.ai
+Modo de color: Color CMYK
+Perfil de color: U.S. Web Coated (SWOP) v2
+Unidades de regla: pulgadas
+Dimensiones de la mesa de trabajo: 3,5 in x 2 in
+Mostrar imágenes en modo contorno: Desactivado
+Resaltar fuentes sustituidas: Desactivado
+Resaltar glifos sustituidos: Desactivado
+Conservar capacidad de edición de texto
+Simular papel de color: Desactivado
+
+-----------------------------------------------------------------------------
+Objetos de tintas planas:
+45 (CMYK)
+Blue Deep 2 (CMYK)
+Mixd Black (CMYK)
+
+-----------------------------------------------------------------------------
+Fuentes no disponibles:Ninguno
+
+-----------------------------------------------------------------------------
+Fuentes protegidas no empaquetadas:Ninguno
+
+-----------------------------------------------------------------------------
+Fuentes:
+Arial (OTF)
+Adobe Arabic Regular (OTF)
+Calibri Bold (OTF)
+Calibri (OTF)
+Impact (OTF)
+Lucida Handwriting Italic (OTF)
+
+-----------------------------------------------------------------------------
+Fuentes incrustadas:
+Ninguno
+
+-----------------------------------------------------------------------------
+Enlaces no disponibles:
+Ninguno
+
+-----------------------------------------------------------------------------
+Imágenes enlazadas:
+
+C:\Users\Dev\Desktop\fondo negro.psd
+Tipo: RGB transparente
+Bits por píxel: 32
+Canales: 4
+Tamaño: 23437K, 3000 por 2000 píxeles
+Dimensiones: 252 por 99,002 puntos 
+Resolución: 857,143 por 1454,519 píxeles por pulgada

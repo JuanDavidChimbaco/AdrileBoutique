@@ -22,10 +22,10 @@ Fuentes no disponibles:Ninguno
 -----------------------------------------------------------------------------
 Fuentes protegidas no empaquetadas:
 Myriad Pro Bold (Adobe Fonts)
-Work Sans Bold (Adobe Fonts)
 
 -----------------------------------------------------------------------------
 Fuentes:
+Work Sans Bold (TrueType)
 Calibri (OTF)
 Myriad Pro (OTF)
 MV Boli (OTF)
@@ -41,7 +41,7 @@ Ninguno
 -----------------------------------------------------------------------------
 Imágenes enlazadas:
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\login app.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\login app.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -50,7 +50,7 @@ Dimensiones: 259,201 por 496,691 puntos
 Resolución: 140,555 por 107,125 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -59,7 +59,7 @@ Dimensiones: 270,755 por 520,132 puntos
 Resolución: 102,115 por 112,264 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\index app.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\index app.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -68,7 +68,7 @@ Dimensiones: 257,834 por 511,568 puntos
 Resolución: 140,183 por 114,706 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\categorias web.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\categorias web.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -77,7 +77,7 @@ Dimensiones: 792,746 por 507,128 puntos
 Resolución: 174,381 por 138,285 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\Dashboard web.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\Dashboard web.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -86,7 +86,7 @@ Dimensiones: 841,904 por 505,463 puntos
 Resolución: 164,199 por 139,025 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -95,16 +95,16 @@ Dimensiones: 831,954 por 502,272 puntos
 Resolución: 166,163 por 139,908 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
 Tamaño: 7320K, 1920 por 976 píxeles
-Dimensiones: 398,979 por 250,928 puntos 
-Resolución: 346,485 por 280,049 píxeles por pulgada
+Dimensiones: 703,915 por 404,766 puntos 
+Resolución: 196,387 por 173,611 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\dashboard app.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
@@ -113,10 +113,10 @@ Dimensiones: 102,534 por 177,996 puntos
 Resolución: 269,646 por 328,053 píxeles por pulgada
 
 
-C:\Users\HOME\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
+C:\Users\Dev\Desktop\AdrileBoutique\AdrileBoutique\appTiendaInventario\static\images\Adrile Pendon\Links\principal y login web.png
 Tipo: RGB transparente
 Bits por píxel: 32
 Canales: 4
 Tamaño: 7320K, 1920 por 976 píxeles
-Dimensiones: 703,915 por 404,766 puntos 
-Resolución: 196,387 por 173,611 píxeles por pulgada
+Dimensiones: 398,979 por 250,928 puntos 
+Resolución: 346,485 por 280,049 píxeles por pulgada
