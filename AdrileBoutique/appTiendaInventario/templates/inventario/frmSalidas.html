@@ -1,55 +1,50 @@
 {% extends 'inventario/index.html' %}
 {% block contenido %}
 {% load static %}
-<div class="row mt-3">
-    <div class="col d-flex align-items-center justify-content-center">
-        <div class="row d-flex justify-content-center">
-            <h3 class="text-center">Salida</h3>
-        </div>
-    </div>
+
+<div class="d-flex justify-content-center">
+    <h2 class="text-center">Salida</h2>
 </div>
+
 <hr>
+<div class="d-flex justify-content-center">
+    <div class="col-10 d-flex justify-content-center flex-column">
+        <div id="selected-product"></div>
+        <div class="row d-flex justify-content-center mb-2">
+            <div class="col mb-2">
+                <input type="text" id="product-search" class="form-control" placeholder="Buscar Producto">
+                <div class="d-flex justify-content-center mt-2">
+                    <img src="" alt="" id="imagen" width="50">
+                </div>
+            </div>
+        </div>
 
-<div class="row justify-content-center mx-2 mb-2">
-    <div class="col">
-        <div class="form-floating">
-            <input type="text" id="product-search" class="form-control">
-            <label for="product-search" class="form-label">Buscar producto:</label>
-            <div id="selected-product"></div>
+        <div class="row d-flex justify-content-center mb-2">
+            <div class="col">
+                <input type="number" id="cantidadSalida" name="cantidad" placeholder="Cantidad" class="form-control"
+                    min="0">
+                <div id="available-quantity"></div>
+            </div>
+            <div class="col">
+                <input type="text" id="price" name="precio" placeholder="Precio" class="form-control" readonly>
+            </div>
+        </div>
+        <input type="hidden" name="productoId" id="productoId">
+
+        <div class="col text-center">
+            <button id="agregar-producto" class="btn buttons">
+                Agregar a la tabla
+            </button>
         </div>
     </div>
 </div>
 
-<div class="row justify-content-center mx-2 mb-2">
-    <div id="available-quantity"> </div>
-    <div class="col-3 d-flex">
-        <button id="increase-quantity" class="btn fw-bold">+</button>
-        <div class="form-floating">
-            <input type="text" id="cantidadSalida" name="cantidad" placeholder="Cantidad" class="form-control" readonly>
-            <label for="product-search" class="form-label">Cantidad :</label>
-        </div>
-        <button id="decrease-quantity" class="btn fw-bold">-</button>
-    </div>
 
-    <div class="col">
-        <div class="form-floating">
-            <input type="text" id="price" name="precio" placeholder="Precio" class="form-control" readonly>
-            <label for="precioSalida" class="form-label">Precio :</label>
-        </div>
-    </div>
-</div>
-<input type="hidden" name="productoId" id="productoId">
-
-<div class="col text-center">
-    <button id="agregar-producto" class="btn buttons fw-bold">
-        Agregar Producto
-    </button>
-</div>
 
 <hr />
-<div class="row">
-    <div class="col">
-        <table id="productos-seleccionados" class="table">
+<div class="d-flex justify-content-center ">
+    <div class="col-10 ">
+        <table id="productos-seleccionados" class="display" style="width: 100%;">
             <thead>
                 <tr>
                     <th>Producto</th>
@@ -65,9 +60,11 @@
         </table>
     </div>
 </div>
-<p>
-    Total: <span id="total"></span>
-</p>
+<div class="d-flex justify-content-center">
+    <p>
+        Total: <span id="total"></span>
+    </p>
+</div>
 
 
 <div class="row mx-2">

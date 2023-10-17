@@ -24,7 +24,6 @@ function cargarPagina(page) {
         });
 }
 
-
 // Función para cargar y mostrar los últimos 12 productos en la sección de la cuadrícula
 // function mostrarUltimosProductos(resultados) {
 //     const ultimosProductosSection = $('.ultimos-productos-section .row');
@@ -171,7 +170,6 @@ function generarEnlacesPagina(currentPage, totalPages) {
 
     return pageLinks;
 }
-
 
 // Evento para cargar la primera página al cargar la página web (sirve bien si el Script esta al final del html)
 $(document).ready(() => {

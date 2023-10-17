@@ -46,11 +46,11 @@
 </head>
 
 <body>
-    <div class="container-fluid d-flex flex-column min-vh-100">
+    <div class="d-flex flex-column min-vh-100">
        <header>{% include 'inventario/encabezado.html' %}</header>
        <div class="d-flex">
            {% include 'inventario/menu.html' %}
-           <main class="flex-grow-1 p-4">
+           <main class="h-100 w-100">
                {% block contenido %}
                 aqui va el contenido 
                {% endblock %}

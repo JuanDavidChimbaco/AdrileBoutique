@@ -7,9 +7,9 @@ const dataTableOptions = {
     language: {
         url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json',
     },
-    "paging": false,
-    "scrollCollapse": true,
-    "scrollY": "40vh",
+    paging: false,
+    scrollCollapse: true,
+    scrollY: "40vh",
     dom: 'Bfrtip',
     buttons: [
         {
@@ -53,12 +53,12 @@ const dataTableOptions = {
             },
         },
     ],
-    columDefs: [
+    columnDefs: [
         { className: 'centered', targets: [0, 1, 2, 3, 4] },
         { orderable: false, targets: [5] },
         { searchable: false, targets: [0, 5] },
     ],
-    pageLength: 4,
+    // pageLength: 4,
     destroy: true,
     responsive: true,
 };
@@ -68,7 +68,7 @@ const initDataTable = async () => {
         dataTable.destroy();
     }
     await getProducts();
-    dataTable = $('#tablaProducto').DataTable(dataTableOptions);
+    dataTable = $('#tablaProducto').DataTable(dataTableOptions).columns.adjust();;
     dataTableIsInitialized = true;
 };
 

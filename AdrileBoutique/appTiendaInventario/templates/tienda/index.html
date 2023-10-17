@@ -41,9 +41,11 @@
 
 <body>
     <div class="d-flex flex-column justify-content-between min-vh-100">
+
         <div class="loader-wrapper">
             <div class="loader"></div>
         </div>
+
         <header>
             <div class="container-fluid mb-2">
                 <div class="row rounded-bottom headercolor bg-dark">
@@ -79,6 +81,7 @@
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
                     <ul class="navbar-nav mb-2 mb-lg-0 d-flex mx-2 w-100">
                         <form role="search" class="w-100">
                             <div class="input-group w-100">
@@ -89,29 +92,32 @@
                             </div>
                         </form>
                     </ul>
-                    <ul class="navbar-nav mb-2 mb-lg-0 d-flex justify-content-end w-100 mx-2">
-                        {% block navbar_content %}
-                        <li class="nav-item linxD">
-                            <a class="nav-link active" aria-current="page" href="{% url 'inicio_tienda' %}"> Productos
+                    
+                    <ul class="navbar-nav mb-2 mb-lg-0 d-flex justify-content-end w-100 mx-2" id="navbar-list">
+                   
+                        <li class="nav-item container-link active">
+                            <a class="nav-link " aria-current="page" href="{% url 'inicio_tienda' %}"> Productos
                             </a>
                         </li>
-                        <li class="nav-item linxD">
-                            <a class="nav-link active linxD" aria-current="page" href="/acerca/"> Acerca De </a>
-                        </li>
-                        <li class="nav-item linxD">
-                            <a class="nav-link active linxD" aria-current="page" href="/contactanos/"> Contáctanos </a>
+            
+                        <li class="nav-item container-link">
+                            <a class="nav-link" aria-current="page" href="{% url 'acerca' %}"> Acerca De </a>
                         </li>
 
-                        <li class="nav-item linxD">
-                            <a class="nav-link active" aria-current="page" href="{% url 'login' %}"> Acceder </a>
+                        <li class="nav-item container-link">
+                            <a class="nav-link " aria-current="page" href="{% url 'contactanos' %}"> Contáctanos </a>
                         </li>
-                        {% endblock %}
+
+                        <li class="nav-item container-link">
+                            <a class="nav-link " aria-current="page" href="{% url 'login' %}"> Acceder </a>
+                        </li>
+    
                     </ul>
 
                 </div>
-
             </div>
         </nav>
+
 
         <main class="flex-grow-1">
             {% block content_main %}
@@ -147,6 +153,7 @@
 
             {% endblock %}
         </main>
+
         <footer class="bg-dark text-white rounded-top">
             <div class="container">
                 <div class="row">
@@ -165,7 +172,7 @@
                             Carrera 9a # 4-17<br />
                             Palermo, Huila, Colombia<br />
                             Teléfono: (+57) 316 759 96 27<br />
-                            Email: info@adrileboutique.com
+                            Email: adrileboutique@gmail.com
                         </address>
                     </div>
                     <div class="col-md-4">

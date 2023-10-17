@@ -1,21 +1,47 @@
+var dataTable; // Define dataTable fuera del alcance de la función para que sea accesible en todo el documento
+
 document.addEventListener("DOMContentLoaded", function () {
-    var table = document.getElementById("ventas-table");
-    var dataTable = new DataTable(table, {
+    // Inicializa la tabla DataTables
+    dataTable = $('#ventas-table').DataTable({
         "language": {
             url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
         },
         "paging": false,
         "scrollCollapse": true,
         "scrollY": "40vh",
-        "scrollX": "100%",
         responsive: true
     });
-
-    dataTable.columns.adjust();
 });
+
+async function invalidarVenta(id) {
+    Swal.fire({
+        title: 'Eliminar?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, Eliminarlo!'
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            const url = '/api/ventas/' + id;
+            try {
+                axios.defaults.xsrfCookieName = 'csrftoken';
+                axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+                const res = await axios.delete(url);
+                console.log(res);
+                location.reload()
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    });
+}
+
+
+
 async function detalle(id) {
     try {
-        const response = await axios.get('/api/detalles_venta_por_venta/?venta='+id);
+        const response = await axios.get('/api/detalles_venta_por_venta/?venta=' + id);
         let data = "";
 
         // Utiliza un bucle for...of para asegurarte de que las peticiones se completen en orden

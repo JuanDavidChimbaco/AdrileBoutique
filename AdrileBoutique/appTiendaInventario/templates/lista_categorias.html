@@ -1,14 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Lista de Categorías</title>
-</head>
-<body>
-    <h1>Lista de Categorías</h1>
-    <ul>
-        {% for categoria in categorias %}
-            <li>{{ categoria.nombre }}</li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'inventario/index.html' %}
+
+{% block contenido %}
+<h1>Lista de Categorías</h1>
+<hr>
+<div class="row">
+    <div class="col d-flex justify-content-center">
+        <a href="{% url 'agregar_categoria' %}" class="btn btn-primary">Agregar Categoria</a>
+        
+    </div>
+  </div>
+<hr>
+<div class="row mx-2 d-flex justify-content-center">
+    <div class="col-10">
+        <table id="category-table" class="display nowrap" style="width:100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Categoría</th>
+                    <th>Imagen</th>
+                    <th>Cat. padre(Opcional)</th>
+                    <th>Opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                <tr>
+                    <td scope="row">{{ forloop.counter }}</td>
+                    <td>{{ categoria.nombre }}</td>
+                    <td><img src="/media/{{ categoria.imagen }}" alt="{{ categoria.nombre }}" width="50"></td>
+                    <td>{{ categoria.categoria_padre }}</td>
+                    <td><button class="btn buttons" data-bs-toggle="modal" data-bs-target="#detalleVentaModal"
+                            onclick="detalle('{{ venta.id }}')">Ver Detalles</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var table = document.getElementById("category-table");
+        var dataTable = new DataTable(table, {
+            "language": {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
+            },
+            "paging": false,
+            "scrollCollapse": true,
+            "scrollY": "40vh",
+            "scrollX": "100%",
+            responsive: true
+        });
+
+        dataTable.columns.adjust();
+    });
+</script>
+
+{% endblock %}

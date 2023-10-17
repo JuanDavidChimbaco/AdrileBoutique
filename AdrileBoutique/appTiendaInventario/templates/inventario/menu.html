@@ -3,8 +3,8 @@
 
 <div class="my-container">
     <div class="sidebar active">
-        <div class="menu-btn">
-            <i class="ph-bold ph-caret-left"></i>
+        <div class="menu-btn" style="display: none;">
+            <i class="ph-bold ph-menu"></i>
         </div>
         <div class="head">
             <div class="user-img">
@@ -47,21 +47,21 @@
                         </ul>
                     </li>
                     <li>
-                        <a href="{% url 'productos' %}">
+                        <a href="{% url 'lista_stock' %}">
                             <i class="fa-solid fa-cubes"></i>
                             <span class="text">Stock</span>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="{% url 'informes_combinados' %}">
                             <i class="icon ph-bold ph-file-text"></i>
-                            <span class="text">Posts</span>
+                            <span class="text">informe</span>
                         </a>
                     </li>
                     <li>
                         <a href="#">
                             <i class="icon ph-bold ph-calendar-blank"></i>
-                            <span class="text">Schedules</span>
+                            <span class="text">Empleados</span>
                         </a>
                     </li>
                     <li>
@@ -78,23 +78,21 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
-                                    <span class="text">Subscribers</span>
+                                <a href="{% url 'productos' %}">
+                                    <span class="text">Productos</span>
+                                    <i class="icon ph-bold ph-package"></i>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
-                                    <span class="text">Funds</span>
+                                <a href="{% url 'proveedores' %}">
+                                    <span class="text">Proveedores</span>
+                                    <i class="fa-solid fa-boxes-packing"></i>
                                 </a>
                             </li>
                             <li>
-                                <a href="#">
-                                    <span class="text">Declines</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <span class="text">Payouts</span>
+                                <a href="{% url 'clientes' %}">
+                                    <span class="text">Clientes</span>
+                                    <i class="icon ph-bold ph-users"></i>
                                 </a>
                             </li>
                         </ul>
@@ -107,7 +105,7 @@
             <p class="title-user">Cuenta</p>
             <ul>
                 <li>
-                    <a href="{% url 'perfil' user.id%}">
+                    <a href="#">
                         <i class="icon ph-bold ph-gear"></i>
                         <span class="text">Configuración</span>
                     </a>

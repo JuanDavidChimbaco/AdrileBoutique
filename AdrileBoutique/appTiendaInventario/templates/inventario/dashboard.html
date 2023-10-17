@@ -1,48 +1,52 @@
 {% extends 'inventario/index.html' %} {% block contenido %} {% load static %}
 <link rel="stylesheet" href="{% static 'css/frm.css' %}" />
+<div class="row d-flex justify-content-center w-100">
+    <div class="col-10 d-flex flex-column">
+        <div class="panel-title rounded d-flex my-3 text-white justify-content-center align-content-center">
+            <h2 class="title"> Panel Principal </h2>
+        </div>
 
-<div class="panel-title rounded d-flex my-3 text-white justify-content-center align-content-center">
-    <h2 class="title"> Panel Principal </h2>
-</div>
+        <div class="contenedor-main">
+            <div class="row d-flex align-items-center">
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <a href="/frmCategorias" class="card text-center text-decoration-none">
+                        <div class="card-body shadow">
+                            <i class="fas fa-solid fa-tags"></i>
+                            <h5 class="card-title mt-3">Categorías</h5>
+                        </div>
+                    </a>
+                </div>
 
-<div class="contenedor-main">
-    <div class="row d-flex align-items-center">
-        <div class="col-md-6 col-lg-3 mb-4">
-            <a href="/frmCategorias" class="card text-center text-decoration-none">
-                <div class="card-body shadow">
-                    <i class="fas fa-solid fa-tags"></i>
-                    <h5 class="card-title mt-3">Categorías</h5>
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <a href="/frmProductos" class="card text-center text-decoration-none">
+                        <div class="card-body shadow">
+                            <i class="fa-solid fa-cubes"></i>
+                            <h5 class="card-title mt-3">Productos</h5>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-    
-        <div class="col-md-6 col-lg-3 mb-4">
-            <a href="/frmProductos" class="card text-center text-decoration-none">
-                <div class="card-body shadow">
-                    <i class="fa-solid fa-cubes"></i>
-                    <h5 class="card-title mt-3">Productos</h5>
+
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <a href="/frmEntradas" class="card text-center text-decoration-none">
+                        <div class="card-body shadow">
+                            <i class="ph-fill ph-arrow-fat-lines-down"></i>
+                            <h5 class="card-title mt-3">Entradas</h5>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-    
-        <div class="col-md-6 col-lg-3 mb-4">
-            <a href="/frmEntradas" class="card text-center text-decoration-none">
-                <div class="card-body shadow">
-                    <i class="ph-fill ph-arrow-fat-lines-down"></i>
-                    <h5 class="card-title mt-3">Entradas</h5>
+
+                <div class="col-md-6 col-lg-3 mb-4">
+                    <a href="/frmSalidas" class="card text-center text-decoration-none">
+                        <div class="card-body shadow">
+                            <i class="ph-fill ph-arrow-fat-lines-up"></i>
+                            <h5 class="card-title mt-3">Salidas</h5>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div>
-    
-        <div class="col-md-6 col-lg-3 mb-4">
-            <a href="/frmSalidas" class="card text-center text-decoration-none">
-                <div class="card-body shadow">
-                    <i class="ph-fill ph-arrow-fat-lines-up"></i>
-                    <h5 class="card-title mt-3">Salidas</h5>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
+
 </div>
 
 

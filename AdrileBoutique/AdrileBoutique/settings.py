@@ -84,12 +84,22 @@ WSGI_APPLICATION = 'AdrileBoutique.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
+DATABASES_SQlite = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'inventario',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'PORT': '3306',
+        }
+    }
 
 
 # Password validation
@@ -185,7 +195,7 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT=587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER="ronald.persanchez33@gmail.com"
-EMAIL_HOST_PASSWORD='yphtztyqukqvroizq'
+EMAIL_HOST_PASSWORD="emqbhzklzgtbtagc"
 
 # Opcional: Configuración para manejar correos en el entorno de desarrollo
 if DEBUG:

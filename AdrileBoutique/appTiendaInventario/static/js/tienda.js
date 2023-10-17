@@ -25,8 +25,11 @@ document.addEventListener('DOMContentLoaded', function () {
             document.documentElement.scrollTop = 0; // Para navegadores modernos
         });
     }
+    //-------------cargar las categorias apenas cargue el DOOM---------
+    get_categories();
 });
 
+//----------------- obtener categorias -------------------------
 async function get_categories() {
     let data = '';
     try {
@@ -46,7 +49,7 @@ async function get_categories() {
     }
 }
 
-
+//---------------- productos por categorias ---------------------
 async function ProductsByCategory(idCategoria) {
     let productByCategory = document.getElementById('productosPorCategoria');
     let data = '';
@@ -116,12 +119,7 @@ function iconoProducto(id) {
         .then(data => {
             document.getElementById(`icono${data.imagen}`).src = data.imagen
         })
-}
-
-  
-
-//cargar las categorias apenas cargue el DOOM
-get_categories();
+} 
 
 function productoSeleccionado(id) {
     localStorage.setItem('productoSeleccionado', id);

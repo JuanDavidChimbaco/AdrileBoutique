@@ -1,16 +1,103 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Stock de Productos</title>
-</head>
-<body>
-    <h1>Stock de Productos</h1>
-    <ul>
-        {% for producto in productos %}
-            <li>
-                {{ producto.nombre }} - Cantidad en Stock: {{ producto.cantidad_stock }}
-            </li>
-        {% endfor %}
-    </ul>
-</body>
-</html>
+{% extends 'inventario/index.html'%}
+{% block contenido %}
+
+<div class="row mb-2">
+    <h1 class="text-center">Stock de Productos</h1>
+</div>
+
+<div class="row">
+    <div class="col d-flex justify-content-md-evenly mb-2">
+      <button type="button" class="btn btn-primary mx-1" onclick="history.back()">
+        <i class="fa-solid fa-arrow-left"></i>
+        volver
+      </button>
+      <button type="button" class="btn btn-primary mx-1" onclick="location.href='/dashboard/'">
+        <i class="fa-solid fa-ban"></i>
+        Cancelar
+      </button>
+    </div>
+  </div>
+
+<div class="row justify-content-center">
+    <div class="col-10">
+        <table id="productosTable" class="display" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Codigo</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Nueva</th>
+                    <th>opciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td scope="row">{{ forloop.counter }}</td>
+                    <td>{{ producto.codigo }}</td>
+                    <td>{{ producto.nombre }}</td>
+                    <td>
+                        <span id="original-cantidad-{{ producto.id }}">{{ producto.cantidad_stock }}</span>
+                    </td>
+                    <td>
+                        <input type="number" class="rounded" id="edit-cantidad-{{ producto.id }}" min="0">
+                    </td>
+                    <td>
+                        <button class="btn buttons" onclick="change_stock('{{ producto.id }}')">Editar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var table = document.getElementById("productosTable");
+        var dataTable = new DataTable(table, {
+            "language": {
+                url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/es-CO.json"
+            },
+            "paging": false,
+            "scrollCollapse": true,
+            "scrollY": "40vh",
+            "scrollX": "100%",
+            responsive: true
+        });
+        dataTable.columns.adjust();
+    });
+    function change_stock(id) {
+        var cantidadInput = document.getElementById("edit-cantidad-" + id);
+        var originalCantidad = document.getElementById("original-cantidad-" + id);
+
+        if (cantidadInput.value >= 0) {
+            axios.defaults.xsrfCookieName = 'csrftoken';
+            axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+            axios.patch(`/api/productos/${id}/`, { "cantidad_stock": cantidadInput.value })
+                .then(function (response) {
+                    // Actualiza la cantidad original para reflejar los cambios
+                    originalCantidad.textContent = cantidadInput.value;
+                    console.log(response);
+                    cantidadInput.value = ""
+                })
+                .catch(function (error) {
+                    // Maneja errores si es necesario
+                    console.error(error);
+                });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Ingresa un número positivo o cero.',
+                confirmButtonColor: '#0762AB',
+            })
+            cantidadInput.value = originalCantidad.textContent;
+        }
+    }
+    <!-- #2FA9E1 -->
+</script>
+
+{% endblock %}

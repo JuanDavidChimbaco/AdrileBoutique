@@ -47,6 +47,10 @@ h2.title {
     box-shadow: 5px 0 5px rgba(0, 0, 0, 0.2);
 }
 
+.btn-primary:hover {
+    box-shadow: 3px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
 /* contenido */
 .shadow{
     box-shadow: 5px 5px 5px 1px rgba(114, 114, 114, 0.5) !important;

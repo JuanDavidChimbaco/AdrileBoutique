@@ -1,14 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</title>
-</head>
+{% extends 'inventario/index.html' %}
+
+{% block contenido %}
+
 <body>
     <h1>{% if categoria %}Editar{% else %}Agregar{% endif %} Categoría</h1>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="{% if categoria %}Guardar Cambios{% else %}Agregar{% endif %}">
+        <a class="btn buttons mx-1" href="{% url 'lista_categorias' %}">
+            volver
+          </a>
     </form>
-</body>
-</html>
+    {% endblock %}

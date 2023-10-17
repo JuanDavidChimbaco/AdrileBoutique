@@ -42,11 +42,10 @@ router.register(r'detalles_compra_por_compra', views.DetalleCompraPorCompraViewS
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.inicio, name='inicio'),
-    path('login', views.index, name='login'),
+    path('', views.index, name='login'),
     path('inicio/', views.inicioTienda, name='inicio_tienda'),
     # rutas de la Api
     path("api/", include(router.urls)),
-    
     # URL para iniciar sesión y para cerrar sesión web y api 
     path('login/', views.login_view, name='login'),
     path("logout/", views.custom_logout, name="logout"),
@@ -67,8 +66,9 @@ urlpatterns = [
     path('lista_ventas/', views.lista_ventas, name='lista_ventas'),
     path('proveedores/', views.proveedores, name='proveedores'),
     path('clientes/', views.clientes, name='clientes'),
+    path('actualizarPerfil/<int:usuario_id>/', views.modificarDatosUserPerfil),
     
-    #----------- tienda
+    #----------- tienda ---------------------------------------
     path('inicio/', views.inicioTienda, name='inicio_tienda'),
     path('tienda/', views.inicio_Tienda, name='tienda'),
     path('acerca/', views.acercaDe, name='acerca'),
@@ -80,6 +80,7 @@ urlpatterns = [
     # funciones extras
     path('productos_por_proveedor/<int:proveedor_id>/', views.productos_por_proveedor, name='productos_por_proveedor'),
     path('productos/categoria/<int:categoria_id>/', views.ProductosPorCategoriaViewSet.as_view({'get': 'list'}), name='productos_por_categoria'),
+    path('informes_combinados/', views.informes_combinados, name='informes_combinados'),
     
     # rutas para restablecer contraseña (Admin)
     path("validarCorreo/", views.restPasswordRequest, name="validarCorreo"),
