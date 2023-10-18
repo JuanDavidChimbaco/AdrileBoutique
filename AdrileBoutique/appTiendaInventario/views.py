@@ -1,3 +1,8 @@
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -384,18 +389,81 @@ class DetalleCompraPorCompraViewSet(viewsets.ModelViewSet):
 
 # se crea la venta, se le pasa un cliente y los detalles de la venta, 
 # los detelles pueden traer varios productos, requiere autenticacion
+# class VentaViewSet(viewsets.ModelViewSet):
+#     queryset = Venta.objects.all()
+#     serializer_class = VentaSerializer
+
+#     def create(self, request):
+#         # Obtén los datos de la solicitud JSON
+#         cliente_id = request.data.get("cliente")
+#         detalles = request.data.get("detalles")
+
+#         # Crea la venta
+#         venta = Venta.objects.create(cliente_id=cliente_id)
+#         #obtener el cliente
+#         cliente = Cliente.objects.get(pk=cliente_id)
+
+#         productos_adquiridos = []
+        
+#         for detalle_data in detalles:
+#             producto_id = detalle_data.get("producto")
+#             cantidad = detalle_data.get("cantidad")
+#             precio_unitario = detalle_data.get("precio_unitario")
+
+#             # Asociar el producto con la venta a través de DetalleCompra
+#             DetalleVenta.objects.create(
+#                 venta=venta,
+#                 producto_id=producto_id,
+#                 cantidad=cantidad,
+#                 precio_unitario=precio_unitario,
+#             )
+
+#             # Actualizar la cantidad de stock del producto
+#             producto = Producto.objects.get(id=producto_id)
+#             producto.cantidad_stock -= cantidad
+#             producto.save()
+#             productos_adquiridos.append(f"{producto.nombre} - Cantidad: {cantidad}")
+#         #configuracion de la funcion enviar correo
+#         asunto = "Adrile Boutique - Nueva venta realizada"
+#         mensajeProductos = "\n".join(productos_adquiridos)
+#         mensajeCorreo = f"Cordial saludo {cliente.nombre}, has realizado una compra en la tienda. Productos adquiridos:\n{mensajeProductos}"
+#         destinatario = [cliente.correo_electronico]
+#         # La función enviarCorreo puede enviar archivos adjuntos, el parámetro puede ser nulo
+#         thread = threading.Thread(
+#             target=enviarCorreo,
+#             args=(
+#                 asunto,
+#                 mensajeCorreo,
+#                 destinatario,
+#             ),
+#         )
+#         thread.start()
+#         serializer = VentaSerializer(venta)
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from .models import Venta, Cliente, DetalleVenta, Producto
+from .serializers import VentaSerializer
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
     serializer_class = VentaSerializer
 
     def create(self, request):
-        # Obtén los datos de la solicitud JSON
         cliente_id = request.data.get("cliente")
         detalles = request.data.get("detalles")
 
-        # Crea la venta
         venta = Venta.objects.create(cliente_id=cliente_id)
-        #obtener el cliente
         cliente = Cliente.objects.get(pk=cliente_id)
 
         productos_adquiridos = []
@@ -405,7 +473,6 @@ class VentaViewSet(viewsets.ModelViewSet):
             cantidad = detalle_data.get("cantidad")
             precio_unitario = detalle_data.get("precio_unitario")
 
-            # Asociar el producto con la venta a través de DetalleCompra
             DetalleVenta.objects.create(
                 venta=venta,
                 producto_id=producto_id,
@@ -413,28 +480,90 @@ class VentaViewSet(viewsets.ModelViewSet):
                 precio_unitario=precio_unitario,
             )
 
-            # Actualizar la cantidad de stock del producto
             producto = Producto.objects.get(id=producto_id)
             producto.cantidad_stock -= cantidad
             producto.save()
-            productos_adquiridos.append(f"{producto.nombre} - Cantidad: {cantidad}")
-        #configuracion de la funcion enviar correo
-        asunto = "Adrile Boutique - Nueva venta realizada"
-        mensajeProductos = "\n".join(productos_adquiridos)
-        mensajeCorreo = f"Cordial saludo {cliente.nombre}, has realizado una compra en la tienda. Productos adquiridos:\n{mensajeProductos}"
-        destinatario = [cliente.correo_electronico]
-        # La función enviarCorreo puede enviar archivos adjuntos, el parámetro puede ser nulo
-        thread = threading.Thread(
-            target=enviarCorreo,
-            args=(
-                asunto,
-                mensajeCorreo,
-                destinatario,
-            ),
-        )
-        thread.start()
+            productos_adquiridos.append(f"{producto.nombre} - {cantidad} - {producto.precio}")
+
+        pdf_filename = f"venta_{venta.id}.pdf"
+        doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
+        story = []
+
+        styles = getSampleStyleSheet()
+        header_style = styles["Heading1"]
+        details_style = styles["BodyText"]
+
+        # Encabezado
+        story.append(Paragraph("Factura de Venta", header_style))
+        story.append(Spacer(1, 12))
+        story.append(Paragraph(f"Detalles de la Venta - ID: {venta.id}", details_style))
+        story.append(Spacer(1, 12))
+
+        # Crear una lista para la tabla
+        data = [["Nombre", "Cantidad", "Precio Unit.", "Producto"]]
+
+        # Llenar la lista con los productos adquiridos
+        for producto_adquirido in productos_adquiridos:
+            producto_info = producto_adquirido.split('-')
+            producto_nombre = producto_info[0].strip()
+            imagen_producto = Producto.objects.get(nombre=producto_nombre).imagen
+            if imagen_producto:
+                imagen = Image(imagen_producto.path, width=50, height=50)
+                data.append([info.strip() for info in producto_info] + [imagen])
+            else:
+                data.append([info.strip() for info in producto_info] + [""])
+
+        # Crear la tabla
+        table = Table(data)
+        table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                                   ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                                   ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                   ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                   ('SIZE', (0, 0), (-1, 0), 12),
+                                   ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                                   ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                                   ]))
+
+        # Agregar la tabla al story
+        story.append(table)
+        story.append(Spacer(1, 24))
+        story.append(Paragraph("Gracias por su compra en Adrile Boutique", details_style))
+
+        doc.build(story)
+
+        from_email = "jdchimbaco@misena.edu.co"
+        to_email = cliente.correo_electronico
+
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = to_email
+        msg['Subject'] = "Adrile Boutique - Nueva venta realizada"
+
+        body = f"Cordial saludo {cliente.nombre}, has realizado una compra en la tienda. Encuentra adjunto el detalle de tu compra."
+        msg.attach(MIMEText(body, 'plain'))
+
+        attachment = open(pdf_filename, "rb")
+
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f'attachment; filename= {pdf_filename}')
+        msg.attach(part)
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(from_email, "sdmbakmgudxcsyro")
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()
+
         serializer = VentaSerializer(venta)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+
+
 
 # crud basico para las detalles de la venta, requiere autenticacion
 class DetalleVentaViewSet(viewsets.ModelViewSet):
