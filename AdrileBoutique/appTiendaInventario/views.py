@@ -648,16 +648,23 @@ def login_api_view(request):
     if serializer.is_valid():
         username = serializer.validated_data["username"]
         password = serializer.validated_data["password"]
-
+        rememberMe = request.data.get("rememberme")
         # Verificar las credenciales del usuario
-        user = authenticate(username=username, password=password)
-        if user:
+        user = Usuario.objects.filter(username=username).first()
+        if user and user.check_password(password):
+            login(request, user)
+            if rememberMe:
+                request.session.set_expiry(2592000)  # 30 días en segundos
+            else:
+                request.session.set_expiry(0)  # Duración predeterminada
             token, _ = Token.objects.get_or_create(user=user)
-            return Response({"auth_token": token.key})
-    return Response(
-        {"message": "Nombre de usuario o contraseña incorrectos"},
-        status=status.HTTP_401_UNAUTHORIZED,
-    )
+            user_data = UsuarioSerializer(user).data
+            response =  Response({"auth_token": token.key,"message": "Inicio de sesión exitoso","user": user_data,},status=status.HTTP_200_OK,)
+            response.set_cookie("token", token.key)
+            return response
+        else:
+            return Response({"message": "Credenciales inválidas"},status=status.HTTP_401_UNAUTHORIZED,)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # logout de api usando el token anteriormente generado, pasarlo por metodo post, 
 # para cerrar la sesión, no requiere autenticacion ya que para eso es el token.
