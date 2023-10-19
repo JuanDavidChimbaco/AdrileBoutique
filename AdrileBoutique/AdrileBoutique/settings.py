@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_jwt',
     'rest_framework.authtoken',
-    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -161,22 +160,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+       'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
     ),
 }
 
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Duración del token de acceso
-    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),  # Duración antes de que expire el token deslizante
-    'SLIDING_TOKEN_LIFETIME': timedelta(days=1),  # Duración del token deslizante
-    'SLIDING_TOKEN_REFRESH_GRACE_PERIOD': timedelta(days=0),  # Período de gracia para actualizar el token deslizante
-    'SLIDING_TOKEN_TYPES': {'sliding': 'rest_framework_simplejwt.tokens.SlidingToken'},
-    'SLIDING_TOKEN_REFRESH_SCOPE': None,
-}
 
 # permitir solicitudes solo desde un origen específico
 # permitir todas las solicitudes de origen cruzado

@@ -121,6 +121,59 @@ function iconoProducto(id) {
         })
 } 
 
+//---------------- obtener todos los productos ---------------------
+async function getAllProducts() {
+    try {
+        const response = await axios.get('/api/productosCliente/');
+        console.log(response.data)
+        return response.data;
+        
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
+//------------- obtener 8 productos aleatorios -----------------------
+async function getRandomProducts() {
+    const allProducts = await getAllProducts();
+    const shuffledProducts = allProducts.sort(() => 0.5 - Math.random());
+    return shuffledProducts.slice(0, 8);
+}
+
+//------------ Función para mostrar 8 productos aleatorios -------------
+async function showRandomProducts() {
+    const products = await getRandomProducts();
+    let data = '';
+    products.forEach((product) => {
+        // Formatear el precio con puntos de mil
+        const precioConPuntosDeMil = parseFloat(product.precio).toLocaleString('es-ES', { style: 'currency', currency: 'COP' });
+
+        data += `
+            <a class="linkCard" href="/detalle_producto?id=${product.id}" onclick="productoSeleccionado(${product.id})">
+                <div class="card producto-card" height="300">
+                    <h3>${product.nombre}</h3>
+                    <div class="card-body">
+                        <img src="${product.imagen}" alt="producto" class="card-img-top " width="100" height="150">
+                        <p class="card-text">${product.descripcion}</p>
+                        <p class="card-text">Precio: ${precioConPuntosDeMil}</p>
+                    </div>
+                </div>
+            </a>
+        `;
+    });
+    const productRandom = document.getElementById('productosRandom');
+    if (productRandom) {
+        productRandom.innerHTML = data;
+    }
+}
+
+// Llama a la función para mostrar los productos aleatorios cuando se carga el DOM
+document.addEventListener('DOMContentLoaded', function () {
+    showRandomProducts();
+});
+
+
 function productoSeleccionado(id) {
     localStorage.setItem('productoSeleccionado', id);
 }

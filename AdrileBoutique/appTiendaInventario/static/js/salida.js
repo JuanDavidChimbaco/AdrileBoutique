@@ -103,7 +103,20 @@ function actualizarTabla(productos) {
 
         celdaProducto.innerHTML = producto.nombre;
         celdaPrecioUnitario.innerHTML = producto.precio;
-        celdaCantidad.innerHTML = producto.cantidad;
+
+        var inputCantidad = document.createElement("input");
+        inputCantidad.type = "number";
+        inputCantidad.value = producto.cantidad;
+        inputCantidad.min = 1; // Establecer la cantidad mínima como 1
+        inputCantidad.addEventListener('change', function () {
+            if (inputCantidad.value < 1) {
+                inputCantidad.value = 1; // Asegurar que la cantidad mínima sea 1
+            }
+            producto.cantidad = parseInt(inputCantidad.value);
+            localStorage.setItem('productosSeleccionadosVenta', JSON.stringify(productos));
+            actualizarTabla(productos);
+        });
+        celdaCantidad.appendChild(inputCantidad);
 
         var subtotal = producto.precio * producto.cantidad;
         celdaSubtotal.innerHTML = subtotal;
@@ -111,7 +124,7 @@ function actualizarTabla(productos) {
 
         var eliminarBtn = document.createElement("button");
         eliminarBtn.textContent = "Eliminar";
-        eliminarBtn.className = "btn buttons"; 
+        eliminarBtn.className = "btn buttons";
         eliminarBtn.addEventListener("click", function () {
             eliminarProducto(producto);
         });
@@ -119,6 +132,7 @@ function actualizarTabla(productos) {
     });
     document.getElementById("total").textContent = total;
 }
+
 
 function eliminarProducto(producto) {
     var index = productosSeleccionados.indexOf(producto);
@@ -134,11 +148,10 @@ function eliminarProducto(producto) {
 
 var productosSeleccionados = [];
 document.getElementById("agregar-producto").addEventListener("click", function () {
-
     var productoSelect = document.getElementById("productoId");
     var cantidadInput = document.getElementById("cantidadSalida");
     var precioInput = document.getElementById("price");
-    var productoNombre = document.getElementById("product-search")
+    var productoNombre = document.getElementById("product-search");
 
     var selectedProductoId = productoSelect.value;
     var nombre = productoNombre.value;
@@ -157,24 +170,31 @@ document.getElementById("agregar-producto").addEventListener("click", function (
         if (cantidadDisponible < cantidad) {
             Swal.fire({
                 icon: 'error',
-                title: 'NO hay sufucientes productos disponibles',
+                title: 'NO hay suficientes productos disponibles',
                 showConfirmButton: true,
                 timer: 2500
             });
         } else {
-            productosSeleccionados.push({
-                id: selectedProductoId,
-                nombre: nombre,
-                precio: valorNumerico,
-                cantidad: cantidad,
-            });
+            // Verificar si el producto ya existe en la lista
+            var productoExistente = productosSeleccionados.find(item => item.id === selectedProductoId);
+            if (productoExistente) {
+                productoExistente.cantidad += cantidad; // Actualiza la cantidad existente
+            } else {
+                productosSeleccionados.push({
+                    id: selectedProductoId,
+                    nombre: nombre,
+                    precio: valorNumerico,
+                    cantidad: cantidad,
+                });
+            }
             localStorage.setItem('productosSeleccionadosVenta', JSON.stringify(productosSeleccionados));
 
             actualizarTabla(productosSeleccionados);
-            limpiar()
+            limpiar();
         }
     }
 });
+
 
 function desformatearValor(valorFormateado) {
     const soloNumeros = valorFormateado.replace(/[^\d.]/g, ''); // Elimina todo excepto números y puntos decimales
@@ -196,6 +216,10 @@ function limpiar() {
 }
 
 document.getElementById("realizar-venta").addEventListener("click", function () {
+    // Deshabilitar el botón al hacer la petición
+    var realizarVentaBtn = document.getElementById("realizar-venta");
+    realizarVentaBtn.disabled = true;
+
     // Token que permite hacer solicitudes post a la Api
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -208,6 +232,7 @@ document.getElementById("realizar-venta").addEventListener("click", function () 
             precio_unitario: producto.precio,
         };
     });
+
     if (!cliente || !detalles) {
         Swal.fire({
             icon: 'error',
@@ -216,10 +241,11 @@ document.getElementById("realizar-venta").addEventListener("click", function () 
             confirmButtonColor: '#0d6efd',
             timer: 1500 // tiempo en milisegundos para que se cierre automáticamente
         });
+        // Habilitar el botón en caso de error
+        realizarVentaBtn.disabled = false;
     } else {
         axios.post("/api/ventas/", { cliente: cliente, detalles: detalles })
             .then(function (response) {
-                //console.log(response.data);
                 Swal.fire({
                     icon: 'success',
                     title: 'Venta realizada con éxito.',
@@ -233,13 +259,18 @@ document.getElementById("realizar-venta").addEventListener("click", function () 
                         actualizarTabla(productosSeleccionados);
                         location.href = '/lista_ventas/';
                     }
-                })
+                });
             })
             .catch(function (error) {
                 console.error(error);
+            })
+            .finally(function () {
+                // Habilitar el botón después de la respuesta, ya sea éxito o error
+                realizarVentaBtn.disabled = false;
             });
     }
 });
+
 
 document.getElementById("cancelar-salida").addEventListener("click", function () {
     limpiar()

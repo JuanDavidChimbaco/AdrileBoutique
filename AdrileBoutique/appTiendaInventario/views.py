@@ -2,20 +2,29 @@ from email import encoders
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import smtplib
+from email.mime.base import MIMEBase
+from email import encoders
+
+
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
-from django.http import JsonResponse
-from django.http import Http404
+from django.http import JsonResponse,Http404
 from django.db import transaction
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.mail import EmailMessage
-from django.template.loader import get_template
 
+
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
+
+
+import smtplib
 from datetime import datetime, timedelta
 import os
 import logging
@@ -26,11 +35,14 @@ import base64
 logger = logging.getLogger(__name__)
 
 from rest_framework import viewsets, status, permissions
+from rest_framework.generics import CreateAPIView
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny,IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework_jwt.settings import api_settings
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination
 
 from .models import (
@@ -56,6 +68,8 @@ from .serializers import (
     DetalleCompraSerializer,
     VentaSerializer,
     DetalleVentaSerializer,
+    LoginUsuarioSerializer,
+    CustomPasswordResetSerializer,
 )
 
 # Importa los módulos necesarios correo
@@ -296,22 +310,6 @@ class ClienteViewSet(viewsets.ModelViewSet):
     queryset = Cliente.objects.all()
     serializer_class = ClienteSerializer
 
-def enviarCorreo(asunto=None, mensaje=None, destinatario=None, archivo=None):
-    remitente = settings.EMAIL_HOST_USER
-    contenido = f"Destinatario: {destinatario}\nMensaje: {mensaje}\nAsunto: {asunto}\nRemitente: {remitente}"
-    try:
-        correo = EmailMessage(
-            asunto,
-            contenido,  # Utilizamos el contenido como el cuerpo del correo
-            remitente,
-            destinatario,
-        )
-        if archivo is not None:
-            correo.attach_file(archivo)
-        correo.send(fail_silently=True)
-    except Exception as error:
-        print(error)
-
 # se crea la compra, se le pasa un proveedor y los detalles de la compra, 
 # los detelles pueden traer varios productos, requiere autenticacion
 class CompraViewSet(viewsets.ModelViewSet):
@@ -319,20 +317,21 @@ class CompraViewSet(viewsets.ModelViewSet):
     serializer_class = CompraSerializer
 
     def create(self, request):
-        # Obtener los datos de la solicitud
         proveedor_id = request.data.get("proveedor")
-        detalles = request.data.get("detalles")  # Quita la lista de productos
+        detalles = request.data.get("detalles")
 
-        # Crear la compra
         compra = Compra.objects.create(proveedor_id=proveedor_id)
+        proveedor = Proveedor.objects.get(pk=proveedor_id)
+
+
         productos_adquiridos = []
+        total_a_pagar = 0
 
         for detalle_data in detalles:
-            producto_id = detalle_data["producto"]
-            cantidad = detalle_data["cantidad"]
-            precio_unitario = detalle_data["precio_unitario"]
+            producto_id = detalle_data.get("producto")
+            cantidad = detalle_data.get("cantidad")
+            precio_unitario = detalle_data.get("precio_unitario")
 
-            # Asociar el producto con la compra a través de DetalleCompra
             DetalleCompra.objects.create(
                 compra=compra,
                 producto_id=producto_id,
@@ -340,30 +339,118 @@ class CompraViewSet(viewsets.ModelViewSet):
                 precio_unitario=precio_unitario,
             )
 
-            # Actualizar la cantidad de stock del producto
             producto = Producto.objects.get(id=producto_id)
             producto.cantidad_stock += cantidad
             producto.save()
-            enviarCorreo()
-            productos_adquiridos.append(f"{producto.nombre} - Cantidad: {cantidad}")
 
-        # Configuración de la función enviarCorreo
-        asunto = "Nueva compra realizada en la tienda"
-        mensajeProductos = "\n".join(productos_adquiridos)
-        mensajeCorreo = f"Se ha realizado una nueva compra en la tienda. Productos adquiridos:\n{mensajeProductos}"
-        destinatario = [settings.EMAIL_HOST_USER]  # Coloca aquí el correo del usuario de la tienda
-        # La función enviarCorreo puede enviar archivos pdf, el parámetro puede ser nulo
-        thread = threading.Thread(
-            target=enviarCorreo,
-            args=(
-                asunto,
-                mensajeCorreo,
-                destinatario,
-            ),
-        )
-        thread.start()
-        
-        # Actualizar la compra serializada
+            precio_total = cantidad * precio_unitario  # Corregido el cálculo del precio total
+            total_a_pagar += precio_total
+
+            productos_adquiridos.append(f" {proveedor.nombre_empresa} - {producto.nombre} - {cantidad} - {precio_unitario} - {precio_total}")
+
+        pdf_filename = f"AdrileBoutique_{compra.id}.pdf"
+        doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
+        story = []
+
+        from reportlab.lib.styles import ParagraphStyle
+
+        def create_header_style():
+            header_style = ParagraphStyle(
+                "header",
+                parent=getSampleStyleSheet()["Heading1"],
+                textColor=colors.black,
+                backColor=colors.lightgrey,
+            )
+            return header_style
+
+        def create_footer_style():
+            footer_style = ParagraphStyle(
+                "footer",
+                parent=getSampleStyleSheet()["BodyText"],
+                textColor=colors.black,
+                backColor=colors.lightgrey,
+            )
+            return footer_style
+
+        header_style = create_header_style()
+        footer_style = create_footer_style()
+
+        # Encabezado
+        header_text = "Factura de Entrada de producto"
+        story.append(Paragraph(header_text, header_style))
+        story.append(Spacer(1, 12))
+
+        # Crear una lista para la tabla
+        data = [["Proveedor", "Nombre P.", "Cantidad", "Precio Unit.", "Precio Total", "Producto"]]
+
+        # Llenar la lista con los productos adquiridos
+        # Llenar la lista con los productos adquiridos
+        for producto_adquirido in productos_adquiridos:
+            detalle_info = producto_adquirido.split('-')
+            proveedor_nombre = detalle_info[0].strip()
+            producto_nombre = detalle_info[1].strip()
+            cantidad = detalle_info[2].strip()
+            precio_unitario = detalle_info[3].strip()
+            precio_total = detalle_info[4].strip()
+            imagen_producto = Producto.objects.get(nombre=producto_nombre).imagen
+            if imagen_producto:
+                imagen = Image(imagen_producto.path, width=50, height=50)
+                data.append([proveedor_nombre, producto_nombre, cantidad, precio_unitario, precio_total, imagen])
+            else:
+                data.append([proveedor_nombre, producto_nombre, cantidad, precio_unitario, precio_total, ""])
+
+
+
+        # Crear la tabla
+        table = Table(data)
+        table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                                   ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                                   ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                   ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                                   ('SIZE', (0, 0), (-1, 0), 12),
+                                   ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                                   ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                                   ]))
+
+        # Agregar la tabla al story
+        story.append(table)
+        story.append(Spacer(1, 24))
+
+        # Mostrar el precio total a pagar
+        story.append(Paragraph(f"Total a pagar: {total_a_pagar}", footer_style))
+
+        # Pie de página
+        footer_text = "-----------------Esta es una factura de compra de producto a un proveedor-----------------"
+        story.append(Paragraph(footer_text, footer_style))
+
+        doc.build(story)
+
+        from_email = "jdchimbaco@misena.edu.co"
+        to_email = "jdchimbaco@misena.edu.co"
+
+        msg = MIMEMultipart()
+        msg['From'] = from_email
+        msg['To'] = to_email
+        msg['Subject'] = "Adrile Boutique - Nueva compra realizada"
+
+        body = f"Haz realizado una entrada de producto. Encuentra adjunto el detalle de tu compra."
+        msg.attach(MIMEText(body, 'plain'))
+
+        attachment = open(pdf_filename, "rb")
+
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment.read())
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', f'attachment; filename= {pdf_filename}')
+        msg.attach(part)
+
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(from_email, "sdmbakmgudxcsyro")
+        text = msg.as_string()
+        server.sendmail(from_email, to_email, text)
+        server.quit()
+
         serializer = CompraSerializer(compra)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -387,73 +474,6 @@ class DetalleCompraPorCompraViewSet(viewsets.ModelViewSet):
             )  # Filtrar por compra si se proporciona el parámetro 'compra'
         return queryset
 
-# se crea la venta, se le pasa un cliente y los detalles de la venta, 
-# los detelles pueden traer varios productos, requiere autenticacion
-# class VentaViewSet(viewsets.ModelViewSet):
-#     queryset = Venta.objects.all()
-#     serializer_class = VentaSerializer
-
-#     def create(self, request):
-#         # Obtén los datos de la solicitud JSON
-#         cliente_id = request.data.get("cliente")
-#         detalles = request.data.get("detalles")
-
-#         # Crea la venta
-#         venta = Venta.objects.create(cliente_id=cliente_id)
-#         #obtener el cliente
-#         cliente = Cliente.objects.get(pk=cliente_id)
-
-#         productos_adquiridos = []
-        
-#         for detalle_data in detalles:
-#             producto_id = detalle_data.get("producto")
-#             cantidad = detalle_data.get("cantidad")
-#             precio_unitario = detalle_data.get("precio_unitario")
-
-#             # Asociar el producto con la venta a través de DetalleCompra
-#             DetalleVenta.objects.create(
-#                 venta=venta,
-#                 producto_id=producto_id,
-#                 cantidad=cantidad,
-#                 precio_unitario=precio_unitario,
-#             )
-
-#             # Actualizar la cantidad de stock del producto
-#             producto = Producto.objects.get(id=producto_id)
-#             producto.cantidad_stock -= cantidad
-#             producto.save()
-#             productos_adquiridos.append(f"{producto.nombre} - Cantidad: {cantidad}")
-#         #configuracion de la funcion enviar correo
-#         asunto = "Adrile Boutique - Nueva venta realizada"
-#         mensajeProductos = "\n".join(productos_adquiridos)
-#         mensajeCorreo = f"Cordial saludo {cliente.nombre}, has realizado una compra en la tienda. Productos adquiridos:\n{mensajeProductos}"
-#         destinatario = [cliente.correo_electronico]
-#         # La función enviarCorreo puede enviar archivos adjuntos, el parámetro puede ser nulo
-#         thread = threading.Thread(
-#             target=enviarCorreo,
-#             args=(
-#                 asunto,
-#                 mensajeCorreo,
-#                 destinatario,
-#             ),
-#         )
-#         thread.start()
-#         serializer = VentaSerializer(venta)
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from .models import Venta, Cliente, DetalleVenta, Producto
-from .serializers import VentaSerializer
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.mime.base import MIMEBase
-from email import encoders
 
 class VentaViewSet(viewsets.ModelViewSet):
     queryset = Venta.objects.all()
@@ -467,6 +487,7 @@ class VentaViewSet(viewsets.ModelViewSet):
         cliente = Cliente.objects.get(pk=cliente_id)
 
         productos_adquiridos = []
+        total_a_pagar = 0
         
         for detalle_data in detalles:
             producto_id = detalle_data.get("producto")
@@ -483,24 +504,43 @@ class VentaViewSet(viewsets.ModelViewSet):
             producto = Producto.objects.get(id=producto_id)
             producto.cantidad_stock -= cantidad
             producto.save()
-            productos_adquiridos.append(f"{producto.nombre} - {cantidad} - {producto.precio}")
+            
+            precio_total = cantidad * precio_unitario
+            total_a_pagar += precio_total
+            productos_adquiridos.append(f"{producto.nombre} - {cantidad} - {producto.precio} - {precio_total}")
 
-        pdf_filename = f"venta_{venta.id}.pdf"
+        pdf_filename = f"AdrileBoutique_{venta.id}.pdf"
         doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
         story = []
 
-        styles = getSampleStyleSheet()
-        header_style = styles["Heading1"]
-        details_style = styles["BodyText"]
+        def create_header_style():
+            header_style = ParagraphStyle(
+                "header",
+                parent=getSampleStyleSheet()["Heading1"],
+                textColor=colors.white,
+                backColor=colors.blue,
+            )
+            return header_style
+
+        def create_footer_style():
+            footer_style = ParagraphStyle(
+                "footer",
+                parent=getSampleStyleSheet()["BodyText"],
+                textColor=colors.black,
+                backColor=colors.lightgrey,
+            )
+            return footer_style
+
+        header_style = create_header_style()
+        footer_style = create_footer_style()
 
         # Encabezado
-        story.append(Paragraph("Factura de Venta", header_style))
-        story.append(Spacer(1, 12))
-        story.append(Paragraph(f"Detalles de la Venta - ID: {venta.id}", details_style))
+        header_text = "Factura Adrile Boutique"
+        story.append(Paragraph(header_text, header_style))
         story.append(Spacer(1, 12))
 
         # Crear una lista para la tabla
-        data = [["Nombre", "Cantidad", "Precio Unit.", "Producto"]]
+        data = [["Nombre", "Cantidad", "Precio Unit.", "Precio Total.", "Producto"]]
 
         # Llenar la lista con los productos adquiridos
         for producto_adquirido in productos_adquiridos:
@@ -513,21 +553,37 @@ class VentaViewSet(viewsets.ModelViewSet):
             else:
                 data.append([info.strip() for info in producto_info] + [""])
 
-        # Crear la tabla
+        # Crear la tabla con estilos
         table = Table(data)
-        table.setStyle(TableStyle([('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                                   ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                                   ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
-                                   ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                                   ('SIZE', (0, 0), (-1, 0), 12),
-                                   ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                                   ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                                   ]))
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('SIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
 
         # Agregar la tabla al story
         story.append(table)
         story.append(Spacer(1, 24))
-        story.append(Paragraph("Gracias por su compra en Adrile Boutique", details_style))
+
+        # Calcular el precio total por producto y el total a pagar
+        for producto_adquirido in productos_adquiridos:
+            producto_info = producto_adquirido.split('-')
+            precio_total_producto = float(producto_info[2].strip()) * int(producto_info[1].strip())
+            story.append(Paragraph(f"Total por {producto_info[0].strip()}: {precio_total_producto}", footer_style))
+
+        # Mostrar el total a pagar
+        story.append(Spacer(1, 12))
+        story.append(Paragraph(f"Total a pagar: {total_a_pagar}", footer_style))
+
+        # Pie de página
+        footer_text = "Gracias por su compra en Adrile Boutique"
+        story.append(Paragraph(footer_text, footer_style))
+
 
         doc.build(story)
 
@@ -560,11 +616,6 @@ class VentaViewSet(viewsets.ModelViewSet):
         serializer = VentaSerializer(venta)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-
-
-
-
 # crud basico para las detalles de la venta, requiere autenticacion
 class DetalleVentaViewSet(viewsets.ModelViewSet):
     queryset = DetalleVenta.objects.all()
@@ -587,40 +638,33 @@ class DetalleVentaPorVentaViewSet(viewsets.ModelViewSet):
 
 
 # ===[login y logout con Api]===========================================================================================
-from rest_framework_simplejwt.tokens import RefreshToken
+
 
 # login de api usando token de api_rest_framework_JWT y configurado en el setting.
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def login_api_view(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
+    serializer = LoginUsuarioSerializer(data=request.data)
+    if serializer.is_valid():
+        username = serializer.validated_data["username"]
+        password = serializer.validated_data["password"]
 
-    # Verificar las credenciales del usuario
-    user = authenticate(username=username, password=password)
-
-    if user is not None:
-        # El usuario es válido, generar un token de acceso
-        refresh = RefreshToken.for_user(user)
-        access_token = str(refresh.access_token)
-
-        # Devolver el token de acceso en la respuesta
-        return Response({"access_token": access_token})
-    else:
-        return Response(
-            {"message": "Nombre de usuario o contraseña incorrectos"},
-            status=status.HTTP_UNAUTHORIZED,
-        )
+        # Verificar las credenciales del usuario
+        user = authenticate(username=username, password=password)
+        if user:
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({"auth_token": token.key})
+    return Response(
+        {"message": "Nombre de usuario o contraseña incorrectos"},
+        status=status.HTTP_401_UNAUTHORIZED,
+    )
 
 # logout de api usando el token anteriormente generado, pasarlo por metodo post, 
 # para cerrar la sesión, no requiere autenticacion ya que para eso es el token.
 @api_view(["POST"])
-@permission_classes([AllowAny])
+@permission_classes([IsAuthenticated])
 def logout_api_view(request):
-    # Invalidar el token de acceso forzando su expiración
-    refresh_token = RefreshToken(request.data["refresh_token"])
-    refresh_token.blacklist()
-
+    request.auth.delete()
     return Response({"message": "Cierre de sesión exitoso"})
 
 
@@ -639,10 +683,6 @@ def productos_por_proveedor(request, proveedor_id):
     # Si no se encontraron productos o hay un error, devuelve una respuesta de error
     return JsonResponse([], safe=False)
 
-
-import os
-from django.db import transaction
-from django.db.utils import Error
 
 def modificarDatosUserPerfil(request, id):
     if request.method == "POST":
@@ -685,15 +725,135 @@ def modificarDatosUserPerfil(request, id):
             return render(request, "inventario/perfil.html", retorno)
 
 
+def contact(request):
+    if request.method == "POST":
+        if all(key in request.POST for key in ["name", "email", "message"]):
+            message_name = request.POST["name"]
+            message_email = request.POST["email"]
+            message = request.POST["message"]
+
+            if message_name and message_email and message:  
+                asunto = "Mensaje de Usuario en Adrile Boutique"
+                mensajeCorreo = (
+                    f"El Usuario {message_name}\n"
+                    f"con la dirección de correo {message_email}\n"
+                    f"ha enviado el siguiente mensaje en Adrile Boutique:\n"
+                    f"{message}"
+                )
+
+                thread = threading.Thread(
+                    target=enviarCorreo,
+                    args=(
+                        asunto,
+                        mensajeCorreo,
+                        [settings.EMAIL_HOST_USER], 
+                    ),
+                )
+                thread.start()
+
+                response_data = {
+                    "result": "success",
+                    "message": "¡El mensaje se envió con éxito! Pronto nos pondremos en contacto contigo."
+                }
+                return JsonResponse(response_data)
+            else:
+                response_data = {
+                    "result": "error",
+                    "message": "Por favor, asegúrate de completar todos los campos."
+                }
+                return JsonResponse(response_data)
+        else:
+            response_data = {
+                "result": "error",
+                "message": "Hubo un problema al procesar tu solicitud. Inténtalo de nuevo más tarde."
+            }
+            return JsonResponse(response_data)
+    else:
+        mensaje_Error = "Inténtalo más tarde."
+        return render(request, "tienda/contactanos.html", {"mensaje_Error": mensaje_Error})
+
+# Vista para la página de contacto
+def contact(request):
+    if request.method == "POST":
+        if (
+            "name" in request.POST
+            and "email" in request.POST
+            and "message" in request.POST
+        ):
+            message_name = request.POST["name"]
+            message_email = request.POST["email"]
+            message = request.POST["message"]
+
+            if (
+                message_name and message_email and message
+            ):  # Verifica si todos los campos están completos
+                asunto = "Mensaje de la tienda de ropa femenina"
+                mensajeCorreo = f"El cliente {message_name} con la dirección de correo {message_email} ha enviado el siguiente mensaje: {message}"
+
+                # Configuración de la función enviarCorreo
+                thread = threading.Thread(
+                    target=enviarCorreo,
+                    args=(
+                        asunto,
+                        mensajeCorreo,
+                        [settings.EMAIL_HOST_USER],  # Agrega aquí la dirección de correo de la tienda
+                    ),
+                )
+                thread.start()
+
+                mensaje = "Mensaje enviado, pronto nos pondremos en contacto contigo."
+                return render(request, "tienda/contactanos.html", {"mensaje": mensaje})
+            else:
+                mensaje_Complete = "Asegúrate de completar todos los campos."
+                return render(
+                    request,
+                    "tienda/contactanos.html",
+                    {"mensaje_Complete": mensaje_Complete},
+                )
+        else:
+            mensaje_E = "Campos faltantes."
+            return render(request, "tienda/contactanos.html", {"mensaje_E": mensaje_E})
+    else:
+        mensaje_Error = "Intentalo más tarde."
+        return render(
+            request, "tienda/contactanos.html", {"mensaje_Error": mensaje_Error}
+        )
+
+
+def enviarCorreo(asunto, mensaje, destinatario):
+    msg = MIMEMultipart()
+    msg['From'] = settings.EMAIL_HOST_USER
+    msg['To'] = ', '.join(destinatario)
+    msg['Subject'] = asunto
+
+    body = mensaje
+    msg.attach(MIMEText(body, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)  
+    text = msg.as_string()
+    server.sendmail(settings.EMAIL_HOST_USER, destinatario, text)
+    server.quit()
+
+
+def enviarCorreo(asunto=None, mensaje=None, destinatario=None, archivo=None):
+    remitente = settings.EMAIL_HOST_USER
+    contenido = f"Destinatario: {destinatario}\nMensaje: {mensaje}\nAsunto: {asunto}\nRemitente: {remitente}"
+    try:
+        correo = EmailMessage(
+            asunto,
+            contenido,  # Utilizamos el contenido como el cuerpo del correo
+            remitente,
+            destinatario,
+        )
+        if archivo is not None:
+            correo.attach_file(archivo)
+        correo.send(fail_silently=True)
+    except Exception as error:
+        print(error)
 
 # Se encarga de enviar el correo electrónico con el enlace de restablecimiento
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
-from django.http import Http404
-from rest_framework.reverse import reverse
-import logging
-
-logger = logging.getLogger(__name__)
-
 class PasswordResetRequestView(APIView):
     permission_classes = [AllowAny]
 
@@ -734,17 +894,7 @@ class PasswordResetRequestView(APIView):
         send_mail(subject, message, "info@adrileboutique.com", [email])
         mensaje = "Se ha enviado un enlace de restablecimiento a su correo electrónico."
         return render(request, "registration/mensaje.html", {"mensaje": mensaje})
-# api/views.py
 
-from django.contrib.auth.views import PasswordResetView
-from rest_framework.generics import CreateAPIView
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
-
-from .serializers import CustomPasswordResetSerializer
-from .serializers import CustomPasswordResetSerializer
 
 @permission_classes([AllowAny])
 class CustomPasswordResetView(CreateAPIView):
@@ -767,10 +917,6 @@ class CustomPasswordResetView(CreateAPIView):
             return Response({'detail': 'Se ha enviado un correo electrónico con instrucciones para restablecer la contraseña.'}, status=status.HTTP_200_OK)
         else:
             return Response({'detail': 'No se encontró ninguna cuenta asociada a este correo electrónico.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        
-def recuperarContra(request):
-    return render(request, 'recuperar_contraseña.html')
 
 # obtiene el token y la nueva contraseña y actualiza la contraseña del usuario
 class PasswordResetView(APIView):
@@ -791,7 +937,6 @@ class PasswordResetView(APIView):
         user.set_password(new_password)
         user.save()
         return render(request, "registration/reset_password_success.html")
-
 
 # me grafica las ventas y compras por fecha 
 def informes_combinados(request):
@@ -863,14 +1008,6 @@ def inicioTienda(request):
 
 def detalleProduto(request):
     return render(request, "tienda/detalle.html")
-
-
-from django.core.mail import EmailMessage
-from django.conf import settings
-
-
-
-
 
 # def enviarCorreo(asunto=None, mensaje=None, destinatario=None, archivo=None):
 #     remitente = settings.EMAIL_HOST_USER
@@ -953,52 +1090,7 @@ from django.conf import settings
 #             return render(request, 'asesor/perfilUsuario.html',retorno)
 
 
-# Vista para la página de contacto
-def contact(request):
-    if request.method == "POST":
-        if (
-            "name" in request.POST
-            and "email" in request.POST
-            and "message" in request.POST
-        ):
-            message_name = request.POST["name"]
-            message_email = request.POST["email"]
-            message = request.POST["message"]
 
-            if (
-                message_name and message_email and message
-            ):  # Verifica si todos los campos están completos
-                asunto = "Mensaje de la tienda de ropa femenina"
-                mensajeCorreo = f"El cliente {message_name} con la dirección de correo {message_email} ha enviado el siguiente mensaje: {message}"
-
-                # Configuración de la función enviarCorreo
-                thread = threading.Thread(
-                    target=enviarCorreo,
-                    args=(
-                        asunto,
-                        mensajeCorreo,
-                        [settings.EMAIL_HOST_USER],  # Agrega aquí la dirección de correo de la tienda
-                    ),
-                )
-                thread.start()
-
-                mensaje = "Mensaje enviado, pronto nos pondremos en contacto contigo."
-                return render(request, "tienda/contactanos.html", {"mensaje": mensaje})
-            else:
-                mensaje_Complete = "Asegúrate de completar todos los campos."
-                return render(
-                    request,
-                    "tienda/contactanos.html",
-                    {"mensaje_Complete": mensaje_Complete},
-                )
-        else:
-            mensaje_E = "Campos faltantes."
-            return render(request, "tienda/contactanos.html", {"mensaje_E": mensaje_E})
-    else:
-        mensaje_Error = "Intentalo más tarde."
-        return render(
-            request, "tienda/contactanos.html", {"mensaje_Error": mensaje_Error}
-        )
 
 
 # ====================[pruebas sin diseño ]================================================================

@@ -16,7 +16,7 @@
             </ul>
         </div>
         <div class="col-md-6">
-            <form action="/contact/" method="post">
+            <form id="contactForm" method="post">
                 {% csrf_token %}
                 <div class="mb-3">
                     <input type="text" class="form-control" name="name" placeholder="Nombre" required>
@@ -31,27 +31,32 @@
             </form>
 
         </div>
-        {%if mensaje%}
-            <script>
-                Swal.fire('Mensaje','{{mensaje}}','success');
-            </script>
-        {%endif%}
-        {%if mensaje_Complete%}
-            <script>
-                Swal.fire('Mensaje','{{mensaje_Complete}}','info');
-            </script>
-        {%endif%}
-        {%if mensaje_Error%}
-            <script>
-                Swal.fire('Mensaje','{{mensaje_Error}}','danger');
-            </script>
-        {%endif%}
-        {%if mensaje_E%}
-            <script>
-                Swal.fire('Mensaje','{{mensaje_E}}','info');
-            </script>
-        {%endif%}
     </div>
 </div>
 
+<script>
+    document.getElementById("contactForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        var form = event.target;
+        var formData = new FormData(form);
+        fetch("/contact/", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.result === "success") {
+                Swal.fire('Mensaje', data.message, 'success');
+                form.reset();
+            } else if (data.result === "error") {
+                Swal.fire('Mensaje', data.message, 'error');
+            } else {
+                Swal.fire('Mensaje', data.message, 'info');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+</script>
 {% endblock %}

@@ -72,61 +72,33 @@ async function listarClientes() {
 }
 
 async function agregarCliente() {
-    axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
-    axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
-    var formData = new FormData();
-    formData.append('nombre', txtNombre.value.trim());
-    formData.append('apellido', txtApellido.value.trim());
-    formData.append('direccion', txtDireccion.value.trim());
-    formData.append('telefono', txtTelefono.value.trim());
-    formData.append('correo_electronico', txtCorreoElectronico.value.trim());
-    try {
-        const response = await axios.post('/api/clientes/', formData);
+    // Verificar si los campos están vacíos
+    if (!txtNombre.value || !txtApellido.value || !txtDireccion.value || !txtTelefono.value || !txtCorreoElectronico.value) {
         Swal.fire({
-            position: 'center',
-            icon: 'success',
-            title: 'Proveedor agregado correctamente',
+            icon: 'error',
+            title: 'Campos obligatorios vacíos',
+            text: 'Por favor complete todos los campos obligatorios.',
             showConfirmButton: true,
-            allowOutsideClick: false,
-            timer: 2000,
-        });
-        if (result.isConfirmed) {
-            await listarClientes();
-            limpiar();
-        }
-    } catch (error) {
-        listaErrores(error);
-    }
-}
-
-async function modificarCliente() {
-    axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
-    axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
-    var formData = new FormData();
-    formData.append('nombre', txtNombre.value.trim());
-    formData.append('apellido', txtApellido.value.trim());
-    formData.append('direccion', txtDireccion.value.trim());
-    formData.append('telefono', txtTelefono.value.trim());
-    formData.append('correo_electronico', txtCorreoElectronico.value.trim());
-    if (id === 0) {
-        Swal.fire({
-            position: 'center',
-            icon: 'warning',
-            title: 'No ha seleccionado un proveedor para modificar',
-            showConfirmButton: true,
-            allowOutsideClick: false,
-            timer: 1500,
+            timer: 2500
         });
     } else {
+        axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
+        var formData = new FormData();
+        formData.append('nombre', txtNombre.value.trim());
+        formData.append('apellido', txtApellido.value.trim());
+        formData.append('direccion', txtDireccion.value.trim());
+        formData.append('telefono', txtTelefono.value.trim());
+        formData.append('correo_electronico', txtCorreoElectronico.value.trim());
         try {
-            const response = await axios.put(`/api/clientes/${id}/`, formData);
+            const response = await axios.post('/api/clientes/', formData);
             Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'Proveedor modificado correctamente',
+                title: 'Proveedor agregado correctamente',
                 showConfirmButton: true,
                 allowOutsideClick: false,
-                timer: 1500,
+                timer: 2000,
             });
             if (result.isConfirmed) {
                 await listarClientes();
@@ -134,6 +106,56 @@ async function modificarCliente() {
             }
         } catch (error) {
             listaErrores(error);
+        }
+    }
+}
+
+async function modificarCliente() {
+    // Verificar si los campos están vacíos
+    if (!txtNombre.value || !txtApellido.value || !txtDireccion.value || !txtTelefono.value || !txtCorreoElectronico.value) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Campos obligatorios vacíos',
+            text: 'Por favor complete todos los campos obligatorios.',
+            showConfirmButton: true,
+            timer: 2500
+        });
+    } else {
+        axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken'; // Nombre del encabezado CSRF
+        var formData = new FormData();
+        formData.append('nombre', txtNombre.value.trim());
+        formData.append('apellido', txtApellido.value.trim());
+        formData.append('direccion', txtDireccion.value.trim());
+        formData.append('telefono', txtTelefono.value.trim());
+        formData.append('correo_electronico', txtCorreoElectronico.value.trim());
+        if (id === 0) {
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'No ha seleccionado un proveedor para modificar',
+                showConfirmButton: true,
+                allowOutsideClick: false,
+                timer: 1500,
+            });
+        } else {
+            try {
+                const response = await axios.put(`/api/clientes/${id}/`, formData);
+                Swal.fire({
+                    position: 'center',
+                    icon: 'success',
+                    title: 'Proveedor modificado correctamente',
+                    showConfirmButton: true,
+                    allowOutsideClick: false,
+                    timer: 1500,
+                });
+                if (result.isConfirmed) {
+                    await listarClientes();
+                    limpiar();
+                }
+            } catch (error) {
+                listaErrores(error);
+            }
         }
     }
 }

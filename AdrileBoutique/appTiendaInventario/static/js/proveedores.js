@@ -85,21 +85,33 @@ async function agregarProveedor() {
     formData.append('correo_electronico', txtCorreoElectronico.value.trim());
     formData.append('notas', txtNotas.value.trim());
     try {
-        const response = await axios.post('/api/proveedores/', formData);
-        Swal.fire({
-            position: 'center',
-            icon: 'success',
-            title: 'Proveedor agregado correctamente',
-            showConfirmButton: true,
-            allowOutsideClick: false,
-            timer: 2000,
-        });
-        listarProveedores();
-        limpiar();
+        if (!txtNombreEmpresa.value || !txtNombreContacto.value || !txtDireccion.value || !txtTelefono.value || !txtCorreoElectronico.value || !txtNotas.value) {
+            Swal.fire({
+                position: 'center',
+                icon: 'warning',
+                title: 'Todos los campos son obligatorios',
+                showConfirmButton: true,
+                allowOutsideClick: false,
+                timer: 2000,
+            });
+        } else {
+            const response = await axios.post('/api/proveedores/', formData);
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Proveedor agregado correctamente',
+                showConfirmButton: true,
+                allowOutsideClick: false,
+                timer: 2000,
+            });
+            listarProveedores();
+            limpiar();
+        }
     } catch (error) {
         listaErrores(error);
     }
 }
+
 
 async function modificarProveedor() {
     axios.defaults.xsrfCookieName = 'csrftoken'; // Nombre de la cookie CSRF
@@ -111,7 +123,16 @@ async function modificarProveedor() {
     formData.append('telefono', txtTelefono.value.trim());
     formData.append('correo_electronico', txtCorreoElectronico.value.trim());
     formData.append('notas', txtNotas.value.trim());
-    if (id === 0) {
+    if (!txtNombreEmpresa.value || !txtNombreContacto.value || !txtDireccion.value || !txtTelefono.value || !txtCorreoElectronico.value || !txtNotas.value) {
+        Swal.fire({
+            position: 'center',
+            icon: 'warning',
+            title: 'Todos los campos son obligatorios',
+            showConfirmButton: true,
+            allowOutsideClick: false,
+            timer: 2000,
+        });
+    } else if (id === 0) {
         Swal.fire({
             position: 'center',
             icon: 'warning',

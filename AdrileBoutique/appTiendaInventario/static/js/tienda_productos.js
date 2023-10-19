@@ -142,13 +142,7 @@ function actualizarPaginacion(nextPageUrl, prevPageUrl) {
     const pagination = `
     <nav aria-label="Page navigation example">
         <ul class="pagination">
-            <li class="page-item ${prevPageUrl ? '' : 'disabled'}">
-                <a class="page-link" href="#productosContainer" onclick="cargarPagina(${currentPage - 1})">Anterior</a>
-            </li>
             ${generarEnlacesPagina(currentPage, totalPages)}
-            <li class="page-item ${nextPageUrl ? '' : 'disabled'}">
-                <a class="page-link" href="#productosContainer" onclick="cargarPagina(${currentPage + 1})">Siguiente</a>
-            </li>
         </ul>
     </nav>
     `;

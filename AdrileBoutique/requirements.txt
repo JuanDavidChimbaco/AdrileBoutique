@@ -7,7 +7,6 @@ django-cors-headers==4.3.0
 django-filter==23.3
 djangorestframework==3.14.0
 djangorestframework-jwt==1.11.0
-djangorestframework-simplejwt==5.3.0
 fonttools==4.43.1
 kiwisolver==1.4.5
 Markdown==3.5
@@ -21,9 +20,11 @@ PyJWT==1.7.1
 pyparsing==3.1.1
 python-dateutil==2.8.2
 python-dotenv==1.0.0
+python-http-client==3.3.7
 pytz==2023.3.post1
 reportlab==4.0.6
-rest-framework-simplejwt==0.0.2
+sendgrid==6.10.0
 six==1.16.0
 sqlparse==0.4.4
+starkbank-ecdsa==2.2.0
 tzdata==2023.3

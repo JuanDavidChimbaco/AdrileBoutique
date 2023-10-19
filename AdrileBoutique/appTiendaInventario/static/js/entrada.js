@@ -47,7 +47,7 @@ document.getElementById("cbProveedor").addEventListener("change", function () {
     }
 });
 
-
+// Función actualizarTabla
 function actualizarTabla(productos) {
     var tabla = document.getElementById("productos-seleccionados").getElementsByTagName('tbody')[0];
     tabla.innerHTML = "";
@@ -64,6 +64,21 @@ function actualizarTabla(productos) {
         celdaProducto.innerHTML = producto.nombre;
         celdaPrecioUnitario.innerHTML = producto.precio;
         celdaCantidad.innerHTML = producto.cantidad;
+
+        // Agregar un input para la cantidad que permita editarla y tenga un valor mínimo de 1
+        var inputCantidad = document.createElement("input");
+        inputCantidad.type = "number";
+        inputCantidad.value = producto.cantidad;
+        inputCantidad.min = 1;
+        inputCantidad.addEventListener('change', function () {
+            if (inputCantidad.value < 1) {
+                inputCantidad.value = 1; // Asegurar que la cantidad mínima sea 1
+            }
+            producto.cantidad = parseInt(inputCantidad.value);
+            localStorage.setItem('productosSeleccionados', JSON.stringify(productos));
+            actualizarTabla(productos);
+        });
+        celdaCantidad.appendChild(inputCantidad);
 
         var subtotal = producto.precio * producto.cantidad;
         celdaSubtotal.innerHTML = subtotal;
@@ -101,10 +116,11 @@ document.getElementById("agregar-producto").addEventListener("click", function (
     var cantidad = parseInt(cantidadInput.value);
     var precio = parseFloat(precioInput.value);
 
-    if (!selectedProductoId || cantidad === 0 || precio === 0) {
+    if (!selectedProductoId || cantidad < 1 || precio <= 0) {
         Swal.fire({
             icon: 'error',
-            title: 'Elija un producto',
+            title: 'Verifique la información del producto',
+            text: 'Asegúrese de que la cantidad sea mayor que 0 y el precio sea válido.',
             showConfirmButton: true,
             timer: 2500
         });
@@ -129,12 +145,13 @@ document.getElementById("agregar-producto").addEventListener("click", function (
 
 $("#crear-entrada").on("click", async function () {
     try {
+        // Bloquear el botón durante la petición
+        $(this).prop('disabled', true);
         // Realizar la solicitud de compra con los productos seleccionados
         axios.defaults.xsrfCookieName = 'csrftoken';
         axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 
         var proveedor = $("#cbProveedor").val();
-        var producto = $("cbProducto").val();
         var detalles = productosSeleccionados.map(function (producto) {
             return {
                 producto: producto.id,
@@ -172,6 +189,9 @@ $("#crear-entrada").on("click", async function () {
         }
     } catch (error) {
         console.error(error);
+    } finally {
+        // Desbloquear el botón después de la petición, ya sea que haya ocurrido un error o no
+        $(this).prop('disabled', false);
     }
 });
 
