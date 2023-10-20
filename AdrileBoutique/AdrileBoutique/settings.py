@@ -149,7 +149,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT= os.path.join(BASE_DIR,'media')
 
 
-# Tiempo de sesión en segundos (desactivado para que funcione en el login)
+# Tiempo de sesión en segundos (desactivado para qu e funcione en el login)
 # SESSION_COOKIE_AGE = 4 * 60 * 60 # 4 horas
 
 

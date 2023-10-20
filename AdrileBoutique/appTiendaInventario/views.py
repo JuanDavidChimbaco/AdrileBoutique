@@ -649,6 +649,7 @@ def login_api_view(request):
         rememberMe = request.data.get("rememberme")
         # Verificar las credenciales del usuario
         user = Usuario.objects.filter(username=username).first()
+        # user2 = User.objects.filter(username=username).first()
         if user and user.check_password(password):
             login(request, user)
             if rememberMe:
@@ -660,6 +661,17 @@ def login_api_view(request):
             response =  Response({"auth_token": token.key,"message": "Inicio de sesión exitoso","user": user_data,},status=status.HTTP_200_OK,)
             response.set_cookie("token", token.key)
             return response
+        # if user2 and user2.check_password(password):
+        #     login(request, user2)
+        #     if rememberMe:
+        #         request.session.set_expiry(2592000)  # 30 días en segundos
+        #     else:
+        #         request.session.set_expiry(0)  # Duración predeterminada
+        #     token, _ = Token.objects.get_or_create(user=user2)
+        #     user_data = UsuarioSerializer(user2).data
+        #     response =  Response({"auth_token": token.key,"message": "Inicio de sesión exitoso","user": user_data,},status=status.HTTP_200_OK,)
+        #     response.set_cookie("token", token.key)
+        #     return response
         else:
             return Response({"message": "Credenciales inválidas"},status=status.HTTP_401_UNAUTHORIZED,)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

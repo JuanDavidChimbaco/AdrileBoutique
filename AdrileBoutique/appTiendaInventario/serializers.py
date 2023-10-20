@@ -4,7 +4,7 @@ from .models import Usuario, Categoria, Proveedor, Producto, Cliente, Compra, De
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = '__all__'
+        fields = ['id', 'username', 'email', 'direccion', 'password', 'fotoPerfil','fecha_creacion','fecha_actualizacion']
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
