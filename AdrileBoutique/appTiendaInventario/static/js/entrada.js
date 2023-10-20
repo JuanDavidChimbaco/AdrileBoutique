@@ -96,15 +96,27 @@ function actualizarTabla(productos) {
 }
 
 function eliminarProducto(producto) {
-    var index = productosSeleccionados.indexOf(producto);
-    if (index !== -1) {
-        productosSeleccionados.splice(index, 1);
-        localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
-        actualizarTabla(productosSeleccionados);
-        dataTable.destroy();
-        pintarDatatable();
-    }
+    Swal.fire({
+        title: '¿Está seguro?',
+        text: '¿Desea eliminar este producto de la lista?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var index = productosSeleccionados.indexOf(producto);
+            if (index !== -1) {
+                productosSeleccionados.splice(index, 1);
+                // Actualizar el localStorage después de eliminar el producto
+                localStorage.setItem('productosSeleccionados', JSON.stringify(productosSeleccionados));
+                // Recargar la página
+                location.reload();
+            }
+        }
+    });
 }
+
 
 var productosSeleccionados = [];
 document.getElementById("agregar-producto").addEventListener("click", function () {

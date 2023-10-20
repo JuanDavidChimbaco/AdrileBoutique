@@ -2,6 +2,33 @@
 {% block content_main%}
 {% load static %}
 <script src="{% static 'js/detalles.js' %}"></script>
+<style>
+    .card-body {
+        overflow: hidden; /* Oculta el contenido que se desborda del contenedor */
+        text-overflow: ellipsis; /* Agrega puntos suspensivos (...) al final del texto desbordado */
+    }
+
+    .card-title {
+        font-size: 20px; /* Ajusta el tamaño de la fuente según sea necesario */
+    }
+
+    .border-warning
+
+    .border-warning {
+        max-width: 100%; /* Establece el ancho máximo al 100% del contenedor padre */
+        overflow: hidden; /* Oculta el contenido que se desborda del contenedor */
+        text-overflow: ellipsis; /* Agrega puntos suspensivos (...) al final del texto desbordado */
+        white-space: nowrap; /* Evita que el texto se envuelva a la siguiente línea */
+        padding: 10px; /* Ajusta el relleno según sea necesario para mantener el texto dentro del borde */
+    }
+
+    /* Para asegurar que la imagen no se desborde y mantenga su tamaño original */
+    .img-fluid {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+
 <div class="container my-4">
 
     <div class="row justify-content-center">

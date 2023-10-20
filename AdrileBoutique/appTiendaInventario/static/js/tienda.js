@@ -125,7 +125,7 @@ function iconoProducto(id) {
 async function getAllProducts() {
     try {
         const response = await axios.get('/api/productosCliente/');
-        console.log(response.data)
+        //console.log(response.data)
         return response.data;
         
     } catch (error) {

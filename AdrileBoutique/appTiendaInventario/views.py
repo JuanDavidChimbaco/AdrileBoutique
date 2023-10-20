@@ -312,6 +312,8 @@ class ClienteViewSet(viewsets.ModelViewSet):
 
 # se crea la compra, se le pasa un proveedor y los detalles de la compra, 
 # los detelles pueden traer varios productos, requiere autenticacion
+from reportlab.lib.styles import ParagraphStyle
+
 class CompraViewSet(viewsets.ModelViewSet):
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
@@ -352,7 +354,7 @@ class CompraViewSet(viewsets.ModelViewSet):
         doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
         story = []
 
-        from reportlab.lib.styles import ParagraphStyle
+        
 
         def create_header_style():
             header_style = ParagraphStyle(
@@ -381,7 +383,7 @@ class CompraViewSet(viewsets.ModelViewSet):
         story.append(Spacer(1, 12))
 
         # Crear una lista para la tabla
-        data = [["Proveedor", "Nombre P.", "Cantidad", "Precio Unit.", "Precio Total", "Producto"]]
+        data = [["Proveedor", "Nombre P.", "Cantidad", "Precio Unit.", "Subtotal", "Producto"]]
 
         # Llenar la lista con los productos adquiridos
         # Llenar la lista con los productos adquiridos
@@ -417,10 +419,10 @@ class CompraViewSet(viewsets.ModelViewSet):
         story.append(Spacer(1, 24))
 
         # Mostrar el precio total a pagar
-        story.append(Paragraph(f"Total a pagar: {total_a_pagar}", footer_style))
+        story.append(Paragraph(f"Total: {total_a_pagar:,} COP", footer_style))
 
         # Pie de página
-        footer_text = "-----------------Esta es una factura de compra de producto a un proveedor-----------------"
+        footer_text = "SOMOS ADRILE BOUTIQUE"
         story.append(Paragraph(footer_text, footer_style))
 
         doc.build(story)
@@ -518,7 +520,7 @@ class VentaViewSet(viewsets.ModelViewSet):
                 "header",
                 parent=getSampleStyleSheet()["Heading1"],
                 textColor=colors.white,
-                backColor=colors.blue,
+                backColor=colors.black,
             )
             return header_style
 
@@ -540,13 +542,14 @@ class VentaViewSet(viewsets.ModelViewSet):
         story.append(Spacer(1, 12))
 
         # Crear una lista para la tabla
-        data = [["Nombre", "Cantidad", "Precio Unit.", "Precio Total.", "Producto"]]
+        data = [["Nombre", "Cantidad", "Precio Unit.", "Subtotal", "Producto"]]
 
         # Llenar la lista con los productos adquiridos
         for producto_adquirido in productos_adquiridos:
             producto_info = producto_adquirido.split('-')
             producto_nombre = producto_info[0].strip()
             imagen_producto = Producto.objects.get(nombre=producto_nombre).imagen
+            
             if imagen_producto:
                 imagen = Image(imagen_producto.path, width=50, height=50)
                 data.append([info.strip() for info in producto_info] + [imagen])
@@ -573,12 +576,10 @@ class VentaViewSet(viewsets.ModelViewSet):
         # Calcular el precio total por producto y el total a pagar
         for producto_adquirido in productos_adquiridos:
             producto_info = producto_adquirido.split('-')
-            precio_total_producto = float(producto_info[2].strip()) * int(producto_info[1].strip())
-            story.append(Paragraph(f"Total por {producto_info[0].strip()}: {precio_total_producto}", footer_style))
 
         # Mostrar el total a pagar
         story.append(Spacer(1, 12))
-        story.append(Paragraph(f"Total a pagar: {total_a_pagar}", footer_style))
+        story.append(Paragraph(f"Total: {total_a_pagar:,} COP", footer_style))
 
         # Pie de página
         footer_text = "Gracias por su compra en Adrile Boutique"
@@ -593,7 +594,7 @@ class VentaViewSet(viewsets.ModelViewSet):
         msg = MIMEMultipart()
         msg['From'] = from_email
         msg['To'] = to_email
-        msg['Subject'] = "Adrile Boutique - Nueva venta realizada"
+        msg['Subject'] = "Adrile Boutique"
 
         body = f"Cordial saludo {cliente.nombre}, has realizado una compra en la tienda. Encuentra adjunto el detalle de tu compra."
         msg.attach(MIMEText(body, 'plain'))

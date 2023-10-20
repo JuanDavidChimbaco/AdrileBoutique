@@ -95,11 +95,12 @@ async function agregarCliente() {
             Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'Proveedor agregado correctamente',
+                title: 'Cliente agregado correctamente',
                 showConfirmButton: true,
                 allowOutsideClick: false,
                 timer: 2000,
             });
+            limpiar();
             if (result.isConfirmed) {
                 await listarClientes();
                 limpiar();

@@ -48,3 +48,4 @@ if (idProducto) {
 } else {
     console.error('No se encontró el ID del producto en la URL');
 }
+

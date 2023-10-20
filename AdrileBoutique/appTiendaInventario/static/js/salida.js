@@ -1,4 +1,4 @@
-var dataTable = ""
+var dataTable = "";
 $(document).ready(function () {
     // Obtener los datos del localStorage y convertirlos de nuevo a un array
     var productosSeleccionadosJSON = localStorage.getItem('productosSeleccionadosVenta');
@@ -135,16 +135,34 @@ function actualizarTabla(productos) {
 
 
 function eliminarProducto(producto) {
-    var index = productosSeleccionados.indexOf(producto);
-    if (index !== -1) {
-        productosSeleccionados.splice(index, 1);
-        // Actualiza el localStorage después de eliminar el producto
-        localStorage.setItem('productosSeleccionadosVenta', JSON.stringify(productosSeleccionados));
-        actualizarTabla(productosSeleccionados);
-        dataTable.destroy();
-        pintarDatatable();
-    }
+    Swal.fire({
+        title: '¿Está seguro de que desea eliminar este producto?',
+        text: "Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var index = productosSeleccionados.findIndex(item => item.id === producto.id);
+            if (index !== -1) {
+                productosSeleccionados.splice(index, 1);
+                // Actualizar la tabla después de eliminar el producto
+                localStorage.setItem('productosSeleccionadosVenta', JSON.stringify(productosSeleccionados));
+                Swal.fire(
+                    'Eliminado',
+                    'El producto ha sido eliminado correctamente.',
+                    'success'
+                ).then(() => {
+                    location.reload(); // Recargar la página después de eliminar el producto
+                });
+            }
+        }
+    });
 }
+
+
 
 var productosSeleccionados = [];
 document.getElementById("agregar-producto").addEventListener("click", function () {
