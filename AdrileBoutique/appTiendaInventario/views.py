@@ -88,36 +88,40 @@ from .forms import ProductoForm, CategoriaForm, ProveedorForm, ClienteForm
 
 
 # ===[login y logout sin Api]=======================================================================0
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect("dashboard")
-    else:
-        if request.method == "POST":
-            username = request.POST["username"].strip()
-            password = request.POST["password"]
-            remember_me = request.POST.get("remember_me")
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                login(request, user)
-                if not remember_me:
-                    # Si remember_me no está marcado, establece la sesión para que expire después de 1 hora
-                    request.session.set_expiry(settings.SESSION_COOKIE_AGE)
-                else:
-                    # Si remember_me está marcado, la sesión no expirará cuando se cierre el navegador
-                    request.session.set_expiry(0)
-                return redirect("dashboard")
-            else:
-                # El inicio de sesión falló, muestra un mensaje de error
-                error_message = "Nombre de usuario o contraseña incorrectos."
-                return render(request, "index.html", {"error_message": error_message})
-        return render(request, "index.html", locals())
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def login_api_view(request):
+    serializer = LoginUsuarioSerializer(data=request.data)
+    if serializer.is_valid():
+        username = serializer.validated_data["username"]
+        password = serializer.validated_data["password"]
+
+        # Verificar las credenciales del usuario
+        user = authenticate(username=username, password=password)
+        if user:
+            remember_me = request.data.get("remember_me", False)  # Agrega un campo "remember_me" al formulario o solicitud de inicio de sesión
+            if not remember_me:
+                # Configurar la sesión del usuario para que expire cuando el navegador se cierre
+                request.session.set_expiry(0)
+
+            # Iniciar sesión del usuario
+            login(request, user)
+
+            token, _ = Token.objects.get_or_create(user=user)
+            return Response({"auth_token": token.key})
+    
+    return Response(
+        {"message": "Nombre de usuario o contraseña incorrectos"},
+        status=status.HTTP_401_UNAUTHORIZED,
+    )
 
 # funcion para cerrar sesion :v 
-@login_required(login_url="login")
-def custom_logout(request):
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def logout_api_view(request):
+    # Cierra la sesión del usuario
     logout(request)
-    return redirect("inicio_tienda")
-
+    return Response({"message": "Sesión cerrada exitosamente"})
 
 # ===[vistas templates]===============================================================================
 @login_required
