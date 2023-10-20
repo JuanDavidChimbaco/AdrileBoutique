@@ -5,8 +5,9 @@
     <div class="col"></div>
 </div>
 <div class="bg-white rounded p-2" id="profile-section">
-    <h1>Perfil de Usuario</h1>
-    <form action="/actualizarPerfil/{{user.id}}" enctype="multipart/form-data"  method="post" class="needs-validation" novalidate>
+    <h1>Informacion de Usuario</h1>
+    <form action="/actualizarPerfil/{{user.id}}" enctype="multipart/form-data" method="post" class="needs-validation"
+        novalidate>
         {% csrf_token %}
         <div class="row d-flex">
             <div class="col">
@@ -20,7 +21,8 @@
             </div>
             <div class="col d-grid align-items-center">
                 <div class="form-floating mb-3">
-                    <input type="text" id="user" placeholder="usuario" class="form-control" value="{{usuario.username}}">
+                    <input type="text" id="user" placeholder="usuario" class="form-control"
+                        value="{{usuario.username}}">
                     <label for="user" class="form-label">Usuario:</label>
                 </div>
             </div>
@@ -29,13 +31,15 @@
         <div class="row">
             <div class="col">
                 <div class="form-floating mb-3">
-                    <input type="text" id="name" placeholder="nombre" class="form-control" value="{{usuario.first_name}}">
+                    <input type="text" id="name" placeholder="nombre" class="form-control"
+                        value="{{usuario.first_name}}">
                     <label for="name" class="form-label">Nombres:</label>
                 </div>
             </div>
             <div class="col">
                 <div class="form-floating mb-3">
-                    <input type="text" id="last" placeholder="apellido" class="form-control" value="{{ usuario.last_name }}">
+                    <input type="text" id="last" placeholder="apellido" class="form-control"
+                        value="{{ usuario.last_name }}">
                     <label for="last" class="form-label">Apellidos:</label>
                 </div>
             </div>
@@ -50,7 +54,8 @@
             </div>
             <div class="col">
                 <div class="form-floating mb-3">
-                    <input type="text" id="phone" placeholder="telefono" class="form-control" value="{{ usuario.telefono }}">
+                    <input type="text" id="phone" placeholder="telefono" class="form-control"
+                        value="{{ usuario.telefono }}">
                     <label for="phone" class="form-label">Teléfono:</label>
                 </div>
             </div>
@@ -59,12 +64,14 @@
         <div class="row">
             <div class="col">
                 <div class="form-floating mb-3">
-                    <input type="text" id="address" placeholder="direccion" class="form-control" value="{{ usuario.direccion}}">
+                    <input type="text" id="address" placeholder="direccion" class="form-control"
+                        value="{{ usuario.direccion}}">
                     <label for="address" class="form-label">Dirección:</label>
                 </div>
             </div>
         </div>
 
+        {% comment %}
         <div class="row">
             <div class="col">
                 <div class="form-floating mb-3">
@@ -79,7 +86,9 @@
                 </div>
             </div>
         </div>
-{% comment %} 
+        {% endcomment %}
+
+        {% comment %}
         <div class="row">
             <div class="col text-center">
                 <button id="edit-button" type="submit" class="btn links btn-outline-secondary">Editar</button>
@@ -89,9 +98,9 @@
 </div>
 <!-- pattern="[a-zA-Z]+"  -->
 {%if mensaje%}
-    <script>
-        Swal.fire('Mensaje','{{mensaje}}','success');
-    </script>
+<script>
+    Swal.fire('Mensaje', '{{mensaje}}', 'success');
+</script>
 {%endif%}
 </div>
 

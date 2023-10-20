@@ -8,7 +8,11 @@
         </div>
         <div class="head">
             <div class="user-img">
-                <img src="{% static 'images/user.png' %}" alt="">
+                {% if usuario %}
+                <img src="/media/{{ usuario.fotoPerfil }}" alt="{{ usuario.nombre }}">
+                {% else %}
+                <img src="{% static 'images/user.png' %}" alt="Administrador">
+                {% endif %}
             </div>
             <div class="user-details">
                 <p class="title-user">Usuario</p>
@@ -105,7 +109,7 @@
             <p class="title-user">Cuenta</p>
             <ul>
                 <li>
-                    <a href="">
+                    <a href="{% url 'perfil' user.id %}">
                         <i class="icon ph-bold ph-gear"></i>
                         <span class="text">Configuración</span>
                     </a>

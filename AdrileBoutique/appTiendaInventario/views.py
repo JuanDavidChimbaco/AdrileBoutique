@@ -88,40 +88,38 @@ from .forms import ProductoForm, CategoriaForm, ProveedorForm, ClienteForm
 
 
 # ===[login y logout sin Api]=======================================================================0
-@api_view(["POST"])
-@permission_classes([AllowAny])
-def login_api_view(request):
-    serializer = LoginUsuarioSerializer(data=request.data)
-    if serializer.is_valid():
-        username = serializer.validated_data["username"]
-        password = serializer.validated_data["password"]
-
-        # Verificar las credenciales del usuario
-        user = authenticate(username=username, password=password)
-        if user:
-            remember_me = request.data.get("remember_me", False)  # Agrega un campo "remember_me" al formulario o solicitud de inicio de sesión
-            if not remember_me:
-                # Configurar la sesión del usuario para que expire cuando el navegador se cierre
-                request.session.set_expiry(0)
-
-            # Iniciar sesión del usuario
-            login(request, user)
-
-            token, _ = Token.objects.get_or_create(user=user)
-            return Response({"auth_token": token.key})
-    
-    return Response(
-        {"message": "Nombre de usuario o contraseña incorrectos"},
-        status=status.HTTP_401_UNAUTHORIZED,
-    )
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    else:
+        if request.method == "POST":
+            username = request.POST["username"].strip()
+            password = request.POST["password"]
+            remember_me = request.POST.get("remember_me")
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if not remember_me:
+                    # Si remember_me no está marcado, establece la sesión para que expire después de 1 hora
+                    request.session.set_expiry(settings.SESSION_COOKIE_AGE)
+                else:
+                    # Si remember_me está marcado, la sesión no expirará cuando se cierre el navegador
+                    request.session.set_expiry(0)
+                    idUser = request.user.id
+                    usuario = Usuario.objects.get(pk=idUser)
+                return render(request, "inventario/dashboard.html", {'usuario':usuario})
+            else:
+                # El inicio de sesión falló, muestra un mensaje de error
+                error_message = "Nombre de usuario o contraseña incorrectos."
+                return render(request, "index.html", {"error_message": error_message})
+        return render(request, "index.html", locals())
 
 # funcion para cerrar sesion :v 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def logout_api_view(request):
-    # Cierra la sesión del usuario
+@login_required(login_url="login")
+def custom_logout(request):
     logout(request)
-    return Response({"message": "Sesión cerrada exitosamente"})
+    return redirect("inicio_tienda")
+
 
 # ===[vistas templates]===============================================================================
 @login_required
@@ -161,21 +159,16 @@ def dashboard(request):
 
 @login_required(login_url="login")
 def perfil_usuario(request, usuario_id):
-    print("ID del usuario logueado:", request.user.id)
-    print("ID del usuario solicitado:", usuario_id)
     try:
         usuario = Usuario.objects.get(pk=usuario_id)
         print("Usuario encontrado:", usuario)
     except Usuario.DoesNotExist:
-        raise Http404("Usuario no encontrado")
-    pertenece_a_administrador = request.user.groups.filter(
-        name="administrador"
-    ).exists()
-    return render(
-        request,
-        "inventario/perfil.html",
-        {"usuario": usuario, "es_administrador": pertenece_a_administrador},
-    )
+        if(request.user):
+            return render(request,"inventario/perfil.html",{ "usuario":request.user})
+        else:
+            raise Http404("Usuario no encontrado")
+    pertenece_a_administrador = request.user.groups.filter(name="administrador").exists()
+    return render(request,"inventario/perfil.html",{"usuario": usuario, "es_administrador": pertenece_a_administrador})
 
 
 @login_required(login_url="login")
